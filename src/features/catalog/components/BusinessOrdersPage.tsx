@@ -9,21 +9,14 @@ import {
 import { useBusinessOrdersSocket } from "../stores/useBusinessOrdersSocket";
 import { useBusinessOrdersStore } from "../stores/useBusinessOrdersStore";
 import { useFetchBusinessOrders } from "../stores/useFetchBusinessOrders";
-import { OrderStatus } from "../types/order"; // enum numérico
+import { EOrderStatusBusiness } from "../types/order";
 import { DeliveryCompanySelector } from "./DeliveryCompanySelector";
+import OrderStatusSelector from "./OrderStatusSelector";
+import OrderStatusBadge from "./OrderStatusBadge";
 
 interface Props {
   businessId: string;
 }
-
-const ORDER_STATUS: (keyof typeof OrderStatus)[] = [
-  "PENDING",
-  "CONFIRMED",
-  "READY_FOR_DELIVERY",
-  "IN_DELIVERY",
-  "DELIVERED",
-  "CANCELLED",
-];
 
 export default function BusinessOrdersPage({ businessId }: Props) {
   useFetchBusinessOrders(businessId);
@@ -37,36 +30,28 @@ export default function BusinessOrdersPage({ businessId }: Props) {
   >([]);
   const [showDeliverySelector, setShowDeliverySelector] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
+  const [pendingStatus, setPendingStatus] =
+    useState<EOrderStatusBusiness | null>(null);
 
   useEffect(() => {
     fetchDeliveryCompany()
       .then(setDeliveryCompanies)
-      .catch((e: any) =>
-        console.error("Error cargando delivery companies", e)
-      );
+      .catch((e) => console.error("Error cargando delivery companies", e));
   }, []);
 
   const handleChangeStatus = async (
     orderId: string,
-    newStatusKey: keyof typeof OrderStatus
+    newStatus: EOrderStatusBusiness
   ) => {
     try {
-      // Convertir el string a valor real del enum numérico
-      const newStatus = OrderStatus[newStatusKey] as unknown as OrderStatus;
-
-      console.log("Nuevo estado seleccionado:", newStatusKey, newStatus);
-
-      // Si es READY_FOR_DELIVERY → abrir modal
-      if (newStatusKey === "READY_FOR_DELIVERY") {
+      if (newStatus === EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP) {
         setSelectedOrderId(orderId);
         setPendingStatus(newStatus);
         setShowDeliverySelector(true);
         return;
       }
 
-      // Cambiar estado directamente si no es READY_FOR_DELIVERY
-      const updatedOrder = await fetchUpdateOrdersByOrderID(orderId, newStatusKey);
+      const updatedOrder = await fetchUpdateOrdersByOrderID(orderId, newStatus);
       updateOrderStatus(updatedOrder.id, updatedOrder.status);
     } catch (error) {
       console.error("Error cambiando el estado:", error);
@@ -76,13 +61,11 @@ export default function BusinessOrdersPage({ businessId }: Props) {
   const handleConfirmDeliveryCompany = async (companyId: string) => {
     if (!selectedOrderId || !pendingStatus) return;
 
-    const newStatus = OrderStatus[pendingStatus];
-
     try {
       await fetchAssignCompany(selectedOrderId, companyId);
       const updatedOrder = await fetchUpdateOrdersByOrderID(
         selectedOrderId,
-        newStatus
+        pendingStatus
       );
       updateOrderStatus(updatedOrder.id, updatedOrder.status);
 
@@ -113,6 +96,7 @@ export default function BusinessOrdersPage({ businessId }: Props) {
               key={order.id}
               className="p-4 border rounded-lg shadow-sm bg-white"
             >
+               Estado: <OrderStatusBadge status={order.status} />
               <p>
                 <strong>ID:</strong> {order.id}
               </p>
@@ -121,27 +105,15 @@ export default function BusinessOrdersPage({ businessId }: Props) {
                 {order.user.lastName}
               </p>
 
-              <div className="flex items-center gap-2">
-                <strong>Estado:</strong>
-                <select
-                  value={order.status as keyof typeof OrderStatus}
-                  onChange={(e) =>
-                    handleChangeStatus(
-                      order.id,
-                      e.target.value as keyof typeof OrderStatus
-                    )
-                  }
-                  className="border p-1 rounded"
-                >
-                  {ORDER_STATUS.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <OrderStatusSelector
+                  orderId={order.id}
+                  status={order.status as EOrderStatusBusiness}
+                  handleChangeStatus={handleChangeStatus}
+                />
               </div>
 
-              <p>
+              <p className="mt-2">
                 <strong>Total:</strong> ${order.total.toLocaleString()}
               </p>
 
@@ -149,8 +121,7 @@ export default function BusinessOrdersPage({ businessId }: Props) {
                 <p>
                   <strong>Dirección de retiro:</strong>{" "}
                   {order.pickupAddress.street}{" "}
-                  {order.pickupAddress.number ?? ""},{" "}
-                  {order.pickupAddress.city}
+                  {order.pickupAddress.number ?? ""}, {order.pickupAddress.city}
                 </p>
               )}
               {order.deliveryAddress && (
