@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import CatalogProduct from "./CatalogProduct";
-import MenuProduct from "./product/MenuProduct";
-import { IMenuProduct, IMenuSectionWithProducts } from "../types/catlog";
-import NewMenuProduct from "./product/news/NewMenuProduct";
+import React from "react";
+import { IMenuSectionWithProducts } from "../types/catlog";
+import ViewCatalogSection from "./views/ViewCatalogSection";
+import { useDeleteSection, useUpdateSection } from "../hooks/useMenuHooks";
 
 interface Props {
   menuId: string;
@@ -19,120 +18,33 @@ export default function CatalogSection({
   businessId,
   ownerId,
 }: Props) {
-  const [selectedProduct, setSelectedProduct] = useState<IMenuProduct | null>(
-    null
-  );
-  const [products, setProducts] = useState<IMenuProduct[]>(section.products);
-  const [showNewProductModal, setShowNewProductModal] = useState(false);
+  const updateSectionMutation = useUpdateSection();
+  const deleteSectionMutation = useDeleteSection();
 
-  const handleSelectProduct = useCallback((product: IMenuProduct) => {
-    setSelectedProduct(product);
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    setSelectedProduct(null);
-  }, []);
-
-  const handleProductChange = (updatedProduct: IMenuProduct) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
-    );
+  const handleSectionChange = (updated: Partial<IMenuSectionWithProducts>) => {
+    updateSectionMutation.mutate({
+      sectionId: section.id,
+      data: {
+        businessId,
+        menuId,
+        ownerId,
+        ...updated,
+      },
+    });
   };
 
-  const handleProductCreated = (newProduct: IMenuProduct) => {
-    setProducts((prev) => [newProduct, ...prev]);
-    setShowNewProductModal(false);
+  const handleSectionDelete = () => {
+    deleteSectionMutation.mutate(section.id);
   };
 
   return (
-    <div className="mb-12 relative">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-2xl font-semibold text-gray-800">{section.name}</h3>
-        <button
-          onClick={() => setShowNewProductModal(true)}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          + Nuevo Producto
-        </button>
-      </div>
-
-      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {products.map((product) => (
-          <CatalogProduct
-            key={product.id}
-            product={product}
-            onClick={() => handleSelectProduct(product)}
-          />
-        ))}
-      </ul>
-
-      {/* Modal para editar producto existente */}
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          onClose={handleCloseModal}
-          onChange={handleProductChange}
-        />
-      )}
-
-      {/* Modal para crear nuevo producto */}
-      {showNewProductModal && (
-        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
-            <button
-              onClick={() => setShowNewProductModal(false)}
-              className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-xl"
-              aria-label="Cerrar modal"
-            >
-              ✕
-            </button>
-            <div className="p-6">
-              <NewMenuProduct
-                sectionId={section.id}
-                onClose={() => setShowNewProductModal(false)}
-                onCreated={handleProductCreated}
-                businessId={businessId}
-                menuId={menuId}
-                ownerId={ownerId}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-interface ModalProps {
-  product: IMenuProduct;
-  onClose: () => void;
-  onChange: (p: IMenuProduct) => void;
-}
-
-function ProductModal({ product, onClose, onChange }: ModalProps) {
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="product-modal-title"
-    >
-      <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-xl"
-          aria-label="Cerrar modal"
-        >
-          ✕
-        </button>
-        <div className="p-6">
-          <MenuProduct
-            product={product}
-            onClose={onClose}
-            onChange={onChange}
-          />
-        </div>
-      </div>
-    </div>
+    <ViewCatalogSection
+      section={section}
+      menuId={menuId}
+      businessId={businessId}
+      ownerId={ownerId}
+      onSectionChange={handleSectionChange}
+      onSectionDelete={handleSectionDelete}
+    />
   );
 }

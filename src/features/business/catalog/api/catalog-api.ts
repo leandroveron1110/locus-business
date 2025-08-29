@@ -84,7 +84,7 @@ export const deleteMenu = async (menuId: string): Promise<void> => {
 export const createSection = async (
   section: SectionCreate
 ): Promise<IMenuSectionWithProducts> => {
-  const res = await axios.post(`menus/sections`, section);
+  const res = await axios.post(`menu/secciones`, section);
   return res.data;
 };
 
@@ -92,12 +92,12 @@ export const updateSection = async (
   sectionId: string,
   data: Partial<SectionCreate>
 ): Promise<IMenuSectionWithProducts> => {
-  const res = await axios.put(`menus/sections/${sectionId}`, data);
+  const res = await axios.patch(`menu/secciones/${sectionId}`, data);
   return res.data;
 };
 
 export const deleteSection = async (sectionId: string): Promise<void> => {
-  await axios.delete(`menus/sections/${sectionId}`);
+  await axios.delete(`menu/secciones/${sectionId}`);
 };
 
 // -----------------------------

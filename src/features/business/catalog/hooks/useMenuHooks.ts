@@ -52,10 +52,10 @@ export const useCreateMenu = () => {
   });
 };
 
-export const useUpdateMenu = (menuId: string) => {
+export const useUpdateMenu = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<MenuCreate>) => updateMenu(menuId, data),
+    mutationFn: ({menuId, data}:{menuId: string; data: Partial<MenuCreate>}) => updateMenu(menuId, data),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["menu-all-business"] }),
   });
@@ -83,11 +83,16 @@ export const useCreateSection = () => {
   });
 };
 
-export const useUpdateSection = (sectionId: string) => {
+export const useUpdateSection = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<SectionCreate>) =>
-      updateSection(sectionId, data),
+    mutationFn: ({
+      sectionId,
+      data,
+    }: {
+      sectionId: string;
+      data: Partial<SectionCreate>;
+    }) => updateSection(sectionId, data),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["menu-all-business"] }),
   });
@@ -146,17 +151,25 @@ export const useDeleteMenuProduct = () => {
 export const useUploadMenuProductImage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ menuProductId, file }: { menuProductId: string; file: File }) =>
-      uploadMenuProductImage(menuProductId, file),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menu-all-business"] }),
+    mutationFn: ({
+      menuProductId,
+      file,
+    }: {
+      menuProductId: string;
+      file: File;
+    }) => uploadMenuProductImage(menuProductId, file),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["menu-all-business"] }),
   });
 };
 
 export const useDeleteMenuProductImage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (menuProductId: string) => deleteMenuProductImage(menuProductId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menu-all-business"] }),
+    mutationFn: (menuProductId: string) =>
+      deleteMenuProductImage(menuProductId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["menu-all-business"] }),
   });
 };
 
