@@ -5,6 +5,12 @@ export enum UserRole {
   ADMIN = 'ADMIN',
 }
 
+export interface BusinessLogin {
+  id: string;
+  role: string;
+  name: string;
+}
+
 // Interface for the User model as we would receive it from the API.
 // Sensitive fields like passwordHash are omitted.
 export interface User {
@@ -13,10 +19,7 @@ export interface User {
   lastName: string;
   email: string;
   role: UserRole;
-  createdAt: string; // Dates usually come as ISO strings from the API
-  updatedAt: string;
-  statusId?: string;
-  avatarId?: string;
+  businesses?: BusinessLogin[]
   // You can include relations if the API nests them, e.g.:
   // avatar?: Image; // If the API returns the nested Image object
 }

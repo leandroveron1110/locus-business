@@ -22,3 +22,21 @@ export const fetcSearchBusiness = async (
     );
   }
 };
+
+
+export interface Business {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+}
+
+
+export const getBusinessesByIds = async (ids: string[]): Promise<Business[]> => {
+  try {
+    const response = await api.post<Business[]>("/businesses/businesses/ids/", { ids });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data as ApiErrorResponse || new Error("Error fetching businesses");
+  }
+};

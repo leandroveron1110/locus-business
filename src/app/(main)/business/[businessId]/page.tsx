@@ -1,3 +1,4 @@
+import BusinessDashboard from "@/features/business/components/BusinessDashboard/BusinessDashboard";
 import BusinessProfile from "@/features/business/components/BusinessProfile";
 
 interface Props {
@@ -10,7 +11,7 @@ export default async function BusinessPage({ params }: Props) {
 
   return (
     <div>
-      <BusinessProfile businessId={params.businessId} />
+      <BusinessDashboard businessId={params.businessId} />
       {/* Podés agregar más componentes que reciban businessId */}
     </div>
   );

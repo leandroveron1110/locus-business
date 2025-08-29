@@ -11,7 +11,7 @@ import { ApiErrorResponse } from '../../../types/api';
  */
 export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
   try {
-    const response = await api.post<LoginResponse>('/auth/login', payload);
+    const response = await api.post<LoginResponse>('/auth/login/business', payload);
     return response.data;
   } catch (error: any) {
     // Here you can handle specific errors if necessary,
