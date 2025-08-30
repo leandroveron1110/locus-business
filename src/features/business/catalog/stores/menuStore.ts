@@ -82,7 +82,10 @@ export const useMenuStore = create<MenuState>()(
     addMenu: (menu) =>
       set((s: Draft<MenuState>) => {
         const exists = s.menus.some((m) => m.id === menu.id);
-        if (!exists) s.menus.push(menu);
+        if (!exists) {
+          menu.sections = [];
+          s.menus.push(menu);
+        }
       }),
 
     updateMenu: (menuId, patch) =>
@@ -101,8 +104,12 @@ export const useMenuStore = create<MenuState>()(
       set((s: Draft<MenuState>) => {
         const menu = s.menus.find((m) => m.id === menuId);
         if (!menu) return;
+        if(menu.sections) menu.sections = [];
         const exists = menu.sections.some((sec) => sec.id === section.id);
-        if (!exists) menu.sections.push(section);
+        if (!exists) {
+          section.products = []
+          menu.sections.push(section);
+        }
       }),
 
     updateSection: ({ menuId, sectionId }, patch) =>
@@ -127,6 +134,7 @@ export const useMenuStore = create<MenuState>()(
           .find((m) => m.id === menuId)
           ?.sections.find((sec) => sec.id === sectionId);
         if (!section) return;
+        if(!section.products) section.products = []
         const exists = section.products.some((p) => p.id === product.id);
         if (!exists) section.products.push(product);
       }),
@@ -152,12 +160,16 @@ export const useMenuStore = create<MenuState>()(
 
     // ---- Group
     addGroup: ({ menuId, sectionId, productId }, group) =>
-      set((s: Draft<MenuState>) => {
+      set((s) => {
         const product = s.menus
           .find((m) => m.id === menuId)
           ?.sections.find((sec) => sec.id === sectionId)
           ?.products.find((p) => p.id === productId);
+
         if (!product) return;
+
+        if (!product.optionGroups) product.optionGroups = []; // 👈 fix
+
         const exists = product.optionGroups.some((g) => g.id === group.id);
         if (!exists) product.optionGroups.push(group);
       }),
@@ -193,6 +205,7 @@ export const useMenuStore = create<MenuState>()(
           ?.products.find((p) => p.id === productId)
           ?.optionGroups.find((g) => g.id === groupId);
         if (!group) return;
+        if(!group.options) group.options = [];
         const exists = group.options.some((op) => op.id === option.id);
         if (!exists) group.options.push(option);
       }),

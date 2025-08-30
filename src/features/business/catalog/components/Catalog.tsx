@@ -81,7 +81,7 @@ export default function Catalog({ businessId }: Props) {
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-16">
-          {menus.map((menu) => (
+          {(menus ?? []).map((menu) => (
             <CatalogMenu
               key={menu.id}
               businessId={businessId}

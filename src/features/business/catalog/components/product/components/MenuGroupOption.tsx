@@ -7,7 +7,7 @@ import EditMenuGroupOption from "./edits/EditMenuGroupOption";
 interface MenuGroupOptionProps {
   option: IOption;
   currencyMask?: string;
-  onUpdate: (data: { option: Partial<IOption> }) => void;
+  onUpdate: (data: Partial<IOption>) => void; // <- más directo
   onDelete?: (optionId: string) => void;
 }
 
@@ -19,19 +19,17 @@ export default function MenuGroupOption({
 }: MenuGroupOptionProps) {
   const [editing, setEditing] = useState(false);
 
-  const onCancel = () => {
-    setEditing(false);
-  };
+  const handleCancel = () => setEditing(false);
 
   return (
     <li className="rounded-xl mb-4 bg-gray-50 shadow-sm p-2">
       {editing ? (
         <EditMenuGroupOption
-          onUpdate={onUpdate}
           option={option}
-          currencyMask="$"
+          onUpdate={({option}) => onUpdate(option)} // ya recibís Partial<IOption>
           onDelete={onDelete}
-          onCancel={onCancel}
+          onCancel={handleCancel}
+          currencyMask={currencyMask}
         />
       ) : (
         <div className="cursor-pointer" onClick={() => setEditing(true)}>

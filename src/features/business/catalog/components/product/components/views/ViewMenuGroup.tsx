@@ -13,38 +13,66 @@ import { useState } from "react";
 import MenuGroupOption from "../MenuGroupOption";
 import NewMenuGroupOption from "../news/NewMenuGroupOptioin";
 import EditMenuGroup from "../edits/EditMenuGroup";
+import { useMenuStore } from "@/features/business/catalog/stores/menuStore";
 
 interface ViewMenuGroupProps {
-  group: IOptionGroup;
+  menuId: string;
+  sectionId: string;
+  groupId: string;
+  productId: string;
   currencyMask?: string;
   onUpdate: (data: { group: Partial<IOptionGroup> }) => void;
   onDeleteGroup: (groupId: string, optionsId: string[]) => void;
 }
 
 export default function ViewMenuGroup({
-  group,
+  menuId,
+  sectionId,
+  productId,
+  groupId,
   currencyMask = "$",
   onUpdate,
   onDeleteGroup,
 }: ViewMenuGroupProps) {
+  const group = useMenuStore((status) =>
+    status.menus
+      .find((m) => m.id == menuId)
+      ?.sections.find((s) => s.id == sectionId)
+      ?.products.find((p) => p.id == productId)
+      ?.optionGroups.find((g) => g.id == groupId)
+  );
   const createOption = useCreateOption();
   const updateOption = useUpdateOption();
   const deleteOption = useDeleteOption();
 
+  const createOptionStore = useMenuStore((state) => state.addOption);
+  const updateOptionStore = useMenuStore((state) => state.updateOption);
+  const deleteOptionStore = useMenuStore((state) => state.deleteOption);
+
   const [editing, setEditing] = useState(false);
   const [showNewOption, setShowNewOption] = useState(false);
 
+  if (!group) {
+    return <div></div>;
+  }
+
   // Actualizar opción
-  const handleOptionUpdate = async (data: { option: Partial<IOption> }) => {
+  const handleOptionUpdate = async (option: Partial<IOption>) => {
     try {
       const result = await updateOption.mutateAsync({
-        data: data.option,
-        optionId: data.option.id || "",
+        data: option,
+        optionId: option.id || "",
       });
-      const newOptions = group.options.map((opt) =>
-        opt.id === data.option.id ? result : opt
+      updateOptionStore(
+        {
+          groupId,
+          menuId,
+          optionId: result.id,
+          productId,
+          sectionId,
+        },
+        result
       );
-      onUpdate({ group: { ...group, options: newOptions } });
     } catch (e) {
       console.error("Error actualizando opción", e);
     }
@@ -54,8 +82,7 @@ export default function ViewMenuGroup({
   const handleOptionDelete = async (optionId: string) => {
     try {
       await deleteOption.mutateAsync(optionId);
-      const newOptions = group.options.filter((opt) => opt.id !== optionId);
-      onUpdate({ group: { ...group, options: newOptions } });
+      deleteOptionStore({ menuId, groupId, optionId, productId, sectionId });
     } catch (e) {
       console.error("Error eliminando opción", e);
     }
@@ -65,8 +92,15 @@ export default function ViewMenuGroup({
   const handleNewOptionCreate = async (option: OptionCreate) => {
     try {
       const result = await createOption.mutateAsync(option);
-      const newOptions = [...group.options, result];
-      onUpdate({ group: { ...group, options: newOptions } });
+      createOptionStore(
+        {
+          groupId,
+          menuId,
+          productId,
+          sectionId,
+        },
+        result
+      );
       setShowNewOption(false);
     } catch (e) {
       console.error("Error creando opción", e);
@@ -104,7 +138,7 @@ export default function ViewMenuGroup({
       {/* Opciones */}
       <div className="p-4">
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {group.options.map((option) => (
+          {(group.options ?? []).map((option) => (
             <MenuGroupOption
               key={option.id}
               option={option}

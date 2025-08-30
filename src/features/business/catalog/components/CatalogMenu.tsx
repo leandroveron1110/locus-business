@@ -30,7 +30,7 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
 
   // Ordenamos secciones desde el store
   const sortedSections = useMemo(() => {
-    return menu ? [...menu.sections].sort((a, b) => a.index - b.index) : [];
+    return menu ? [...(menu.sections ?? [])].sort((a, b) => a.index - b.index) : [];
   }, [menu]);
 
   // Guardar nuevo nombre de menú
@@ -91,7 +91,7 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
           menuId={menu.id}
           ownerId={ownerId}
           onAddSection={handleAddSection}
-          currentIndex={menu.sections.length}
+          currentIndex={menu.sections?.length || 1}
         />
       </div>
 

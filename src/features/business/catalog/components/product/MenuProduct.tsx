@@ -25,7 +25,12 @@ interface Props {
   onClose: () => void;
 }
 
-export default function MenuProduct({ menuId, sectionId, productId, onClose }: Props) {
+export default function MenuProduct({
+  menuId,
+  sectionId,
+  productId,
+  onClose,
+}: Props) {
   const [saving, setSaving] = useState(false);
   const [showNewGroup, setShowNewGroup] = useState(false);
 
@@ -37,8 +42,11 @@ export default function MenuProduct({ menuId, sectionId, productId, onClose }: P
       ?.products.find((p) => p.id === productId)
   );
 
-
+  const [initialProduct] = useState(() => (product ? { ...product } : null));
   const updateProduct = useMenuStore((state) => state.updateProduct);
+  const updateGroupStore = useMenuStore((state) => state.updateGroup);
+  const deleteGroupStore = useMenuStore((state) => state.deleteGroup);
+  const addGroupStore = useMenuStore((state) => state.addGroup);
 
   const createGroup = useCreateOptionGroup();
   const updateGroup = useUpdateOptionGroup();
@@ -52,14 +60,35 @@ export default function MenuProduct({ menuId, sectionId, productId, onClose }: P
     updateProduct({ menuId, sectionId, productId }, { ...product, ...data });
   };
 
+  const getModifiedFields = (): Partial<IMenuProduct> => {
+    if (!initialProduct) return {};
+    const modified: Partial<IMenuProduct> = { id: product.id };
+    (Object.keys(product) as (keyof IMenuProduct)[]).forEach((key) => {
+      if (
+        JSON.stringify(product[key]) !== JSON.stringify(initialProduct[key])
+      ) {
+        modified[key] = product[key] as any;
+      }
+    });
+    return modified;
+  };
+
   const handleSaveAll = async () => {
     setSaving(true);
     try {
-      const { optionGroups, ...menuProductData } = product; // no enviar groups
+      const modified = getModifiedFields();
+      // si no hay cambios, no llamamos al back
+      if (Object.keys(modified).length <= 1) {
+        // solo id
+        onClose();
+        return;
+      }
+
       const updatedProduct = await updateMenuProductMutate.mutateAsync({
         productId,
-        data: menuProductData,
+        data: modified,
       });
+
       updateProduct({ menuId, sectionId, productId }, updatedProduct);
       onClose();
     } catch (error) {
@@ -75,25 +104,36 @@ export default function MenuProduct({ menuId, sectionId, productId, onClose }: P
     updatedData: Partial<OptionGroupCreate>
   ) => {
     try {
-      const result = await updateGroup.mutateAsync({ groupId, data: updatedData });
-      updateProduct({ menuId, sectionId, productId }, {
-        ...product,
-        optionGroups: product.optionGroups.map((g) =>
-          g.id === groupId ? { ...g, ...result } : g
-        ),
+      const result = await updateGroup.mutateAsync({
+        groupId,
+        data: updatedData,
       });
+      updateGroupStore(
+        {
+          menuId,
+          groupId,
+          sectionId,
+          productId,
+        },
+        result
+      );
     } catch (error) {
       console.error("Error actualizando grupo", error);
     }
   };
 
-  const deleteGroupWithOptions = async (groupId: string, optionIds: string[]) => {
+  const deleteGroupWithOptions = async (
+    groupId: string,
+    optionIds: string[]
+  ) => {
     try {
       await deleteManyOptionsMutate.mutateAsync(optionIds);
       await deleteGroup.mutateAsync(groupId);
-      updateProduct({ menuId, sectionId, productId }, {
-        ...product,
-        optionGroups: product.optionGroups.filter((g) => g.id !== groupId),
+      deleteGroupStore({
+        groupId,
+        menuId,
+        productId,
+        sectionId,
       });
     } catch (e) {
       console.error("Error eliminando grupo y opciones", e);
@@ -103,20 +143,14 @@ export default function MenuProduct({ menuId, sectionId, productId, onClose }: P
   const handleNewGroupCreate = async (group: OptionGroupCreate) => {
     try {
       const result = await createGroup.mutateAsync(group);
-      updateProduct({ menuId, sectionId, productId }, {
-        ...product,
-        optionGroups: [
-          ...product.optionGroups,
-          {
-            id: result.id,
-            name: result.name,
-            maxQuantity: result.maxQuantity,
-            minQuantity: result.minQuantity,
-            quantityType: result.quantityType,
-            options: [],
-          },
-        ],
-      });
+      addGroupStore(
+        {
+          menuId,
+          productId,
+          sectionId,
+        },
+        result
+      );
       setShowNewGroup(false);
     } catch {}
   };
@@ -175,7 +209,10 @@ export default function MenuProduct({ menuId, sectionId, productId, onClose }: P
         {(product.optionGroups ?? []).map((group) => (
           <MenuGroup
             key={group.id}
-            group={group}
+            groupId={group.id}
+            menuId={menuId}
+            productId={productId}
+            sectionId={sectionId}
             currencyMask={product.currencyMask || "$"}
             onDeleteGroup={deleteGroupWithOptions}
             onUpdate={(data) => handleGroupUpdate(group.id, data.group)}
