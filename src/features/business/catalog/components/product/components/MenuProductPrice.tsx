@@ -8,8 +8,8 @@ interface Props {
   currencyMask?: string;
   onUpdate: (data: {
     finalPrice: number;
-    originalPrice?: number;
-    discountPercentage?: number;
+    originalPrice: number;
+    discountPercentage: number;
   }) => void;
 }
 

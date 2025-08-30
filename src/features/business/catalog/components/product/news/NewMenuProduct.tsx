@@ -7,6 +7,7 @@ import MenuProductPrice from "../components/MenuProductPrice";
 import MenuProductStock from "../components/MenuProductStock";
 import MenuProductFlags from "../components/MenuProductFlags";
 import EnabledSwitch from "../components/EnabledSwitch";
+import { useMenuStore } from "../../../stores/menuStore";
 
 interface Props {
   menuId: string;
@@ -27,7 +28,12 @@ export default function NewMenuProduct({
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
+  const [prices, setPrices] = useState({
+    originalPrice: 0,
+    finalPrice: 0,
+    discountPercentage: 0,
+  });
+
   const [stock, setStock] = useState(0);
   const [available, setAvailable] = useState(true);
   const [enabled, setEnabled] = useState(true); // <<--- NUEVO
@@ -37,6 +43,7 @@ export default function NewMenuProduct({
   });
 
   const createProduct = useCreateMenuProduct();
+  const addProduct = useMenuStore((status) => status.addProduct);
   const [saving, setSaving] = useState(false);
 
   const handleCreate = async () => {
@@ -48,9 +55,10 @@ export default function NewMenuProduct({
         menuId,
         ownerId,
         description,
-        enabled,                              // <<--- ENVIAMOS enabled
-        originalPrice: "" + price,
-        finalPrice: "" + price,
+        enabled, // <<--- ENVIAMOS enabled
+        originalPrice: "" + prices.originalPrice,
+        finalPrice: "" + prices.finalPrice,
+        discountPercentage: "" + prices.discountPercentage,
         stock,
         available,
         isMostOrdered: flags.isMostOrdered,
@@ -62,6 +70,18 @@ export default function NewMenuProduct({
 
       const created = await createProduct.mutateAsync(newProduct);
       onCreated(created);
+      const add: IMenuProduct = {
+        ...created,
+        ...newProduct,
+      };
+
+      addProduct(
+        {
+          menuId,
+          sectionId,
+        },
+        add
+      );
       onClose();
     } catch (error) {
       console.error(error);
@@ -102,8 +122,10 @@ export default function NewMenuProduct({
       </div>
 
       <MenuProductPrice
-        finalPrice={price}
-        onUpdate={(data) => setPrice(Number(data.finalPrice))}
+        finalPrice={prices.finalPrice}
+        discountPercentage={prices.discountPercentage}
+        originalPrice={prices.originalPrice}
+        onUpdate={(data) => setPrices(data)}
       />
 
       <MenuProductStock
@@ -131,7 +153,7 @@ export default function NewMenuProduct({
         </button>
         <button
           onClick={handleCreate}
-          disabled={saving || !name.trim() || price <= 0}
+          disabled={saving || !name.trim() || prices.finalPrice <= 0}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? "Creando..." : "Crear Producto"}

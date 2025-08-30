@@ -5,7 +5,7 @@ import ViewMenuGroup from "./views/ViewMenuGroup";
 interface MenuGroupProps {
   group: IOptionGroup;
   currencyMask?: string;
-  onUpdate: (data: { group: IOptionGroup }) => void;
+  onUpdate: (data: { group: Partial<IOptionGroup> }) => void;
   onDeleteGroup: (groupId: string, optionsId: string[]) => void;
 }
 

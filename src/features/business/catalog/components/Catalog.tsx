@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useCatalg } from "../hooks/useCatalg";
 import CatalogMenu from "./CatalogMenu";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import BusinessHeader from "./BusinessHeader";
 import { useBusinessProfile } from "../hooks/useBusiness";
 import NewCatalogMenu from "./news/NewCatalogMenu";
-import { IMenu, MenuCreate } from "../types/catlog";
+import { MenuCreate } from "../types/catlog";
 import { useCreateMenu } from "../hooks/useMenuHooks";
+import { useMenuStore } from "../stores/menuStore";
 
 interface Props {
   businessId: string;
@@ -25,22 +26,23 @@ export default function Catalog({ businessId }: Props) {
 
   const user = useAuthStore((state) => state.user);
 
-  // Estado local de menús
-  const [allMenus, setAllMenus] = useState<IMenu[]>(data || []);
+  const menus = useMenuStore((state) => state.menus);
+  const setMenus = useMenuStore((state) => state.setMenus);
+  const addMenu = useMenuStore((state) => state.addMenu);
 
   // Hook para crear menú
   const createMenuMutation = useCreateMenu();
 
+  // Hidratar store cuando llega `data` del backend
   useEffect(() => {
-    if (data) setAllMenus(data);
-  }, [data]);
+    if (data) setMenus(data);
+  }, [data, setMenus]);
 
   // Función que se pasa a NewCatalogMenu
   const handleAddMenu = async (menuCreate: MenuCreate) => {
     try {
       const newMenu = await createMenuMutation.mutateAsync(menuCreate);
-      // Actualizamos el estado local para reflejar el cambio
-      setAllMenus((prev) => [...prev, newMenu]);
+      addMenu(newMenu); // 👈 usamos la store
     } catch (err) {
       console.error("Error creando el menú:", err);
     }
@@ -65,7 +67,7 @@ export default function Catalog({ businessId }: Props) {
     );
   }
 
-  if (!allMenus || allMenus.length === 0 || !dataBusiness) {
+  if (!menus || menus.length === 0 || !dataBusiness) {
     return (
       <div className="text-center py-20 text-gray-600">
         <p>No hay catálogos o información de negocio disponible.</p>
@@ -79,11 +81,11 @@ export default function Catalog({ businessId }: Props) {
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-16">
-          {allMenus.map((menu) => (
+          {menus.map((menu) => (
             <CatalogMenu
               key={menu.id}
               businessId={businessId}
-              menu={menu}
+              menuId={menu.id}
               ownerId={user?.id || ""}
             />
           ))}

@@ -1,23 +1,24 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import CatalogProduct from "../CatalogProduct";
 import MenuProduct from "../product/MenuProduct";
 import { IMenuProduct, IMenuSectionWithProducts } from "../../types/catlog";
 import NewMenuProduct from "../product/news/NewMenuProduct";
 import EditCatalogSection from "../edits/EditCatalogSection";
+import { useMenuStore } from "../../stores/menuStore";
 
 interface Props {
   menuId: string;
-  section: IMenuSectionWithProducts;
+  sectionId: string;
   businessId: string;
   ownerId: string;
-  onSectionChange?: (s: Partial<IMenuSectionWithProducts>) => void;
-  onSectionDelete?: (id: string) => void;
+  onSectionChange: (s: Partial<IMenuSectionWithProducts>) => void;
+  onSectionDelete: (id: string) => void;
 }
 
 export default function ViewCatalogSection({
-  section,
+  sectionId,
   menuId,
   businessId,
   ownerId,
@@ -27,10 +28,14 @@ export default function ViewCatalogSection({
   const [selectedProduct, setSelectedProduct] = useState<IMenuProduct | null>(
     null
   );
-  const [products, setProducts] = useState<IMenuProduct[]>(section.products);
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [showEditSectionModal, setShowEditSectionModal] = useState(false);
 
+  const section = useMenuStore((state) =>
+    state.menus
+      .find((m) => m.id === menuId)
+      ?.sections.find((s) => s.id === sectionId)
+  );
   const handleSelectProduct = useCallback((product: IMenuProduct) => {
     setSelectedProduct(product);
   }, []);
@@ -39,26 +44,29 @@ export default function ViewCatalogSection({
     setSelectedProduct(null);
   }, []);
 
-  const handleProductChange = (updatedProduct: IMenuProduct) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
-    );
-  };
+  const handleProductChange = (updatedProduct: IMenuProduct) => {};
 
   const handleProductCreated = (newProduct: IMenuProduct) => {
-    setProducts((prev) => [newProduct, ...prev]);
     setShowNewProductModal(false);
   };
 
-  const handleSectionSave = (data:{ section: Partial<IMenuSectionWithProducts>}) => {
-    onSectionChange?.(data.section);
+  const handleSectionSave = (data: {
+    section: Partial<IMenuSectionWithProducts>;
+  }) => {
+    onSectionChange(data.section);
     setShowEditSectionModal(false);
   };
 
   const handleSectionDelete = (id: string) => {
-    onSectionDelete?.(id);
+    onSectionDelete(id);
     setShowEditSectionModal(false);
   };
+
+  if (!section) return <div></div>;
+
+  const sortedProducts = useMemo(() => {
+    return [...(section.products ?? [])];
+  }, [section.products]);
 
   return (
     <div className="mb-12 relative">
@@ -81,7 +89,7 @@ export default function ViewCatalogSection({
       </div>
 
       <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {products.map((product) => (
+        {sortedProducts.map((product) => (
           <CatalogProduct
             key={product.id}
             product={product}
@@ -93,7 +101,9 @@ export default function ViewCatalogSection({
       {/* Modal para editar producto existente */}
       {selectedProduct && (
         <ProductModal
-          product={selectedProduct}
+          productId={selectedProduct.id}
+          menuId={menuId}
+          sectionId={sectionId}
           onClose={handleCloseModal}
           onChange={handleProductChange}
         />
@@ -149,12 +159,20 @@ export default function ViewCatalogSection({
 }
 
 interface ModalProps {
-  product: IMenuProduct;
+  menuId: string;
+  productId: string;
+  sectionId: string;
   onClose: () => void;
   onChange: (p: IMenuProduct) => void;
 }
 
-function ProductModal({ product, onClose, onChange }: ModalProps) {
+function ProductModal({
+  menuId,
+  productId,
+  sectionId,
+  onClose,
+  onChange,
+}: ModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4"
@@ -172,9 +190,11 @@ function ProductModal({ product, onClose, onChange }: ModalProps) {
         </button>
         <div className="p-6">
           <MenuProduct
-            product={product}
+            productId={productId}
             onClose={onClose}
-            onChange={onChange}
+            menuId={menuId}
+            sectionId={sectionId}
+            // onChange={onChange}
           />
         </div>
       </div>

@@ -18,9 +18,9 @@ const groupSchema = z.object({
 
 export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupProps) {
   const [newGroup, setNewGroup] = useState<OptionGroupCreate>({
-    maxQuantity: 0,
+    maxQuantity: 1,
     menuProductId,
-    minQuantity: 0,
+    minQuantity: 1,
     name: "",
     quantityType: "FIXED",
   });

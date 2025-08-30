@@ -1,4 +1,3 @@
-// src/features/business/catalog/product/MenuProduct.tsx
 "use client";
 import React, { useState } from "react";
 import { IMenuProduct, OptionGroupCreate } from "../../types/catlog";
@@ -8,7 +7,7 @@ import MenuProductHeader from "./components/MenuProductHeader";
 import MenuProductPrice from "./components/MenuProductPrice";
 import MenuProductStock from "./components/MenuProductStock";
 import MenuProductFlags from "./components/MenuProductFlags";
-import EnabledSwitch from "./components/EnabledSwitch"; // <<--- IMPORTAR
+import EnabledSwitch from "./components/EnabledSwitch";
 import NewMenuGroup from "./components/news/NewMenuGroup";
 import {
   useCreateOptionGroup,
@@ -17,17 +16,29 @@ import {
   useUpdateMenuProduct,
   useUpdateOptionGroup,
 } from "../../hooks/useMenuHooks";
+import { useMenuStore } from "../../stores/menuStore";
 
 interface Props {
-  product: IMenuProduct;
+  menuId: string;
+  sectionId: string;
+  productId: string;
   onClose: () => void;
-  onChange: (updatedProduct: IMenuProduct) => void;
 }
 
-export default function MenuProduct({ product, onClose, onChange }: Props) {
-  const [editableProduct, setEditableProduct] = useState(product);
+export default function MenuProduct({ menuId, sectionId, productId, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [showNewGroup, setShowNewGroup] = useState(false);
+
+  // 📌 producto desde la store
+  const product = useMenuStore((state) =>
+    state.menus
+      .find((m) => m.id === menuId)
+      ?.sections.find((s) => s.id === sectionId)
+      ?.products.find((p) => p.id === productId)
+  );
+
+
+  const updateProduct = useMenuStore((state) => state.updateProduct);
 
   const createGroup = useCreateOptionGroup();
   const updateGroup = useUpdateOptionGroup();
@@ -35,30 +46,22 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
   const deleteManyOptionsMutate = useDeleteManyOption();
   const updateMenuProductMutate = useUpdateMenuProduct();
 
-  const handleUpdate = (data: Partial<IMenuProduct>) => {
-    setEditableProduct((prev) => ({ ...prev, ...data }));
-  };
+  if (!product) return null;
 
-  const getModifiedProductFields = (): Partial<IMenuProduct> => {
-    const modified: Partial<IMenuProduct> = { id: editableProduct.id };
-    (Object.keys(editableProduct) as (keyof IMenuProduct)[]).forEach((key) => {
-      if (editableProduct[key] !== product[key]) {
-        modified[key] = editableProduct[key];
-      }
-    });
-    return modified;
+  const handleUpdate = (data: Partial<IMenuProduct>) => {
+    updateProduct({ menuId, sectionId, productId }, { ...product, ...data });
   };
 
   const handleSaveAll = async () => {
     setSaving(true);
     try {
-      const modifiedFields = getModifiedProductFields();
-      const { optionGroups, ...menuProductData } = modifiedFields; // no enviar groups
+      const { optionGroups, ...menuProductData } = product; // no enviar groups
       const updatedProduct = await updateMenuProductMutate.mutateAsync({
-        productId: editableProduct.id,
+        productId,
         data: menuProductData,
       });
-      onChange(updatedProduct);
+      updateProduct({ menuId, sectionId, productId }, updatedProduct);
+      onClose();
     } catch (error) {
       console.error(error);
       alert("Error al actualizar el producto");
@@ -73,12 +76,12 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
   ) => {
     try {
       const result = await updateGroup.mutateAsync({ groupId, data: updatedData });
-      setEditableProduct((prev) => ({
-        ...prev,
-        optionGroups: prev.optionGroups.map((g) =>
+      updateProduct({ menuId, sectionId, productId }, {
+        ...product,
+        optionGroups: product.optionGroups.map((g) =>
           g.id === groupId ? { ...g, ...result } : g
         ),
-      }));
+      });
     } catch (error) {
       console.error("Error actualizando grupo", error);
     }
@@ -88,10 +91,10 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
     try {
       await deleteManyOptionsMutate.mutateAsync(optionIds);
       await deleteGroup.mutateAsync(groupId);
-      setEditableProduct((prev) => ({
-        ...prev,
-        optionGroups: prev.optionGroups.filter((g) => g.id !== groupId),
-      }));
+      updateProduct({ menuId, sectionId, productId }, {
+        ...product,
+        optionGroups: product.optionGroups.filter((g) => g.id !== groupId),
+      });
     } catch (e) {
       console.error("Error eliminando grupo y opciones", e);
     }
@@ -100,10 +103,10 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
   const handleNewGroupCreate = async (group: OptionGroupCreate) => {
     try {
       const result = await createGroup.mutateAsync(group);
-      setEditableProduct((prev) => ({
-        ...prev,
+      updateProduct({ menuId, sectionId, productId }, {
+        ...product,
         optionGroups: [
-          ...prev.optionGroups,
+          ...product.optionGroups,
           {
             id: result.id,
             name: result.name,
@@ -113,7 +116,7 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
             options: [],
           },
         ],
-      }));
+      });
       setShowNewGroup(false);
     } catch {}
   };
@@ -123,14 +126,14 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
       {/* Imagen */}
       <MenuProductImage
         menuProductId={product.id}
-        image={editableProduct.imageUrl || ""}
-        name={editableProduct.name}
+        image={product.imageUrl || ""}
+        name={product.name}
         onUpdate={(data) => handleUpdate({ imageUrl: data.imageUrl })}
       />
 
       {/* Enabled */}
       <EnabledSwitch
-        enabled={!!editableProduct.enabled}
+        enabled={!!product.enabled}
         onChange={(val) => handleUpdate({ enabled: val })}
         label="Visible en la carta"
         hint="Activa o desactiva la visibilidad del producto."
@@ -138,63 +141,61 @@ export default function MenuProduct({ product, onClose, onChange }: Props) {
 
       {/* Header */}
       <MenuProductHeader
-        name={editableProduct.name}
-        description={editableProduct.description}
+        name={product.name}
+        description={product.description}
         onUpdate={(data) => handleUpdate(data)}
       />
 
       {/* Precio */}
       <MenuProductPrice
-        finalPrice={editableProduct.finalPrice}
-        originalPrice={editableProduct.originalPrice}
-        discountPercentage={editableProduct.discountPercentage}
-        currencyMask={editableProduct.currencyMask}
+        finalPrice={product.finalPrice}
+        originalPrice={product.originalPrice}
+        discountPercentage={product.discountPercentage}
+        currencyMask={product.currencyMask}
         onUpdate={(data) => handleUpdate(data)}
       />
 
       {/* Stock y disponibilidad */}
       <MenuProductStock
-        available={editableProduct.available}
-        stock={editableProduct.stock}
-        preparationTime={editableProduct.preparationTime}
+        available={product.available}
+        stock={product.stock}
+        preparationTime={product.preparationTime}
         onUpdate={(data) => handleUpdate(data)}
       />
 
       {/* Flags */}
       <MenuProductFlags
-        isMostOrdered={editableProduct.isMostOrdered}
-        isRecommended={editableProduct.isRecommended}
+        isMostOrdered={product.isMostOrdered}
+        isRecommended={product.isRecommended}
         onUpdate={(data) => handleUpdate(data)}
       />
 
       {/* Opciones */}
-      {editableProduct.hasOptions && (
-        <div className="space-y-6 mb-6">
-          {editableProduct.optionGroups.map((group) => (
-            <MenuGroup
-              key={group.id}
-              group={group}
-              currencyMask={editableProduct.currencyMask || "$"}
-              onDeleteGroup={deleteGroupWithOptions}
-              onUpdate={(data) => handleGroupUpdate(group.id, data.group)}
-            />
-          ))}
+      <div className="space-y-6 mb-6">
+        {(product.optionGroups ?? []).map((group) => (
+          <MenuGroup
+            key={group.id}
+            group={group}
+            currencyMask={product.currencyMask || "$"}
+            onDeleteGroup={deleteGroupWithOptions}
+            onUpdate={(data) => handleGroupUpdate(group.id, data.group)}
+          />
+        ))}
 
-          {showNewGroup ? (
-            <NewMenuGroup
-              menuProductId={editableProduct.id}
-              onCreate={handleNewGroupCreate}
-            />
-          ) : (
-            <button
-              className="text-blue-600 hover:underline text-sm"
-              onClick={() => setShowNewGroup(true)}
-            >
-              + Agregar grupo
-            </button>
-          )}
-        </div>
-      )}
+        {showNewGroup ? (
+          <NewMenuGroup
+            menuProductId={product.id}
+            onCreate={handleNewGroupCreate}
+          />
+        ) : (
+          <button
+            className="text-blue-600 hover:underline text-sm"
+            onClick={() => setShowNewGroup(true)}
+          >
+            + Agregar grupo
+          </button>
+        )}
+      </div>
 
       {/* Guardar */}
       <button
