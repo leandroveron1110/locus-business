@@ -6,3 +6,11 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Tag {
+  id: string;
+  name: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

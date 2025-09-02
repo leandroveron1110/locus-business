@@ -3,17 +3,17 @@ import {
   useCreateOption,
   useDeleteOption,
   useUpdateOption,
-} from "@/features/business/catalog/hooks/useMenuHooks";
+} from "@/features/catalog/hooks/useMenuHooks";
 import {
   IOption,
   IOptionGroup,
   OptionCreate,
-} from "@/features/business/catalog/types/catlog";
+} from "@/features/catalog/types/catlog";
 import { useState } from "react";
 import MenuGroupOption from "../MenuGroupOption";
 import NewMenuGroupOption from "../news/NewMenuGroupOptioin";
 import EditMenuGroup from "../edits/EditMenuGroup";
-import { useMenuStore } from "@/features/business/catalog/stores/menuStore";
+import { useMenuStore } from "@/features/catalog/stores/menuStore";
 
 interface ViewMenuGroupProps {
   menuId: string;

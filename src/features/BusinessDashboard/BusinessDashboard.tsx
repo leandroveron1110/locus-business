@@ -42,7 +42,7 @@ export default function BusinessDashboard({ businessId }: Props) {
           </button>
 
           <button
-            onClick={() => router.push(`/business/${businessId}/profile/edit`)}
+            onClick={() => router.push(`/business/${businessId}/profile`)}
             className="flex flex-col items-center justify-center p-6 bg-purple-50 rounded-2xl shadow hover:bg-purple-100 transition"
           >
             <Settings className="w-10 h-10 text-purple-600 mb-3" />
@@ -51,8 +51,6 @@ export default function BusinessDashboard({ businessId }: Props) {
           </button>
         </div>
       </section>
-
-      <Menu  businessId={businessId} />
     </main>
   );
 }

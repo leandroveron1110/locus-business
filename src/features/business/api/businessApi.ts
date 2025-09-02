@@ -9,6 +9,7 @@ import {
   BusinessWeeklySchedule,
   Review,
 } from "../types/business";
+import { Category, Tag } from "../types/category";
 
 const baseUrlBusiness = "/businesses/";
 
@@ -80,11 +81,21 @@ export const fetchBusinessTags = async (
   return res.data;
 };
 
+export const fetchGetTags = async (): Promise<Tag[]> => {
+  const res = await axios.get(`/tags`);
+  return res.data;
+};
+
 // Category
 export const fetchBusinessCategories = async (
   businessId: string
 ): Promise<BusinessCategory[]> => {
   const res = await axios.get(`/business/${businessId}/categories/category`);
+  return res.data;
+};
+
+export const fetchGetCategories = async (): Promise<Category[]> => {
+  const res = await axios.get(`/categories`);
   return res.data;
 };
 

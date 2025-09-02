@@ -1,5 +1,5 @@
 "use client";
-import { OptionGroupCreate } from "@/features/business/catalog/types/catlog";
+import { OptionGroupCreate } from "@/features/catalog/types/catlog";
 import { useState } from "react";
 import { z } from "zod";
 import { Check, X } from "lucide-react";

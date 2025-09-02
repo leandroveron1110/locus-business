@@ -1,4 +1,4 @@
-import { IOptionGroup } from "@/features/business/catalog/types/catlog";
+import { IOptionGroup } from "@/features/catalog/types/catlog";
 import { useState } from "react";
 import { z } from "zod";
 import { Check, X, Trash } from "lucide-react"; // íconos
