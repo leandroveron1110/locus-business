@@ -16,9 +16,9 @@ interface TagItem {
 
 interface Props {
   businessId: string;
-  initialCategories: string[]; // nombres de las categorias que el negocio ya tiene
-  initialTags: string[]; // nombres de los tags que el negocio ya tiene
-  onSave: (categories: string[], tags: string[]) => void;
+  initialCategories: string[]; // IDs de las categorías
+  initialTags: string[]; // IDs de los tags
+  onSave: (categoryIds: string[], tagIds: string[]) => void;
 }
 
 export default function CategoriesTagsEditor({
@@ -37,39 +37,35 @@ export default function CategoriesTagsEditor({
 
   useEffect(() => {
     if (data) {
-      // Podríamos inicializar si queremos filtrar lo que ya tiene el negocio
-      const availableCategories = data.categories.map((c: Category) => c.name);
-      const availableTags = data.tags.map((t: TagItem) => t.name);
-      setSelectedCategories((prev) => prev.filter((c) => availableCategories.includes(c)));
-      setSelectedTags((prev) => prev.filter((t) => availableTags.includes(t)));
+      const availableCategoryIds = data.categories.map(c => c.id);
+      const availableTagIds = data.tags.map(t => t.id);
+
+      setSelectedCategories(prev => prev.filter(c => availableCategoryIds.includes(c)));
+      setSelectedTags(prev => prev.filter(t => availableTagIds.includes(t)));
     }
   }, [data]);
 
   if (isLoading) return <p className="text-sm text-gray-500">Cargando categorías y tags...</p>;
   if (isError || !data) return <p className="text-sm text-red-500">Error al cargar datos</p>;
 
-  const handleToggleCategory = (name: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
-    );
+  const handleToggleCategory = (id: string) => {
+    setSelectedCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
   };
 
-  const handleToggleTag = (name: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(name) ? prev.filter((t) => t !== name) : [...prev, name]
-    );
+  const handleToggleTag = (id: string) => {
+    setSelectedTags(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
   };
 
   const handleAddCategory = () => {
     if (newCategory.trim() && !selectedCategories.includes(newCategory.trim())) {
-      setSelectedCategories((prev) => [...prev, newCategory.trim()]);
+      setSelectedCategories(prev => [...prev, newCategory.trim()]);
       setNewCategory("");
     }
   };
 
   const handleAddTag = () => {
     if (newTag.trim() && !selectedTags.includes(newTag.trim())) {
-      setSelectedTags((prev) => [...prev, newTag.trim()]);
+      setSelectedTags(prev => [...prev, newTag.trim()]);
       setNewTag("");
     }
   };
@@ -87,33 +83,17 @@ export default function CategoriesTagsEditor({
           {data.categories.map((cat: Category) => (
             <button
               key={cat.id}
-              onClick={() => handleToggleCategory(cat.name)}
+              onClick={() => handleToggleCategory(cat.id)}
               className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-sm transition ${
-                selectedCategories.includes(cat.name)
+                selectedCategories.includes(cat.id)
                   ? "bg-blue-600 text-white"
                   : "bg-blue-100 text-blue-800 hover:bg-blue-200"
               }`}
             >
               {cat.name}
-              {selectedCategories.includes(cat.name) && <X size={12} />}
+              {selectedCategories.includes(cat.id) && <X size={12} />}
             </button>
           ))}
-        </div>
-        <div className="flex gap-2 mt-2">
-          <input
-            type="text"
-            placeholder="Agregar nueva categoría"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-          <button
-            type="button"
-            onClick={handleAddCategory}
-            className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-1"
-          >
-            <Plus size={14} /> Agregar
-          </button>
         </div>
       </div>
 
@@ -124,33 +104,17 @@ export default function CategoriesTagsEditor({
           {data.tags.map((tag: TagItem) => (
             <button
               key={tag.id}
-              onClick={() => handleToggleTag(tag.name)}
+              onClick={() => handleToggleTag(tag.id)}
               className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-sm transition ${
-                selectedTags.includes(tag.name)
+                selectedTags.includes(tag.id)
                   ? "bg-green-600 text-white"
                   : "bg-green-100 text-green-800 hover:bg-green-200"
               }`}
             >
               {tag.name}
-              {selectedTags.includes(tag.name) && <X size={12} />}
+              {selectedTags.includes(tag.id) && <X size={12} />}
             </button>
           ))}
-        </div>
-        <div className="flex gap-2 mt-2">
-          <input
-            type="text"
-            placeholder="Agregar nuevo tag"
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-          />
-          <button
-            type="button"
-            onClick={handleAddTag}
-            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1"
-          >
-            <Plus size={14} /> Agregar
-          </button>
         </div>
       </div>
 

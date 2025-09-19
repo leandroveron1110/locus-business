@@ -5,11 +5,6 @@ import { login as apiLogin } from '../api/authApi'; // Importa la función de lo
 import { LoginPayload, LoginResponse, User } from '../types/auth';
 import { useRouter } from 'next/navigation'; // Para la redirección después del login
 
-/**
- * Hook personalizado para manejar la lógica de inicio de sesión.
- * Utiliza useMutation de React Query para la llamada a la API
- * y actualiza el store de Zustand con el estado de autenticación.
- */
 export const useLogin = () => {
   const authStoreLogin = useAuthStore((state) => state.login); // Obtiene la acción login de Zustand
   const router = useRouter();
@@ -19,7 +14,6 @@ export const useLogin = () => {
     onSuccess: (data) => {
       // Esta función se ejecuta si la mutación (login) es exitosa
       authStoreLogin(data); // Actualiza el store de Zustand con los datos del usuario
-      console.log('Login exitoso:', data);
       // Redirige al usuario a la página principal o a la que intentaba acceder
       const redirectPath = new URLSearchParams(window.location.search).get('redirect') || '/';
       router.push(redirectPath);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Package, ShoppingCart, Settings } from "lucide-react";
+import { Package, ShoppingCart, Settings, Users } from "lucide-react";
 import MenuCreator from "@/features/menu/components/MenuCreator";
 import Menu from "@/features/menu/components/menu/Menu";
 
@@ -37,7 +37,9 @@ export default function BusinessDashboard({ businessId }: Props) {
             className="flex flex-col items-center justify-center p-6 bg-green-50 rounded-2xl shadow hover:bg-green-100 transition"
           >
             <Package className="w-10 h-10 text-green-600 mb-3" />
-            <span className="text-lg font-semibold text-gray-800">Productos</span>
+            <span className="text-lg font-semibold text-gray-800">
+              Productos
+            </span>
             <p className="text-sm text-gray-500">Administra tu menú/catálogo</p>
           </button>
 
@@ -48,6 +50,17 @@ export default function BusinessDashboard({ businessId }: Props) {
             <Settings className="w-10 h-10 text-purple-600 mb-3" />
             <span className="text-lg font-semibold text-gray-800">Perfil</span>
             <p className="text-sm text-gray-500">Edita la info de tu negocio</p>
+          </button>
+
+          <button
+            onClick={() => router.push(`/business/${businessId}/employees`)}
+            className="flex flex-col items-center justify-center p-6 bg-orange-50 rounded-2xl shadow hover:bg-orange-100 transition"
+          >
+            <Users className="w-10 h-10 text-orange-600 mb-3" />
+            <span className="text-lg font-semibold text-gray-800">
+              Empleados
+            </span>
+            <p className="text-sm text-gray-500">Gestiona roles y permisos</p>
           </button>
         </div>
       </section>

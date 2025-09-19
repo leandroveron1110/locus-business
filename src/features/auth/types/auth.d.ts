@@ -1,8 +1,18 @@
+import { PermissionsEnum } from "@/features/common/utils/permissions.enum";
+
 // src/features/auth/types/auth.d.ts
 export enum UserRole {
   CLIENT = 'CLIENT',
   OWNER = 'OWNER',
   ADMIN = 'ADMIN',
+}
+
+
+
+export interface BusinessEmployeeInfo {
+  id: string; // El ID del negocio
+  role: string; // El nombre del rol del empleado (ej. "Gerente" o "UNASSIGNED")
+  permissions?: PermissionsEnum[]; // Los permisos efectivos para ese rol
 }
 
 export interface BusinessLogin {
@@ -19,9 +29,8 @@ export interface User {
   lastName: string;
   email: string;
   role: UserRole;
-  businesses?: BusinessLogin[]
-  // You can include relations if the API nests them, e.g.:
-  // avatar?: Image; // If the API returns the nested Image object
+  businesses?: BusinessEmployeeInfo[]; // Usa la nueva interfaz corregida
+  deliveries?: any[]; // Puedes definir una interfaz similar para 'deliveries'
 }
 
 // Interface for the data needed for login

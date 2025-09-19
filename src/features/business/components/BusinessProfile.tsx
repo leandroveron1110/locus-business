@@ -14,6 +14,9 @@ import BusinessHeader from "./components/views/BusinessHeader";
 import BusinessHeaderContainer from "./components/containers/BusinessHeaderContainer";
 import BusinessContact from "./components/views/BusinessContact";
 import BusinessContactContainer from "./components/containers/BusinessContactContainer";
+import SocialNetworks from "./components/views/SocialNetworks";
+import SocialNetworksContainer from "./components/containers/SocialNetworksContainer";
+import WeeklyScheduleEditor from "./components/edits/WeeklyScheduleForm";
 
 interface Props {
   business: Business;
@@ -28,7 +31,7 @@ const LazyFollowButton = withSkeleton(
   SkeletonFollowButton
 );
 const LazySchedule = withSkeleton(
-  () => import("./components/Schedule"),
+  () => import("./components/containers/ScheduleContainer"),
   SkeletonSchedule
 );
 const LazyGallery = withSkeleton(
@@ -59,50 +62,16 @@ export default function BusinessProfile({ business }: Props) {
         />
 
         {/* Redes Sociales */}
-        <section aria-label="Redes sociales" className="mt-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Redes Sociales
-          </h2>
-          <nav className="flex items-center gap-6 text-gray-600 text-2xl">
-            {business.websiteUrl && (
-              <a
-                href={business.websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-700 transition"
-                aria-label="Sitio web"
-              >
-                <Globe />
-              </a>
-            )}
-            {business.facebookUrl && (
-              <a
-                href={business.facebookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-800 transition"
-                aria-label="Facebook"
-              >
-                <Facebook />
-              </a>
-            )}
-            {business.instagramUrl && (
-              <a
-                href={business.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-pink-600 transition"
-                aria-label="Instagram"
-              >
-                <Instagram />
-              </a>
-            )}
-          </nav>
-        </section>
+        <SocialNetworksContainer
+          initialData={{
+            facebookUrl: business.facebookUrl ?? "",
+            instagramUrl: business.instagramUrl ?? "",
+            websiteUrl: business.websiteUrl ?? "",
+          }}
+        />
 
         {/* Horarios */}
         <LazySchedule businessId={business.id} />
-
         {/* Galería */}
         <LazyGallery businessId={business.id} />
       </section>

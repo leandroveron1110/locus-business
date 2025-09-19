@@ -3,16 +3,12 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware"; // Para persistir el estado
 import {
   User,
-  LoginPayload,
   LoginResponse,
-  RegisterPayload,
   RegisterResponse,
   AuthState,
   AuthStore, // <-- Importa la nueva interfaz AuthStore
 } from "../types/auth";
 import {
-  login as apiLogin,
-  register as apiRegister,
   getMe as apiGetMe,
 } from "../api/authApi";
 
@@ -31,7 +27,7 @@ const initialState: AuthState = {
 export const useAuthStore = create<AuthStore>()(
   // <-- CAMBIO CLAVE AQUÍ: create<AuthStore>()
   persist(
-    (set, get) => ({
+    (set) => ({
       ...initialState, // Carga el estado inicial
 
       /**

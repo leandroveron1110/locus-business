@@ -6,6 +6,7 @@ import ErrorMessage from "@/features/common/ui/ErrorMessage/ErrorMessage";
 import BackButton from "@/features/common/ui/BackButton/BackButton";
 import { useBusinessProfile } from "@/features/business/hooks/useBusinessProfile";
 import BusinessProfile from "@/features/business/components/BusinessProfile";
+import Header from "@/features/header/components/Header";
 
 export default function DeliveryProfilePage() {
   const { businessId } = useParams<{ businessId: string }>();
@@ -47,6 +48,7 @@ export default function DeliveryProfilePage() {
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <Header />
       <div className="max-w-xl mx-auto mb-6">
         <BackButton />
       </div>

@@ -1,3 +1,5 @@
+import { DayOfWeek } from "@/features/schedules/types/schedule";
+
 export type BusinessTag = {
   id: string;
   name: string;
@@ -26,20 +28,6 @@ export type Review = {
     fullName: string;
   };
 };
-
-
-export type BusinessWeeklySchedule = Partial<
-  Record<
-    | "MONDAY"
-    | "TUESDAY"
-    | "WEDNESDAY"
-    | "THURSDAY"
-    | "FRIDAY"
-    | "SATURDAY"
-    | "SUNDAY",
-    string[]
-  >
->;
 
 export type BusinessFollow = { isFollowing: boolean; count: number };
 

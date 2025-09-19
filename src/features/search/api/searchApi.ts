@@ -34,7 +34,7 @@ export interface Business {
 
 export const getBusinessesByIds = async (ids: string[]): Promise<Business[]> => {
   try {
-    const response = await api.post<Business[]>("/businesses/businesses/ids/", { ids });
+    const response = await api.post<Business[]>("/business/businesses/ids/", { ids });
     return response.data;
   } catch (error: any) {
     throw error.response?.data as ApiErrorResponse || new Error("Error fetching businesses");
