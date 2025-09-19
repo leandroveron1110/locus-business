@@ -1,11 +1,11 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import Image from "next/image";
+import { Pencil, Globe } from "lucide-react";
 
 interface BusinessHeaderProps {
   logoUrl?: string;
   name: string;
-  shortDescription?: string;
   fullDescription?: string;
   onEdit?: () => void;
 }
@@ -13,58 +13,86 @@ interface BusinessHeaderProps {
 export default function BusinessHeader({
   logoUrl,
   name,
-  shortDescription,
   fullDescription,
   onEdit,
 }: BusinessHeaderProps) {
+  const commonClasses = "object-cover shadow-md";
+
   return (
-    <div className="w-full">
-      <header className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-10 bg-white rounded-2xl shadow-md p-6 sm:p-10 relative border border-gray-100">
-        {/* Logo */}
+    <header className="w-full flex flex-col sm:flex-row sm:items-start relative">
+      {/* Vista móvil */}
+      <div className="w-full h-64 relative flex-shrink-0 sm:hidden">
         {logoUrl ? (
-          <img
+          <Image
             src={logoUrl}
             alt={`${name} logo`}
-            className="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-xl border border-gray-200 shadow"
+            fill
+            className={`${commonClasses} rounded-b-3xl`}
+            sizes="100vw"
+            priority
           />
         ) : (
-          <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-lg shadow-inner">
-            Sin logo
+          <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-b-3xl">
+            <Globe className="w-16 h-16 text-gray-400" />
           </div>
         )}
 
-        {/* Info */}
-        <div className="flex-1 text-center sm:text-left">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            {name}
-          </h1>
-          {shortDescription && (
-            <p className="mt-2 text-gray-600 text-base sm:text-lg max-w-2xl">
-              {shortDescription}
-            </p>
-          )}
-        </div>
+        {/* Overlay con fullDescription */}
+        {fullDescription && (
+          <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent p-4">
+            <h1 className="text-2xl font-extrabold text-white drop-shadow-lg">{name}</h1>
+            <p className="text-white text-sm mt-1 line-clamp-3 drop-shadow-sm">{fullDescription}</p>
+          </div>
+        )}
 
-        {/* Botón Editar */}
+        {/* Botón Editar en móvil */}
         {onEdit && (
           <button
             onClick={onEdit}
-            className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 transition"
+            className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded-lg shadow hover:bg-blue-700 transition"
+          >
+            <Pencil className="w-3 h-3" />
+            Editar
+          </button>
+        )}
+      </div>
+
+      {/* Vista escritorio */}
+      <div className="hidden sm:block sm:w-40 sm:h-40 relative flex-shrink-0">
+        {logoUrl ? (
+          <Image
+            src={logoUrl}
+            alt={`${name} logo`}
+            fill
+            className={`${commonClasses} rounded-3xl`}
+            sizes="160px"
+            priority
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-3xl">
+            <Globe className="w-16 h-16 text-gray-400" />
+          </div>
+        )}
+      </div>
+
+      {/* Texto y fullDescription en escritorio */}
+      <div className="flex-1 mt-4 px-4 hidden sm:flex flex-col justify-center relative">
+        <h1 className="text-3xl font-extrabold text-gray-900 break-words">{name}</h1>
+        {fullDescription && (
+          <p className="mt-1 text-gray-500 text-sm sm:text-base max-w-xl line-clamp-3">{fullDescription}</p>
+        )}
+
+        {/* Botón Editar escritorio */}
+        {onEdit && (
+          <button
+            onClick={onEdit}
+            className="absolute top-0 right-0 flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 transition"
           >
             <Pencil className="w-4 h-4" />
             Editar
           </button>
         )}
-      </header>
-
-      {/* Descripción larga */}
-      {fullDescription && (
-        <section className="mt-6 sm:mt-8 px-4 sm:px-0">
-          <p className="text-gray-700 text-base sm:text-lg leading-relaxed max-w-4xl mx-auto text-center sm:text-left">
-            {fullDescription}
-          </p>
-        </section>
-      )}
-    </div>
+      </div>
+    </header>
   );
 }

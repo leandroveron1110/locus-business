@@ -1,6 +1,8 @@
 "use client";
 
+import BackButton from "@/features/common/ui/BackButton/BackButton";
 import Loader from "@/features/common/ui/Loader/Loader";
+import Header from "@/features/header/components/Header";
 import { RoleManager } from "@/features/roles/components/RoleManager";
 import { useParams } from "next/navigation";
 
@@ -18,9 +20,13 @@ export default function RolePage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Crear Nuevo Rol</h1>
-      <RoleManager businessId={businessId} />
-    </div>
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+          <Header />
+          <div className="max-w-4xl mx-auto mb-6">
+            <BackButton />
+          </div>
+          <h1 className="text-2xl font-bold mb-4">Crear Nuevo Rol</h1>
+          <RoleManager businessId={businessId} />
+        </div>
   );
 }

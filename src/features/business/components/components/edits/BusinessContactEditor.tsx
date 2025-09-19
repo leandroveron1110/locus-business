@@ -9,6 +9,9 @@ interface BusinessContactEditorProps {
   phone: string;
   whatsapp: string;
   email: string;
+  websiteUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
   onCancel: () => void;
   onSave: (data: {
     address?: string;
@@ -16,6 +19,11 @@ interface BusinessContactEditorProps {
     phone?: string;
     whatsapp?: string;
     email?: string;
+    latitude?: number;
+    longitude?: number;
+    websiteUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
   }) => void;
 }
 
@@ -24,10 +32,21 @@ export default function BusinessContactEditor({
   phone,
   whatsapp,
   email,
+  websiteUrl,
+  facebookUrl,
+  instagramUrl,
   onCancel,
   onSave,
 }: BusinessContactEditorProps) {
-  const [formData, setFormData] = useState({ phone, whatsapp, email });
+    const [formData, setFormData] = useState({
+    phone,
+    whatsapp,
+    email,
+    websiteUrl,
+    facebookUrl,
+    instagramUrl,
+  });
+
   const [editingAddress, setEditingAddress] = useState(false);
   const [addressData, setAddressData] = useState<AddressData | null>(null);
 
@@ -41,15 +60,21 @@ export default function BusinessContactEditor({
     setEditingAddress(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({
-      ...formData,
-      ...(addressData
-        ? { address: `${addressData.street} ${addressData.number || ""}, ${addressData.city}`, addressData }
-        : {}),
-    });
-  };
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  onSave({
+    ...formData,
+    ...(addressData
+      ? {
+          address: `${addressData.street} ${addressData.number || ""}, ${addressData.city}`,
+          latitude: addressData.latitude,
+          longitude: addressData.longitude,
+        }
+      : {}),
+  });
+};
+
 
   return (
     <>
@@ -111,6 +136,39 @@ export default function BusinessContactEditor({
             className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
           />
         </div>
+
+        <div>
+        <label className="block text-sm font-medium text-gray-700">Website</label>
+        <input
+          type="text"
+          name="websiteUrl"
+          value={formData.websiteUrl || ""}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Facebook</label>
+        <input
+          type="text"
+          name="facebookUrl"
+          value={formData.facebookUrl || ""}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Instagram</label>
+        <input
+          type="text"
+          name="instagramUrl"
+          value={formData.instagramUrl || ""}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-pink-500 focus:border-pink-500"
+        />
+      </div>
 
         {/* Botones */}
         <div className="flex justify-end gap-3 mt-4">

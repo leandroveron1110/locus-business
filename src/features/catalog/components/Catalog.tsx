@@ -71,6 +71,11 @@ export default function Catalog({ businessId }: Props) {
     return (
       <div className="text-center py-20 text-gray-600">
         <p>No hay catálogos o información de negocio disponible.</p>
+        <NewCatalogMenu
+            businessId={businessId}
+            ownerId={user?.id || ""}
+            onAddMenu={handleAddMenu}
+          />
       </div>
     );
   }

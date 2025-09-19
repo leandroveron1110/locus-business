@@ -1,9 +1,12 @@
+// src/components/business/BusinessHeaderEditor.tsx
 "use client";
 
 import { useState } from "react";
-import { Image, X, Save } from "lucide-react";
+import { Image, X, Save, UploadCloud } from "lucide-react";
+import { useFileUploader } from "@/features/business/hooks/useImageUploader";
 
 interface BusinessHeaderEditorProps {
+  businessId: string; // Agregamos el businessId
   logoUrl?: string;
   name: string;
   shortDescription?: string;
@@ -17,7 +20,10 @@ interface BusinessHeaderEditorProps {
   }) => void;
 }
 
+const MAX_SHORT_DESC = 60;
+
 export default function BusinessHeaderEditor({
+  businessId, // Lo desestructuramos aquí
   logoUrl,
   name,
   shortDescription,
@@ -32,11 +38,30 @@ export default function BusinessHeaderEditor({
     fullDescription,
   });
 
+  // Usamos el hook y le pasamos la URL del endpoint para el logo
+  const { uploadFile, isUploading } = useFileUploader(businessId);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    if (name === "shortDescription" && value.length > MAX_SHORT_DESC) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+    try {
+      // Llamamos al hook para subir el archivo
+      const data = await uploadFile(file);
+      // Actualizamos el estado con la URL del nuevo logo
+      setFormData((prev) => ({ ...prev, logoUrl: data.url }));
+    } catch (err) {
+      // El hook ya maneja el error, aquí solo se muestra un log
+      console.error("Failed to upload image:", err);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,14 +91,17 @@ export default function BusinessHeaderEditor({
               <Image className="w-6 h-6" />
             </div>
           )}
-          <input
-            type="text"
-            name="logoUrl"
-            value={formData.logoUrl || ""}
-            onChange={handleChange}
-            placeholder="https://ejemplo.com/logo.png"
-            className="flex-1 px-3 py-2 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-          />
+          <label className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-200 text-sm">
+            <UploadCloud className="w-4 h-4" />
+            {isUploading ? "Subiendo..." : "Subir imagen"}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={isUploading}
+            />
+          </label>
         </div>
       </div>
 
@@ -92,10 +120,10 @@ export default function BusinessHeaderEditor({
         />
       </div>
 
-      {/* Descripción corta */}
+      {/* Descripción para buscador */}
       <div>
         <label className="block text-sm font-semibold text-gray-800">
-          Descripción corta
+          Descripción corta (para buscador)
         </label>
         <input
           type="text"
@@ -105,12 +133,15 @@ export default function BusinessHeaderEditor({
           placeholder="Ej: Cafetería artesanal en el centro"
           className="mt-2 block w-full px-3 py-2 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
+        <p className="text-gray-400 text-xs mt-1">
+          Máximo {MAX_SHORT_DESC} caracteres ({formData.shortDescription?.length || 0}/{MAX_SHORT_DESC})
+        </p>
       </div>
 
-      {/* Descripción completa */}
+      {/* Descripción para perfil */}
       <div>
         <label className="block text-sm font-semibold text-gray-800">
-          Descripción completa
+          Descripción completa (perfil)
         </label>
         <textarea
           name="fullDescription"
@@ -135,9 +166,10 @@ export default function BusinessHeaderEditor({
         <button
           type="submit"
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          disabled={isUploading}
         >
           <Save className="w-4 h-4" />
-          Guardar
+          {isUploading ? "Guardando..." : "Guardar"}
         </button>
       </div>
     </form>

@@ -25,6 +25,26 @@ export const fetchBusinessesByID = async (
 };
 
 // ================================================================= //
+//                            CONTACT                                //
+// ================================================================= //
+export interface ContactUpdateData {
+  address?: string;
+  addressData?: any;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  latitude?: number;
+  longitude?: number;
+  websiteUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+}
+export const fetchBusinessConctat = async(businessId: string, data: ContactUpdateData) => {
+  const response = await axios.patch(`/business/${businessId}`, { ...data });
+  return response.data;
+}
+
+// ================================================================= //
 //                              FOLLOW                              //
 // ================================================================= //
 
@@ -194,6 +214,14 @@ export const fetchBusinessGaleryBasic = async (
   const res = await axios.get(`/business/${businessId}/gallery`);
   return res.data;
 };
+
+export const fetchBusinessDeleteGalery = async (
+  businessId: string,
+  imageId: string
+) => {
+    await axios.delete(`/business/${businessId}/gallery/${imageId}`);
+};
+
 
 // ================================================================= //
 //                              RATINGS                            //
