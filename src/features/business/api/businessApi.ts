@@ -9,24 +9,27 @@ import {
   Review
 } from "../types/business";
 import { Category, Tag } from "../types/category";
+import { handleApiError } from "@/lib/handleApiError";
 
 // ================================================================= //
 //                            BUSINESS                             //
 // ================================================================= //
 
-/**
- * Obtenemos los datos principales de un negocio por su ID.
- */
 export const fetchBusinessesByID = async (
   businessId: string
 ): Promise<Business> => {
-  const res = await axios.get(`business/${businessId}`);
-  return res.data;
+  try {
+    const res = await axios.get(`business/${businessId}`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener el negocio");
+  }
 };
 
 // ================================================================= //
 //                            CONTACT                                //
 // ================================================================= //
+
 export interface ContactUpdateData {
   address?: string;
   addressData?: any;
@@ -39,228 +42,237 @@ export interface ContactUpdateData {
   facebookUrl?: string;
   instagramUrl?: string;
 }
-export const fetchBusinessConctat = async(businessId: string, data: ContactUpdateData) => {
-  const response = await axios.patch(`/business/${businessId}`, { ...data });
-  return response.data;
-}
+
+export const fetchBusinessConctat = async (
+  businessId: string,
+  data: ContactUpdateData
+) => {
+  try {
+    const response = await axios.patch(`/business/${businessId}`, { ...data });
+    return response.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al actualizar contacto del negocio");
+  }
+};
 
 // ================================================================= //
 //                              FOLLOW                              //
 // ================================================================= //
 
-/**
- * Parámetros para las funciones de seguir/dejar de seguir.
- */
 interface FollowParams {
   userId: string;
   businessId: string;
 }
 
-/**
- * Hace que un usuario siga un negocio.
- */
 export const follow = async ({ userId, businessId }: FollowParams): Promise<void> => {
-  await axios.post(`business/${businessId}/follow`, { userId });
+  try {
+    await axios.post(`business/${businessId}/follow`, { userId });
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al seguir el negocio");
+  }
 };
 
-export const fetchFollowBusinessAddUser = async ({
-  userId,
-  businessId,
-}: FollowParams) => {
-  const res = await axios.post(`/follow/${userId}/${businessId}`);
-  return res.data;
+export const fetchFollowBusinessAddUser = async ({ userId, businessId }: FollowParams) => {
+  try {
+    const res = await axios.post(`/follow/${userId}/${businessId}`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al agregar el follow");
+  }
 };
 
-/**
- * Hace que un usuario deje de seguir un negocio.
- */
 export const unfollow = async ({ userId, businessId }: FollowParams): Promise<void> => {
-  await axios.delete(`business/${businessId}/follow`, {
-    data: { userId },
-  });
+  try {
+    await axios.delete(`business/${businessId}/follow`, { data: { userId } });
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al dejar de seguir el negocio");
+  }
 };
 
-/**
- * Obtiene los seguidores de un negocio. Si se proporciona un `userId`,
- * verifica si ese usuario sigue al negocio.
- */
 export const fetchFollowers = async (
   businessId: string,
   userId?: string
 ): Promise<BusinessFollow> => {
-  const url = userId
-    ? `/follow/business/${businessId}/${userId}`
-    : `/follow/business/${businessId}`;
-  const res = await axios.get(url);
-  return res.data;
+  try {
+    const url = userId
+      ? `/follow/business/${businessId}/${userId}`
+      : `/follow/business/${businessId}`;
+    const res = await axios.get(url);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener los seguidores");
+  }
 };
 
 // ================================================================= //
 //                              TAGS                               //
 // ================================================================= //
 
-/**
- * Interfaz para la actualización de tags de un negocio.
- */
 interface UpdateBusinessTagsDto {
   tagIds: string[];
 }
 
-/**
- * Obtiene la lista completa de todos los tags disponibles.
- */
 export const fetchGetTags = async (): Promise<Tag[]> => {
-  const res = await axios.get(`/tags`);
-  return res.data;
+  try {
+    const res = await axios.get(`/tags`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener los tags");
+  }
 };
 
-/**
- * Obtiene los tags asociados a un negocio específico.
- */
-export const fetchBusinessTags = async (
-  businessId: string
-): Promise<BusinessTag[]> => {
-  const res = await axios.get(`business/${businessId}/tags/tags`);
-  return res.data;
+export const fetchBusinessTags = async (businessId: string): Promise<BusinessTag[]> => {
+  try {
+    const res = await axios.get(`business/${businessId}/tags/tags`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener los tags del negocio");
+  }
 };
 
-/**
- * Actualiza los tags de un negocio con una nueva lista.
- */
-export const updateBusinessTags = async (
-  businessId: string,
-  tagIds: string[]
-) => {
-  const updateDto: UpdateBusinessTagsDto = { tagIds };
-  const { data } = await axios.patch(`/business/${businessId}/tags`, updateDto);
-  return data;
+export const updateBusinessTags = async (businessId: string, tagIds: string[]) => {
+  try {
+    const updateDto: UpdateBusinessTagsDto = { tagIds };
+    const { data } = await axios.patch(`/business/${businessId}/tags`, updateDto);
+    return data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al actualizar los tags del negocio");
+  }
 };
 
 // ================================================================= //
 //                            CATEGORIES                           //
 // ================================================================= //
 
-/**
- * Interfaz para la actualización de categorías de un negocio.
- */
 interface UpdateBusinessCategoriesDto {
   categoryIds: string[];
 }
 
-/**
- * Obtiene la lista completa de todas las categorías disponibles.
- */
 export const fetchGetCategories = async (): Promise<Category[]> => {
-  const res = await axios.get(`/categories`);
-  return res.data;
+  try {
+    const res = await axios.get(`/categories`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener las categorías");
+  }
 };
 
-/**
- * Obtiene las categorías asociadas a un negocio específico.
- */
 export const fetchBusinessCategories = async (
   businessId: string
 ): Promise<BusinessCategory[]> => {
-  const res = await axios.get(`/business/${businessId}/categories/category`);
-  return res.data;
+  try {
+    const res = await axios.get(`/business/${businessId}/categories/category`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener las categorías del negocio");
+  }
 };
 
-/**
- * Actualiza las categorías de un negocio con una nueva lista.
- */
 export const updateBusinessCategories = async (
   businessId: string,
   categoryIds: string[]
 ) => {
-  const updateDto: UpdateBusinessCategoriesDto = { categoryIds };
-  const res = await axios.patch(
-    `/business/${businessId}/categories`,
-    updateDto
-  );
-  return res.data;
+  try {
+    const updateDto: UpdateBusinessCategoriesDto = { categoryIds };
+    const res = await axios.patch(`/business/${businessId}/categories`, updateDto);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al actualizar las categorías del negocio");
+  }
 };
 
 // ================================================================= //
 //                             SCHEDULE                            //
 // ================================================================= //
 
-/**
- * Obtiene el horario de atención semanal de un negocio.
- */
-export async function fetchWeeklySchedule(businessId: string) {
-  const { data } = await axios.get(`/weekly-schedules/${businessId}`);
-  return data as Record<string, string[]>;
+export async function fetchWeeklySchedule(
+  businessId: string
+): Promise<Record<string, string[]>> {
+  try {
+    const { data } = await axios.get(`/weekly-schedules/${businessId}`);
+    return data as Record<string, string[]>;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al buscar los horarios");
+  }
 }
 
 export async function updateWeeklySchedule(
   businessId: string,
   payload: Record<string, string[]>
 ) {
-  const { data } = await axios.post(`/weekly-schedules/${businessId}`, payload);
-  return data;
+  try {
+    const { data } = await axios.post(`/weekly-schedules/${businessId}`, payload);
+    return data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al actualizar los horarios");
+  }
 }
-
 
 // ================================================================= //
 //                              GALLERY                            //
 // ================================================================= //
 
-/**
- * Obtiene la galería de un negocio.
- */
 export const fetchBusinessGaleryBasic = async (
   businessId: string
 ): Promise<BusinessGalery[]> => {
-  const res = await axios.get(`/business/${businessId}/gallery`);
-  return res.data;
+  try {
+    const res = await axios.get(`/business/${businessId}/gallery`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener la galería del negocio");
+  }
 };
 
 export const fetchBusinessDeleteGalery = async (
   businessId: string,
   imageId: string
 ) => {
+  try {
     await axios.delete(`/business/${businessId}/gallery/${imageId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al eliminar la imagen de la galería");
+  }
 };
-
 
 // ================================================================= //
 //                              RATINGS                            //
 // ================================================================= //
 
-/**
- * Obtiene el resumen de la calificación de un negocio.
- */
-export const fetchSummary = async (
-  businessId: string
-): Promise<BusinessRating> => {
-  const res = await axios.get(`/ratings/summary/${businessId}`);
-  return res.data;
+export const fetchSummary = async (businessId: string): Promise<BusinessRating> => {
+  try {
+    const res = await axios.get(`/ratings/summary/${businessId}`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener el resumen de calificaciones");
+  }
 };
 
-/**
- * Envía una nueva calificación y comentario para un negocio.
- */
 export const fetchSummarySudmi = async (
   businessId: string,
   userId: string,
   value: number,
   comment: string
 ): Promise<BusinessRating> => {
-  const res = await axios.post(`/ratings`, {
-    businessId,
-    userId,
-    value,
-    comment,
-  });
-  return res.data;
+  try {
+    const res = await axios.post(`/ratings`, {
+      businessId,
+      userId,
+      value,
+      comment,
+    });
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al enviar la calificación");
+  }
 };
 
-/**
- * Obtiene los comentarios de un negocio por su ID.
- */
 export const fetchCommentsByBusinessId = async (
   businessId: string
 ): Promise<Review[]> => {
-  const res = await axios.get(`/ratings/comments/${businessId}`);
-  return res.data;
+  try {
+    const res = await axios.get(`/ratings/comments/${businessId}`);
+    return res.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener los comentarios del negocio");
+  }
 };

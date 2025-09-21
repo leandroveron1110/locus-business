@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Package, ShoppingCart, Settings, Users } from "lucide-react";
-import MenuCreator from "@/features/menu/components/MenuCreator";
-import Menu from "@/features/menu/components/menu/Menu";
+import { Package, ShoppingCart, Settings, Users, Shield } from "lucide-react"; // Agregamos Shield
+
 
 interface Props {
   businessId: string;
@@ -61,6 +60,16 @@ export default function BusinessDashboard({ businessId }: Props) {
               Empleados
             </span>
             <p className="text-sm text-gray-500">Gestiona roles y permisos</p>
+          </button>
+
+          {/* NUEVO BOTÓN PARA ROLES */}
+          <button
+            onClick={() => router.push(`/business/${businessId}/roles`)}
+            className="flex flex-col items-center justify-center p-6 bg-red-50 rounded-2xl shadow hover:bg-red-100 transition"
+          >
+            <Shield className="w-10 h-10 text-red-600 mb-3" />
+            <span className="text-lg font-semibold text-gray-800">Roles</span>
+            <p className="text-sm text-gray-500">Administra roles y permisos</p>
           </button>
         </div>
       </section>

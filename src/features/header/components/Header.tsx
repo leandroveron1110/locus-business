@@ -1,15 +1,22 @@
-// src/components/Header.tsx
+"use client"
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { ChevronDown, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { user, logout } = useAuthStore();
+  const router = useRouter();
   const [selectedBusiness, setSelectedBusiness] = useState(
     user?.businesses?.[0] ?? null
   );
 
   if (!user) return null; // Si no hay usuario, no renderizamos el header
+
+  const handleLogout = () => {
+    logout();           // Limpia el store / token
+    router.push("/login"); // Redirige al login
+  };
 
   return (
     <header className="w-full bg-white shadow-sm px-6 py-3 flex items-center justify-between">
@@ -17,10 +24,10 @@ export default function Header() {
       <div className="flex items-center gap-3">
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-800">
-            {user.firstName} {user.lastName}
+            
           </span>
           <span className="text-xs text-gray-500">
-            Rol global: <strong>{user.role}</strong>
+            User: <strong>{user.firstName} {user.lastName}</strong>
           </span>
         </div>
       </div>
@@ -46,7 +53,7 @@ export default function Header() {
 
       {/* 🚪 Logout */}
       <button
-        onClick={logout}
+        onClick={handleLogout}
         className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm"
       >
         <LogOut size={16} />

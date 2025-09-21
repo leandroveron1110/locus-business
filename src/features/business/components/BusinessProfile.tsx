@@ -9,7 +9,6 @@ import { SkeletonGallery } from "./components/Skeleton/SkeletonGallery";
 import { Business } from "../types/business";
 import BusinessHeaderContainer from "./components/containers/BusinessHeaderContainer";
 import BusinessContactContainer from "./components/containers/BusinessContactContainer";
-import SocialNetworksContainer from "./components/containers/SocialNetworksContainer";
 import ProfileNav from "./components/ProfileNav";
 
 interface Props {
