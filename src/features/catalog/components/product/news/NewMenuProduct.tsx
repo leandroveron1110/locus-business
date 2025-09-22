@@ -1,6 +1,6 @@
 // src/features/business/catalog/product/NewMenuProduct.tsx
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { IMenuProduct, MenuProductCreate } from "../../../types/catlog";
 import { useCreateMenuProduct } from "../../../hooks/useMenuHooks";
 import MenuProductPrice from "../components/MenuProductPrice";
@@ -29,14 +29,14 @@ export default function NewMenuProduct({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [prices, setPrices] = useState({
-    originalPrice: 0,
-    finalPrice: 0,
-    discountPercentage: 0,
+    originalPrice: "",
+    finalPrice: "",
+    discountPercentage: "",
   });
 
   const [stock, setStock] = useState(0);
   const [available, setAvailable] = useState(true);
-  const [enabled, setEnabled] = useState(true); // <<--- NUEVO
+  const [enabled, setEnabled] = useState(true);
   const [flags, setFlags] = useState({
     isMostOrdered: false,
     isRecommended: false,
@@ -45,6 +45,13 @@ export default function NewMenuProduct({
   const createProduct = useCreateMenuProduct();
   const addProduct = useMenuStore((status) => status.addProduct);
   const [saving, setSaving] = useState(false);
+
+  // --- REFERENCIA PARA EL INPUT DE NOMBRE ---
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    nameInputRef.current?.focus();
+  }, []);
 
   const handleCreate = async () => {
     setSaving(true);
@@ -55,7 +62,7 @@ export default function NewMenuProduct({
         menuId,
         ownerId,
         description,
-        enabled, // <<--- ENVIAMOS enabled
+        enabled,
         originalPrice: "" + prices.originalPrice,
         finalPrice: "" + prices.finalPrice,
         discountPercentage: "" + prices.discountPercentage,
@@ -70,18 +77,13 @@ export default function NewMenuProduct({
 
       const created = await createProduct.mutateAsync(newProduct);
       onCreated(created);
+
       const add: IMenuProduct = {
         ...created,
         ...newProduct,
       };
 
-      addProduct(
-        {
-          menuId,
-          sectionId,
-        },
-        add
-      );
+      addProduct({ menuId, sectionId }, add);
       onClose();
     } catch (error) {
       console.error(error);
@@ -105,10 +107,12 @@ export default function NewMenuProduct({
       <div>
         <label className="block text-sm font-medium mb-1">Nombre</label>
         <input
+          ref={nameInputRef}
           type="text"
           value={name}
+          placeholder="Ej: Pizza Napolitana"
           onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -116,8 +120,9 @@ export default function NewMenuProduct({
         <label className="block text-sm font-medium mb-1">Descripción</label>
         <textarea
           value={description}
+          placeholder="Agrega una breve descripción del producto"
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -125,7 +130,13 @@ export default function NewMenuProduct({
         finalPrice={prices.finalPrice}
         discountPercentage={prices.discountPercentage}
         originalPrice={prices.originalPrice}
-        onUpdate={(data) => setPrices(data)}
+        onUpdate={(data) =>
+          setPrices({
+            discountPercentage: `${data.discountPercentage}`,
+            finalPrice: `${data.finalPrice}`,
+            originalPrice: `${data.originalPrice}`,
+          })
+        }
       />
 
       <MenuProductStock
@@ -144,17 +155,17 @@ export default function NewMenuProduct({
         onUpdate={(data) => setFlags(data)}
       />
 
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-col sm:flex-row justify-end gap-3">
         <button
           onClick={onClose}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          className="flex-1 sm:flex-none px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Cancelar
         </button>
         <button
           onClick={handleCreate}
-          disabled={saving || !name.trim() || prices.finalPrice <= 0}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          disabled={saving || !name.trim() || Number(prices.finalPrice) <= 0}
+          className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
           {saving ? "Creando..." : "Crear Producto"}
         </button>

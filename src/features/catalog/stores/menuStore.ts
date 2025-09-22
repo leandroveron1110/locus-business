@@ -104,10 +104,14 @@ export const useMenuStore = create<MenuState>()(
       set((s: Draft<MenuState>) => {
         const menu = s.menus.find((m) => m.id === menuId);
         if (!menu) return;
-        if(menu.sections) menu.sections = [];
+
+        if (!menu.sections) {
+          menu.sections = [];
+        }
+
         const exists = menu.sections.some((sec) => sec.id === section.id);
         if (!exists) {
-          section.products = []
+          section.products = [];
           menu.sections.push(section);
         }
       }),
@@ -134,7 +138,7 @@ export const useMenuStore = create<MenuState>()(
           .find((m) => m.id === menuId)
           ?.sections.find((sec) => sec.id === sectionId);
         if (!section) return;
-        if(!section.products) section.products = []
+        if (!section.products) section.products = [];
         const exists = section.products.some((p) => p.id === product.id);
         if (!exists) section.products.push(product);
       }),
@@ -205,7 +209,7 @@ export const useMenuStore = create<MenuState>()(
           ?.products.find((p) => p.id === productId)
           ?.optionGroups.find((g) => g.id === groupId);
         if (!group) return;
-        if(!group.options) group.options = [];
+        if (!group.options) group.options = [];
         const exists = group.options.some((op) => op.id === option.id);
         if (!exists) group.options.push(option);
       }),

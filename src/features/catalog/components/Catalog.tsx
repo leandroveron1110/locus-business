@@ -2,9 +2,9 @@
 
 import React, { useEffect } from "react";
 import { useCatalg } from "../hooks/useCatalg";
-import CatalogMenu from "./CatalogMenu";
+import CatalogMenu from "./views/CatalogMenu";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import BusinessHeader from "./BusinessHeader";
+import BusinessHeader from "./views/BusinessHeader";
 import { useBusinessProfile } from "../hooks/useBusiness";
 import NewCatalogMenu from "./news/NewCatalogMenu";
 import { MenuCreate } from "../types/catlog";
@@ -30,19 +30,16 @@ export default function Catalog({ businessId }: Props) {
   const setMenus = useMenuStore((state) => state.setMenus);
   const addMenu = useMenuStore((state) => state.addMenu);
 
-  // Hook para crear menú
   const createMenuMutation = useCreateMenu();
 
-  // Hidratar store cuando llega `data` del backend
   useEffect(() => {
     if (data) setMenus(data);
   }, [data, setMenus]);
 
-  // Función que se pasa a NewCatalogMenu
   const handleAddMenu = async (menuCreate: MenuCreate) => {
     try {
       const newMenu = await createMenuMutation.mutateAsync(menuCreate);
-      addMenu(newMenu); // 👈 usamos la store
+      addMenu(newMenu);
     } catch (err) {
       console.error("Error creando el menú:", err);
     }
@@ -67,39 +64,39 @@ export default function Catalog({ businessId }: Props) {
     );
   }
 
-  if (!menus || menus.length === 0 || !dataBusiness) {
-    return (
-      <div className="text-center py-20 text-gray-600">
-        <p>No hay catálogos o información de negocio disponible.</p>
-        <NewCatalogMenu
-            businessId={businessId}
-            ownerId={user?.id || ""}
-            onAddMenu={handleAddMenu}
-          />
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BusinessHeader business={dataBusiness} />
-
+     {dataBusiness && (<BusinessHeader business={dataBusiness} />)} 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-16">
-          {(menus ?? []).map((menu) => (
-            <CatalogMenu
-              key={menu.id}
-              businessId={businessId}
-              menuId={menu.id}
-              ownerId={user?.id || ""}
-            />
-          ))}
-
-          <NewCatalogMenu
-            businessId={businessId}
-            ownerId={user?.id || ""}
-            onAddMenu={handleAddMenu}
-          />
+          {menus && menus.length > 0 ? (
+            // Muestra las secciones si hay menús disponibles
+            <>
+              {(menus).map((menu) => (
+                <CatalogMenu
+                  key={menu.id}
+                  businessId={businessId}
+                  menuId={menu.id}
+                  ownerId={user?.id || ""}
+                />
+              ))}
+              <NewCatalogMenu
+                businessId={businessId}
+                ownerId={user?.id || ""}
+                onAddMenu={handleAddMenu}
+              />
+            </>
+          ) : (
+            // Muestra solo el componente de creación si no hay menús
+            <div className="text-center py-20 text-gray-600">
+              <p className="mb-4">No hay catálogos o información de negocio disponible.</p>
+              <NewCatalogMenu
+                businessId={businessId}
+                ownerId={user?.id || ""}
+                onAddMenu={handleAddMenu}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

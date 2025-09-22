@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { IMenuSectionWithProducts } from "../../types/catlog";
 import { z } from "zod";
-import { Check, X, Trash } from "lucide-react";
+import { Check, X, Trash, AlertCircle } from "lucide-react";
 
 interface Props {
   section: IMenuSectionWithProducts;
@@ -47,7 +47,6 @@ export default function EditCatalogSection({
     const modified = getModifiedFields();
 
     if (Object.keys(modified).length === 1 && modified.id) {
-      // no hay cambios
       onCancel?.();
       return;
     }
@@ -63,11 +62,11 @@ export default function EditCatalogSection({
   };
 
   return (
-    <div className="bg-white rounded-xl border shadow-md p-4 space-y-4">
+    <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
       {/* Inputs */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-600">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
             Nombre de la sección
           </label>
           <input
@@ -75,41 +74,47 @@ export default function EditCatalogSection({
             value={temp.name}
             onChange={(e) => handleChange("name", e.target.value)}
             placeholder="Ej: Entradas"
-            className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-600">Índice</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">Índice</label>
           <input
             type="number"
             value={temp.index}
             onChange={(e) => handleChange("index", Number(e.target.value))}
-            className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
         </div>
       </div>
 
       {/* Error */}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div className="flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm">
+          <AlertCircle size={18} /> {error}
+        </div>
+      )}
 
       {/* Botones */}
-      <div className="flex gap-3 flex-wrap justify-end">
+      <div className="flex flex-wrap justify-end gap-3 pt-2">
         <button
           onClick={handleSave}
-          className="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-blue-700 transition-all"
         >
           <Check size={18} /> Guardar
         </button>
+
         <button
           onClick={onCancel}
-          className="flex items-center gap-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+          className="flex items-center gap-2 bg-gray-100 text-gray-800 px-5 py-2 rounded-xl font-medium hover:bg-gray-200 transition-all"
         >
           <X size={18} /> Cancelar
         </button>
+
         <button
           onClick={() => onDelete(section.id)}
-          className="flex items-center gap-1 text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition"
+          className="flex items-center gap-2 text-red-600 bg-red-50 px-5 py-2 rounded-xl font-medium hover:bg-red-100 transition-all"
         >
           <Trash size={18} /> Eliminar
         </button>

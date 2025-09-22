@@ -1,4 +1,3 @@
-import { Decimal } from "@prisma/client/runtime"; // o tu tipo Decimal
 
 // -----------------------------
 // BASE TYPES
@@ -34,14 +33,14 @@ interface MenuProductBase {
   available?: boolean;
   enabled: boolean;
 
-  finalPrice: Decimal | string;
-  originalPrice?: Decimal | string;
+  finalPrice: number | string;
+  originalPrice?: number | string;
   currency?: string;
   currencyMask?: string;
-  finalPriceWithoutTaxes?: Decimal | string;
-  taxesAmount?: Decimal | string;
-  discountAmount?: Decimal | string;
-  discountPercentage?: Decimal | string;
+  finalPriceWithoutTaxes?: number | string;
+  taxesAmount?: number | string;
+  discountAmount?: number | string;
+  discountPercentage?: number | string;
   discountType?: string[];
 
   rating?: number;

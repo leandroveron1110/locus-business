@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { SectionCreate } from "../../types/catlog";
 
@@ -36,32 +37,33 @@ export default function NewCatalogSection({
   };
 
   return (
-    <div className="border-dashed border-2 border-gray-300 p-4 rounded-lg text-center">
+    <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 shadow-sm bg-white hover:shadow-md transition-all duration-200">
       {!isCreating ? (
         <button
-          className="text-blue-600 hover:text-blue-800 font-semibold"
+          className="text-blue-600 hover:text-blue-700 font-medium text-lg flex items-center justify-center gap-2"
           onClick={() => setIsCreating(true)}
         >
-          + Crear nueva sección
+          <span className="text-xl">+</span> Crear nueva sección
         </button>
       ) : (
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col gap-3 animate-fade-in">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre de la sección"
-            className="border border-gray-300 rounded px-2 py-1"
+            className="border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            autoFocus
           />
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-3">
             <button
-              className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-blue-700 transition-all"
               onClick={handleCreate}
             >
               Guardar
             </button>
             <button
-              className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+              className="bg-gray-100 px-4 py-2 rounded-xl font-medium hover:bg-gray-200 transition-all"
               onClick={() => setIsCreating(false)}
             >
               Cancelar

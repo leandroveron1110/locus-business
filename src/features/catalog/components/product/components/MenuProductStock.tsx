@@ -20,7 +20,7 @@ export default function MenuProductStock({
   onUpdate,
 }: Props) {
   const [editingField, setEditingField] = useState<"stock" | "preparationTime" | null>(null);
-  const [tempValue, setTempValue] = useState<number>(0);
+  const [tempValue, setTempValue] = useState<number | null>(null);
 
   const handleEdit = (field: "stock" | "preparationTime", value: number) => {
     setEditingField(field);
@@ -44,8 +44,8 @@ export default function MenuProductStock({
         <Package size={16} />
         {editingField === "stock" ? (
           <input
-            type="number"
-            value={tempValue}
+            type="text"
+            value={tempValue || ""}
             autoFocus
             onChange={(e) => setTempValue(Number(e.target.value))}
             onBlur={handleSave}
@@ -67,7 +67,7 @@ export default function MenuProductStock({
           <Clock size={16} />
           <input
             type="number"
-            value={tempValue}
+            value={tempValue || " "}
             autoFocus
             onChange={(e) => setTempValue(Number(e.target.value))}
             onBlur={handleSave}

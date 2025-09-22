@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { IMenuSectionWithProducts } from "../types/catlog";
-import ViewCatalogSection from "./views/ViewCatalogSection";
-import { useDeleteSection, useUpdateSection } from "../hooks/useMenuHooks";
-import { useMenuStore } from "../stores/menuStore";
+import { IMenuSectionWithProducts } from "../../types/catlog";
+import ViewCatalogSection from "./ViewCatalogSection";
+import { useDeleteSection, useUpdateSection } from "../../hooks/useMenuHooks";
+import { useMenuStore } from "../../stores/menuStore";
 
 interface Props {
   menuId: string;
