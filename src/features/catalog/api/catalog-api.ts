@@ -22,7 +22,7 @@ import { handleApiError } from "@/lib/handleApiError";
 
 export const fetchCatalogByBusinessID = async (businessId: string): Promise<IMenu[]> => {
   try {
-    const res = await axios.get(`/menus/business/${businessId}`);
+    const res = await axios.get(`/menus/business/all/${businessId}`);
     return res.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener el catálogo del negocio");

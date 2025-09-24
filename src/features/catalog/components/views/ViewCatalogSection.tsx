@@ -6,7 +6,7 @@ import { IMenuProduct, IMenuSectionWithProducts } from "../../types/catlog";
 import NewMenuProduct from "../product/news/NewMenuProduct";
 import EditCatalogSection from "../edits/EditCatalogSection";
 import { useMenuStore } from "../../stores/menuStore";
-import { Plus, Pencil, ChevronDown, ChevronUp } from "lucide-react"; // Importamos los nuevos iconos
+import { Plus, Pencil, ChevronDown, ChevronUp } from "lucide-react";
 import CatalogProduct from "./CatalogProduct";
 
 interface Props {
@@ -31,7 +31,7 @@ export default function ViewCatalogSection({
   );
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [showEditSectionModal, setShowEditSectionModal] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false); // Nuevo estado para el colapso
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const section = useMenuStore((state) =>
     state.menus
@@ -75,19 +75,22 @@ export default function ViewCatalogSection({
 
   return (
     <div className="mb-12 relative">
-      {/* Header con botón de colapsar/expandir */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-3 gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-4">
-            <h3 className="text-2xl font-bold text-gray-800">{section.name}</h3>
-            <span className="bg-gray-200 text-gray-600 text-sm font-semibold rounded-full px-3 py-1">
-              {sortedProducts.length || 0} productos
-            </span>
-          </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 border-b pb-3 gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+<div className="flex items-center gap-2 sm:gap-4 mb-4">
+  {/* El título de la sección se ajusta para ser más legible y consistente */}
+  <h3 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
+    {section.name}
+  </h3>
+  {/* El contador de productos es más compacto en móvil */}
+  <span className="bg-gray-200 text-gray-600 text-xs sm:text-sm font-semibold rounded-full px-2 py-0.5 sm:px-3 sm:py-1 whitespace-nowrap">
+    {sortedProducts.length || 0} productos
+  </span>
+</div>
           {sortedProducts.length > 0 && (
             <button
               onClick={handleToggleCollapse}
-              className="p-2 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
+              className="p-1 sm:p-2 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
               aria-label={
                 isCollapsed ? "Expandir Productos" : "Colapsar Productos"
               }
@@ -103,7 +106,7 @@ export default function ViewCatalogSection({
         <div className="flex gap-2">
           <button
             onClick={() => setShowEditSectionModal(true)}
-            className="p-2 rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors"
+            className="p-1 sm:p-2 rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition-colors"
             aria-label="Editar Sección"
           >
             <Pencil className="w-5 h-5" />
@@ -113,7 +116,7 @@ export default function ViewCatalogSection({
 
       {!isCollapsed &&
         (sortedProducts.length > 0 ? (
-          <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
             {sortedProducts.map((product) => (
               <CatalogProduct
                 key={product.id}
@@ -123,32 +126,33 @@ export default function ViewCatalogSection({
             ))}
             <li
               onClick={() => setShowNewProductModal(true)}
-              className="flex justify-center items-center p-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
+              className="flex justify-center items-center p-3 sm:p-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <button
                 className="flex flex-col items-center justify-center text-gray-500 hover:text-green-600 transition-colors"
                 aria-label="Nuevo Producto"
               >
-                <Plus className="w-8 h-8 mb-2" />
+                <Plus className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-2" />
                 <span className="text-sm font-semibold">Agregar Producto</span>
               </button>
             </li>
           </ul>
         ) : (
-          <div className="text-center text-gray-500 py-10">
-            <p className="text-lg font-medium">
+          <div className="text-center text-gray-500 py-6 sm:py-10">
+            {/* Ajuste de tamaño de fuente para el texto de no hay productos */}
+            <p className="text-base sm:text-lg font-medium">
               Aún no hay productos en esta sección.
             </p>
+            {/* Ajuste de padding para el botón */}
             <button
               onClick={() => setShowNewProductModal(true)}
-              className="mt-4 px-5 py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition-all"
+              className="mt-3 sm:mt-4 px-4 sm:px-5 py-1.5 sm:py-2 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition-all"
             >
               Agregar el primero
             </button>
           </div>
         ))}
 
-      {/* Modales */}
       {selectedProduct && (
         <Modal onClose={handleCloseModal}>
           <MenuProduct
@@ -197,10 +201,10 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative p-6">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative p-4 sm:p-6">
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-xl"
+          className="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-lg sm:text-xl"
           aria-label="Cerrar modal"
         >
           ✕

@@ -62,12 +62,12 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
 
   return (
     <div className="bg-gray-50 ">
-      <div className=" mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="bg-white">
         
         {/* Header con botón e ícono */}
         <header className="p-8 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
-            <h2 className="text-4xl font-extrabold text-gray-900 leading-tight">{menu.name}</h2>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight">{menu.name}</h2>
             <button
               onClick={() => setShowEditMenuModal(true)}
               className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
