@@ -1,4 +1,3 @@
-import axios from "@/lib/api";
 import {
   Business,
   BusinessCategory,
@@ -10,6 +9,7 @@ import {
 } from "../types/business";
 import { Category, Tag } from "../types/category";
 import { handleApiError } from "@/lib/handleApiError";
+import { apiDelete, apiGet, apiPatch, apiPost, ApiResult } from "@/lib/apiFetch";
 
 // ================================================================= //
 //                            BUSINESS                             //
@@ -17,10 +17,10 @@ import { handleApiError } from "@/lib/handleApiError";
 
 export const fetchBusinessesByID = async (
   businessId: string
-): Promise<Business> => {
+): Promise<ApiResult<Business>> => {
   try {
-    const res = await axios.get(`business/${businessId}`);
-    return res.data;
+    const res = await apiGet<Business>(`business/${businessId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener el negocio");
   }
@@ -48,8 +48,7 @@ export const fetchBusinessConctat = async (
   data: ContactUpdateData
 ) => {
   try {
-    const response = await axios.patch(`/business/${businessId}`, { ...data });
-    return response.data;
+    await apiPatch(`/business/${businessId}`, { ...data });
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar contacto del negocio");
   }
@@ -66,7 +65,7 @@ interface FollowParams {
 
 export const follow = async ({ userId, businessId }: FollowParams): Promise<void> => {
   try {
-    await axios.post(`business/${businessId}/follow`, { userId });
+    await apiPost(`business/${businessId}/follow`, { userId });
   } catch (error: unknown) {
     throw handleApiError(error, "Error al seguir el negocio");
   }
@@ -74,8 +73,8 @@ export const follow = async ({ userId, businessId }: FollowParams): Promise<void
 
 export const fetchFollowBusinessAddUser = async ({ userId, businessId }: FollowParams) => {
   try {
-    const res = await axios.post(`/follow/${userId}/${businessId}`);
-    return res.data;
+    const res = await apiPost(`/follow/${userId}/${businessId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al agregar el follow");
   }
@@ -83,7 +82,7 @@ export const fetchFollowBusinessAddUser = async ({ userId, businessId }: FollowP
 
 export const unfollow = async ({ userId, businessId }: FollowParams): Promise<void> => {
   try {
-    await axios.delete(`business/${businessId}/follow`, { data: { userId } });
+    await apiDelete(`business/${businessId}/follow`, { data: { userId } });
   } catch (error: unknown) {
     throw handleApiError(error, "Error al dejar de seguir el negocio");
   }
@@ -92,13 +91,13 @@ export const unfollow = async ({ userId, businessId }: FollowParams): Promise<vo
 export const fetchFollowers = async (
   businessId: string,
   userId?: string
-): Promise<BusinessFollow> => {
+): Promise<ApiResult<BusinessFollow>> => {
   try {
     const url = userId
       ? `/follow/business/${businessId}/${userId}`
       : `/follow/business/${businessId}`;
-    const res = await axios.get(url);
-    return res.data;
+    const res = await apiGet<BusinessFollow>(url);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener los seguidores");
   }
@@ -112,19 +111,19 @@ interface UpdateBusinessTagsDto {
   tagIds: string[];
 }
 
-export const fetchGetTags = async (): Promise<Tag[]> => {
+export const fetchGetTags = async (): Promise<ApiResult<Tag[]>> => {
   try {
-    const res = await axios.get(`/tags`);
-    return res.data;
+    const res = await apiGet<Tag[]>(`/tags`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener los tags");
   }
 };
 
-export const fetchBusinessTags = async (businessId: string): Promise<BusinessTag[]> => {
+export const fetchBusinessTags = async (businessId: string): Promise<ApiResult<BusinessTag[]>> => {
   try {
-    const res = await axios.get(`business/${businessId}/tags/tags`);
-    return res.data;
+    const res = await apiGet<BusinessTag[]>(`business/${businessId}/tags/tags`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener los tags del negocio");
   }
@@ -133,7 +132,7 @@ export const fetchBusinessTags = async (businessId: string): Promise<BusinessTag
 export const updateBusinessTags = async (businessId: string, tagIds: string[]) => {
   try {
     const updateDto: UpdateBusinessTagsDto = { tagIds };
-    const { data } = await axios.patch(`/business/${businessId}/tags`, updateDto);
+    const data  = await apiPatch(`/business/${businessId}/tags`, updateDto);
     return data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar los tags del negocio");
@@ -148,10 +147,10 @@ interface UpdateBusinessCategoriesDto {
   categoryIds: string[];
 }
 
-export const fetchGetCategories = async (): Promise<Category[]> => {
+export const fetchGetCategories = async (): Promise<ApiResult<Category[]>> => {
   try {
-    const res = await axios.get(`/categories`);
-    return res.data;
+    const res = await apiGet<Category[]>(`/categories`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener las categorías");
   }
@@ -159,10 +158,10 @@ export const fetchGetCategories = async (): Promise<Category[]> => {
 
 export const fetchBusinessCategories = async (
   businessId: string
-): Promise<BusinessCategory[]> => {
+): Promise<ApiResult<BusinessCategory[]>> => {
   try {
-    const res = await axios.get(`/business/${businessId}/categories/category`);
-    return res.data;
+    const res = await apiGet<BusinessCategory[]>(`/business/${businessId}/categories/category`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener las categorías del negocio");
   }
@@ -174,8 +173,8 @@ export const updateBusinessCategories = async (
 ) => {
   try {
     const updateDto: UpdateBusinessCategoriesDto = { categoryIds };
-    const res = await axios.patch(`/business/${businessId}/categories`, updateDto);
-    return res.data;
+    const res = await apiPatch(`/business/${businessId}/categories`, updateDto);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar las categorías del negocio");
   }
@@ -187,10 +186,10 @@ export const updateBusinessCategories = async (
 
 export async function fetchWeeklySchedule(
   businessId: string
-): Promise<Record<string, string[]>> {
+): Promise<ApiResult<Record<string, string[]>>> {
   try {
-    const { data } = await axios.get(`/weekly-schedules/${businessId}`);
-    return data as Record<string, string[]>;
+    const data = await apiGet<Record<string, string[]>>(`/weekly-schedules/${businessId}`);
+    return data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al buscar los horarios");
   }
@@ -201,7 +200,7 @@ export async function updateWeeklySchedule(
   payload: Record<string, string[]>
 ) {
   try {
-    const { data } = await axios.post(`/weekly-schedules/${businessId}`, payload);
+    const data  = await apiPost(`/weekly-schedules/${businessId}`, payload);
     return data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar los horarios");
@@ -214,10 +213,10 @@ export async function updateWeeklySchedule(
 
 export const fetchBusinessGaleryBasic = async (
   businessId: string
-): Promise<BusinessGalery[]> => {
+): Promise<ApiResult<BusinessGalery[]>> => {
   try {
-    const res = await axios.get(`/business/${businessId}/gallery`);
-    return res.data;
+    const res = await apiGet<BusinessGalery[]>(`/business/${businessId}/gallery`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener la galería del negocio");
   }
@@ -228,7 +227,7 @@ export const fetchBusinessDeleteGalery = async (
   imageId: string
 ) => {
   try {
-    await axios.delete(`/business/${businessId}/gallery/${imageId}`);
+    await apiDelete(`/business/${businessId}/gallery/${imageId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar la imagen de la galería");
   }
@@ -238,10 +237,10 @@ export const fetchBusinessDeleteGalery = async (
 //                              RATINGS                            //
 // ================================================================= //
 
-export const fetchSummary = async (businessId: string): Promise<BusinessRating> => {
+export const fetchSummary = async (businessId: string): Promise<ApiResult<BusinessRating>> => {
   try {
-    const res = await axios.get(`/ratings/summary/${businessId}`);
-    return res.data;
+    const res = await apiGet<BusinessRating>(`/ratings/summary/${businessId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener el resumen de calificaciones");
   }
@@ -252,15 +251,15 @@ export const fetchSummarySudmi = async (
   userId: string,
   value: number,
   comment: string
-): Promise<BusinessRating> => {
+): Promise<ApiResult<BusinessRating>> => {
   try {
-    const res = await axios.post(`/ratings`, {
+    const res = await apiPost<BusinessRating>(`/ratings`, {
       businessId,
       userId,
       value,
       comment,
     });
-    return res.data;
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al enviar la calificación");
   }
@@ -268,10 +267,10 @@ export const fetchSummarySudmi = async (
 
 export const fetchCommentsByBusinessId = async (
   businessId: string
-): Promise<Review[]> => {
+): Promise<ApiResult<Review[]>> => {
   try {
-    const res = await axios.get(`/ratings/comments/${businessId}`);
-    return res.data;
+    const res = await apiGet<Review[]>(`/ratings/comments/${businessId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener los comentarios del negocio");
   }

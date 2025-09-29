@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { getBusinessRolesAndPermissions, BusinessRole } from "../api/employees-api";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { ApiResult } from "@/lib/apiFetch";
 
 const employeeAssignmentSchema = z.object({
   roleId: z.string().uuid("Selecciona un rol válido."),
@@ -28,7 +29,7 @@ export function useBusinessRoles() {
     defaultValues: { roleId: "" },
   });
 
-  const { data: roles, isLoading: rolesLoading } = useQuery<BusinessRole[]>({
+  const { data: roles, isLoading: rolesLoading } = useQuery<ApiResult<BusinessRole[]>>({
     queryKey: ["businessRoles", businessId],
     queryFn: () => getBusinessRolesAndPermissions(businessId!),
     enabled: !!businessId,

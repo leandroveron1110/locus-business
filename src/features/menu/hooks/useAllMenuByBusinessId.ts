@@ -25,13 +25,14 @@ import {
   OptionGroupCreate,
   OptionCreate,
 } from "../types/menu";
+import { ApiResult } from "@/lib/apiFetch";
 
 // -----------------------------
 // MENUS
 // -----------------------------
 
 export const useAllMenuByBusinessId = (businessId: string) => {
-  return useQuery<IMenu[]>({
+  return useQuery<ApiResult<IMenu[]>>({
     queryKey: ["menu-all-business", businessId],
     queryFn: () => fetchMenuByBusinessId(businessId),
     refetchOnWindowFocus: false,

@@ -12,7 +12,7 @@ export const fetchUpdateOrdersByOrderID = async (
   orderId: string,
   status: string
 ): Promise<Order> => {
-  const res = await axios.patch(`/orders/order/stauts/${orderId}`, { status });
+  const res = await axios.patch(`/orders/order/status/${orderId}`, { status });
   return res.data;
 };
 
@@ -20,7 +20,7 @@ export const fetchUpdateOrdersPaymentByOrderID = async (
   orderId: string,
   status: string
 ): Promise<Order> => {
-  const res = await axios.patch(`/orders/order/payment-status/stauts/${orderId}`, { status });
+  const res = await axios.patch(`/orders/order/payment-status/status/${orderId}`, { status });
   return res.data;
 };
 

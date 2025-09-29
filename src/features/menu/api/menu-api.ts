@@ -1,4 +1,4 @@
-import axios from "@/lib/api";
+import { apiDelete, apiGet, apiPost, apiPut, ApiResult } from "@/lib/apiFetch";
 import {
   IMenu,
   IMenuSectionWithProducts,
@@ -11,121 +11,161 @@ import {
   OptionGroupCreate,
   OptionCreate,
 } from "../types/menu";
+import { handleApiError } from "@/lib/handleApiError";
 
-// -----------------------------
+
 // MENUS
-// -----------------------------
-
 export const fetchMenuByBusinessId = async (
   businessId: string
-): Promise<IMenu[]> => {
-  const res = await axios.get(`menus/business/${businessId}`);
-  return res.data;
+): Promise<ApiResult<IMenu[]>> => {
+  try {
+    return await apiGet<IMenu[]>(`menus/business/${businessId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudieron obtener los menús del negocio con ID ${businessId}.`);
+  }
 };
 
-export const createMenu = async (newMenu: MenuCreate): Promise<IMenu> => {
-  const res = await axios.post(`menus/`, newMenu);
-  return res.data;
+export const createMenu = async (newMenu: MenuCreate): Promise<ApiResult<IMenu>> => {
+  try {
+    return await apiPost<IMenu>(`menus/`, newMenu);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo crear el menú "${newMenu.name}".`);
+  }
 };
 
 export const updateMenu = async (
   menuId: string,
   data: Partial<MenuCreate>
-): Promise<IMenu> => {
-  const res = await axios.put(`menus/${menuId}`, data);
-  return res.data;
+): Promise<ApiResult<IMenu>> => {
+  try {
+    return await apiPut<IMenu>(`menus/${menuId}`, data);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo actualizar el menú con ID ${menuId}.`);
+  }
 };
 
 export const deleteMenu = async (menuId: string): Promise<void> => {
-  await axios.delete(`menus/${menuId}`);
+  try {
+    await apiDelete(`menus/${menuId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo eliminar el menú con ID ${menuId}.`);
+  }
 };
 
-// -----------------------------
 // SECTIONS
-// -----------------------------
-
 export const createSection = async (
   section: SectionCreate
-): Promise<IMenuSectionWithProducts> => {
-  const res = await axios.post(`menus/sections`, section);
-  return res.data;
+): Promise<ApiResult<IMenuSectionWithProducts>> => {
+  try {
+    return await apiPost<IMenuSectionWithProducts>(`menus/sections`, section);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo crear la sección "${section.name}".`);
+  }
 };
 
 export const updateSection = async (
   sectionId: string,
   data: Partial<SectionCreate>
-): Promise<IMenuSectionWithProducts> => {
-  const res = await axios.put(`menus/sections/${sectionId}`, data);
-  return res.data;
+): Promise<ApiResult<IMenuSectionWithProducts>> => {
+  try {
+    return await apiPut<IMenuSectionWithProducts>(`menus/sections/${sectionId}`, data);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo actualizar la sección con ID ${sectionId}.`);
+  }
 };
 
 export const deleteSection = async (sectionId: string): Promise<void> => {
-  await axios.delete(`menus/sections/${sectionId}`);
+  try {
+    await apiDelete(`menus/sections/${sectionId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo eliminar la sección con ID ${sectionId}.`);
+  }
 };
 
-// -----------------------------
 // MENU PRODUCTS
-// -----------------------------
-
 export const createMenuProduct = async (
   product: MenuProductCreate
-): Promise<IMenuProduct> => {
-  const res = await axios.post(`menus/products`, product);
-  return res.data;
+): Promise<ApiResult<IMenuProduct>> => {
+  try {
+    return await apiPost<IMenuProduct>(`menus/products`, product);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo crear el producto "${product.name}".`);
+  }
 };
 
 export const updateMenuProduct = async (
   productId: string,
   data: Partial<MenuProductCreate>
-): Promise<IMenuProduct> => {
-  const res = await axios.put(`menus/products/${productId}`, data);
-  return res.data;
+): Promise<ApiResult<IMenuProduct>> => {
+  try {
+    return await apiPut<IMenuProduct>(`menus/products/${productId}`, data);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo actualizar el producto con ID ${productId}.`);
+  }
 };
 
 export const deleteMenuProduct = async (productId: string): Promise<void> => {
-  await axios.delete(`menus/products/${productId}`);
+  try {
+    await apiDelete(`menus/products/${productId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo eliminar el producto con ID ${productId}.`);
+  }
 };
 
-// -----------------------------
 // OPTION GROUPS
-// -----------------------------
-
 export const createOptionGroup = async (
   group: OptionGroupCreate
-): Promise<IOptionGroup> => {
-  const res = await axios.post(`menus/option-groups`, group);
-  return res.data;
+): Promise<ApiResult<IOptionGroup>> => {
+  try {
+    return await apiPost<IOptionGroup>(`menus/option-groups`, group);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo crear el grupo de opciones "${group.name}".`);
+  }
 };
 
 export const updateOptionGroup = async (
   groupId: string,
   data: Partial<OptionGroupCreate>
-): Promise<IOptionGroup> => {
-  const res = await axios.put(`menus/option-groups/${groupId}`, data);
-  return res.data;
+): Promise<ApiResult<IOptionGroup>> => {
+  try {
+    return await apiPut<IOptionGroup>(`menus/option-groups/${groupId}`, data);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo actualizar el grupo de opciones con ID ${groupId}.`);
+  }
 };
 
 export const deleteOptionGroup = async (groupId: string): Promise<void> => {
-  await axios.delete(`menus/option-groups/${groupId}`);
+  try {
+    await apiDelete(`menus/option-groups/${groupId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo eliminar el grupo de opciones con ID ${groupId}.`);
+  }
 };
 
-// -----------------------------
 // OPTIONS
-// -----------------------------
-
-export const createOption = async (option: OptionCreate): Promise<IOption> => {
-  const res = await axios.post(`menus/options`, option);
-  return res.data;
+export const createOption = async (option: OptionCreate): Promise<ApiResult<IOption>> => {
+  try {
+    return await apiPost<IOption>(`menus/options`, option);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo crear la opción "${option.name}".`);
+  }
 };
 
 export const updateOption = async (
   optionId: string,
   data: Partial<OptionCreate>
-): Promise<IOption> => {
-  const res = await axios.put(`menus/options/${optionId}`, data);
-  return res.data;
+): Promise<ApiResult<IOption>> => {
+  try {
+    return await apiPut<IOption>(`menus/options/${optionId}`, data);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo actualizar la opción con ID ${optionId}.`);
+  }
 };
 
 export const deleteOption = async (optionId: string): Promise<void> => {
-  await axios.delete(`menus/options/${optionId}`);
+  try {
+    await apiDelete(`menus/options/${optionId}`);
+  } catch (error: unknown) {
+    throw handleApiError(error, `No se pudo eliminar la opción con ID ${optionId}.`);
+  }
 };

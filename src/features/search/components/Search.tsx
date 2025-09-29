@@ -2,18 +2,24 @@
 
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useBusinesses } from "../hooks/useBusinesses";
-import { SearchBusinessCard } from "./SearchBusinessCard";
+import { withSkeleton } from "@/features/common/utils/withSkeleton";
+import SearchBusinessListSkeleton from "./skeleton/SearchBusinessListSkeleton";
+
+const DynamicSearchBusinessList = withSkeleton(
+  () => import("./SearchBusinessList"),
+  SearchBusinessListSkeleton
+);
 
 export default function SearchPage() {
-  const user = useAuthStore();
+  const { user } = useAuthStore();
 
-  const businessIds = user.user?.businesses?.map((b) => b.id) || [];
-  const { data: businesses, isLoading, isError } = useBusinesses(businessIds);
+  const businessIds = user?.businesses?.map((b) => b.id) || [];
+  const { data, isLoading, isError } = useBusinesses(businessIds);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Cargando negocios...</p>
+        <p className="text-gray-600">Cargando negocios...</p>
       </div>
     );
   }
@@ -21,34 +27,26 @@ export default function SearchPage() {
   if (isError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Error cargando negocios</p>
+        <p className="text-red-500">Error cargando negocios</p>
       </div>
     );
   }
 
-  // Combinar rol del JWT con datos del backend
-  const businessesWithRole = businesses?.map((b) => {
-    const userBusiness = user.user?.businesses?.find((ub) => ub.id === b.id);
-    return {
-      ...b,
-      role: userBusiness?.role || "",
-    };
-  });
+  if (!data || data.data.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-400">No tienes negocios asociados</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-      {businessesWithRole?.map((b) => (
-        <SearchBusinessCard
-          key={b.id}
-          business={{
-            id: b.id,
-            name: b.name,
-            address: b.address,
-            description: b.description,
-            role: b.role,
-          }}
-        />
-      ))}
+    <div className="mx-auto max-w-7xl">
+            <div className="mt-6">
+
+              <DynamicSearchBusinessList businesses={data.data} />
+
+            </div>
     </div>
   );
 }

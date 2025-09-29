@@ -6,9 +6,17 @@ import { fetchDeliveryCompany } from "../api/catalog-api";
 import { useBusinessOrdersSocket } from "../stores/useBusinessOrdersSocket";
 import { useBusinessOrdersStore } from "../stores/useBusinessOrdersStore";
 import { useFetchBusinessOrders } from "../stores/useFetchBusinessOrders";
-import { EOrderStatusBusiness, Order } from "../types/order";
+import {
+  EOrderStatusBusiness,
+  Order,
+  OrderStatus,
+  PaymentMethodType,
+  PaymentStatus,
+} from "../types/order";
 import { Search } from "lucide-react";
-import BusinessOrderCard from "./BusinessOrderCard";
+import OrderCard from "./Card/OrderCard";
+import OrdersFilters from "./OrdersFilters";
+import { simplifiedFilters } from "@/features/common/utils/filtersData";
 
 interface Props {
   businessId: string;
@@ -19,15 +27,11 @@ export default function BusinessOrdersPage({ businessId }: Props) {
   useBusinessOrdersSocket(businessId);
 
   const orders = useBusinessOrdersStore((s) => s.orders as Order[]);
-
   const [deliveryCompanies, setDeliveryCompanies] = useState<
     { id: string; name: string }[]
   >([]);
-
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    EOrderStatusBusiness | "ALL"
-  >("ALL");
+  const [activeFilter, setActiveFilter] = useState("Todos");
 
   useEffect(() => {
     fetchDeliveryCompany()
@@ -35,60 +39,143 @@ export default function BusinessOrdersPage({ businessId }: Props) {
       .catch((e) => console.error("Error cargando delivery companies", e));
   }, []);
 
-  // Filtrado + búsqueda
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      const matchesSearch =
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.user.phone && order.user.phone.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Filtra órdenes según método de pago y su estado
+  const filterOrdersView = (order: Order) => {
+    if (order.paymentType === PaymentMethodType.CASH) return true;
+    if (
+      order.paymentType === PaymentMethodType.TRANSFER &&
+      order.paymentStatus !== PaymentStatus.PENDING &&
+      order.paymentStatus !== PaymentStatus.REJECTED
+    )
+      return true;
+    return false;
+  };
 
-      const matchesStatus =
-        statusFilter === "ALL" || order.status === statusFilter;
+  // Define prioridad para ordenar las órdenes
+  const getOrderPriority = (order: Order) => {
+    // Amarillo → Pago pendiente / en revisión
+    if (
+      order.paymentType == PaymentMethodType.CASH &&
+      order.status == OrderStatus.PENDING
+    ) {
+      return 1;
+    }
+    if (
+      order.paymentType === PaymentMethodType.TRANSFER &&
+      (order.paymentStatus === PaymentStatus.PENDING ||
+        order.paymentStatus === PaymentStatus.IN_PROGRESS)
+    )
+      return 2;
 
-      return matchesSearch && matchesStatus;
+    // Azul → Confirmado / en proceso
+    if (
+      order.status === OrderStatus.CONFIRMED ||
+      order.status === OrderStatus.PREPARING
+    )
+      return 3;
+
+    // Verde → Completado / Entregado
+    if (
+      order.status === OrderStatus.COMPLETED ||
+      order.status === OrderStatus.DELIVERED
+    )
+      return 4;
+
+    // Rojo → Cancelado / rechazado
+    if (
+      order.status === OrderStatus.CANCELLED_BY_USER ||
+      order.status === OrderStatus.REJECTED_BY_BUSINESS ||
+      order.status === OrderStatus.DELIVERY_FAILED ||
+      order.status === OrderStatus.DELIVERY_REJECTED
+    )
+      return 5;
+
+    return 6; // Otros estados sin prioridad
+  };
+
+  const filteredAndSortedOrders = useMemo(() => {
+    if (!orders) return [];
+
+    // Aplica quick filter activo
+    const currentFilter = simplifiedFilters.find(
+      (f) => f.label === activeFilter
+    );
+
+    let filtered = orders.filter((order) => filterOrdersView(order));
+
+    if (currentFilter && currentFilter.label !== "Todos") {
+      filtered = filtered.filter((order) => {
+        if (currentFilter.condition) return currentFilter.condition(order);
+        return currentFilter.statuses.includes(order.status);
+      });
+    }
+
+    // Busca por término de búsqueda
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (order) =>
+          order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.user.fullName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (order.user.phone &&
+            order.user.phone.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Ordena por prioridad y fecha descendente
+    return filtered.sort((a, b) => {
+      const priorityDiff = getOrderPriority(a) - getOrderPriority(b);
+      if (priorityDiff !== 0) return priorityDiff;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [orders, searchTerm, statusFilter]);
+  }, [orders, activeFilter, searchTerm]);
+
+  const orderFilter = orders.filter((order) => filterOrdersView(order));
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900">📦 Gestión de Órdenes</h1>
+    <div className="w-full bg-gray-100">
+      {/* Quick Filters */}
+      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm pt-4 pb-2">
+        <OrdersFilters
+          quickFilters={simplifiedFilters}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+          orders={orderFilter ?? []}
+        />
+      </div>
 
-      {/* Buscador y filtros */}
-      <div className="flex flex-col md:flex-row items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por ID, cliente o teléfono..."
-            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring focus:ring-blue-200 focus:outline-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Buscador */}
+      <div className="sticky top-0 z-10 bg-gray-100 pb-2 mb-4">
+        <div className="flex flex-col md:flex-row items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por ID, cliente o teléfono..."
+              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring focus:ring-blue-200 focus:outline-none text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
-        <select
-          className="w-full md:w-auto border rounded-lg px-3 py-2 text-gray-700"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
-        >
-          <option value="ALL">Todos los estados</option>
-          {Object.values(EOrderStatusBusiness).map((status) => (
-            <option key={status} value={status}>
-              {status.replace(/_/g, ' ')}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Lista de órdenes */}
-      {filteredOrders.length === 0 ? (
-        <div className="text-center p-10 bg-white rounded-xl shadow-sm border border-gray-200">
-          <p className="text-gray-500 text-lg">No se encontraron órdenes para este negocio.</p>
+      {filteredAndSortedOrders.length === 0 ? (
+        <div className="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200">
+          <p className="text-gray-500 text-lg">
+            No se encontraron órdenes para este negocio.
+          </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredOrders.map((order) => (
-            <BusinessOrderCard key={order.id} order={order} deliveryCompanies={deliveryCompanies} />
+        <div className="grid grid-cols-1 p-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+          {filteredAndSortedOrders.map((order) => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              deliveryCompanies={deliveryCompanies}
+            />
           ))}
         </div>
       )}

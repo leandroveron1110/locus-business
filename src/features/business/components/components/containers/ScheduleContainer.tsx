@@ -12,7 +12,7 @@ interface Props {
 
 export default function ScheduleContainer({ businessId }: Props) {
   const { data, isLoading, isError, error, refetch } = useSchedule(businessId);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
 
   if (isLoading) return <SkeletonSchedule />;
   if (isError && error.statusCode !== 404 ) return <p className="text-red-500">Error al cargar el horario</p>;

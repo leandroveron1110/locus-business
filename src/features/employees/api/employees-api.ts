@@ -1,5 +1,5 @@
 import { PermissionsEnum } from "@/features/common/utils/permissions.enum";
-import api from "@/lib/api";
+import { apiGet, apiPatch, apiPost, ApiResult } from "@/lib/apiFetch";
 import { handleApiError } from "@/lib/handleApiError";
 
 // --- Interfaz para el payload de creación de un empleado ---
@@ -60,10 +60,10 @@ export interface IEmployee {
 
 export const getBusinessRolesAndPermissions = async (
   businessId: string
-): Promise<BusinessRole[]> => {
+): Promise<ApiResult<BusinessRole[]>> => {
   try {
-    const response = await api.get(`/roles/business/${businessId}`);
-    return response.data;
+    const response = await apiGet<BusinessRole[]>(`/roles/business/${businessId}`);
+    return response;
   } catch (error) {
     throw handleApiError(error, "No se pudieron obtener los roles del negocio");
   }
@@ -71,12 +71,12 @@ export const getBusinessRolesAndPermissions = async (
 
 export const getBusinessEmployees = async (
   businessId: string
-): Promise<IEmployee[]> => {
+): Promise<ApiResult<IEmployee[]>> => {
   try {
-    const response = await api.get(
+    const response = await apiGet<IEmployee[]>(
       `/employees/business/employess/${businessId}`
     );
-    return response.data;
+    return response;
   } catch (error) {
     throw handleApiError(
       error,
@@ -90,10 +90,10 @@ export const deleteRoleEmployees = async (
   employeeId: string
 ) => {
   try {
-    const response = await api.patch(
+    const response = await apiPatch(
       `/employees/remove-role/${businessId}/${employeeId}`
     );
-    return response.data;
+    return response;
   } catch (error) {
     throw handleApiError(error, "No se pudo eliminar el rol del empleado");
   }
@@ -101,10 +101,10 @@ export const deleteRoleEmployees = async (
 
 export const findUserById = async (
   userId: string
-): Promise<UserSearchResponse> => {
+): Promise<ApiResult<UserSearchResponse>> => {
   try {
-    const response = await api.get(`/users/${userId}`);
-    return response.data;
+    const response = await apiGet<UserSearchResponse>(`/users/${userId}`);
+    return response;
   } catch (error) {
     throw handleApiError(error, "No se pudo encontrar el usuario por ID");
   }
@@ -112,10 +112,10 @@ export const findUserById = async (
 
 export const findByEmail = async (
   email: string
-): Promise<UserSearchResponse> => {
+): Promise<ApiResult<UserSearchResponse>> => {
   try {
-    const response = await api.get(`/users/email/${email}`);
-    return response.data;
+    const response = await apiGet<UserSearchResponse>(`/users/email/${email}`);
+    return response;
   } catch (error) {
     throw handleApiError(error, "No se pudo encontrar el usuario por email");
   }
@@ -124,13 +124,13 @@ export const findByEmail = async (
 export const createBusinessEmployee = async (
   businessId: string,
   payload: CreateBusinessEmployeePayload
-): Promise<{ employeeId: string }> => {
+): Promise<ApiResult<{ employeeId: string }>> => {
   try {
-    const response = await api.post(`/employees/business`, {
+    const response = await apiPost<{employeeId: string}>(`/employees/business`, {
       ...payload,
       businessId,
     });
-    return response.data;
+    return response;
   } catch (error) {
     throw handleApiError(error, "No se pudo crear el empleado");
   }
@@ -141,11 +141,11 @@ export const updateBusinessEmployeePermissions = async (
   payload: UpdateBusinessEmployeePayload
 ) => {
   try {
-    const response = await api.patch(
+    const response = await apiPatch(
       `/employees/business/${employeeId}`,
       payload
     );
-    return response.data;
+    return response;
   } catch (error) {
     throw handleApiError(
       error,

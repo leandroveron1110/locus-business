@@ -1,5 +1,3 @@
-// src/components/OrderStatusButtons.tsx
-
 import { useMemo } from "react";
 import {
   Order,
@@ -7,14 +5,14 @@ import {
   DeliveryType,
   OrderStatus,
 } from "../types/order";
-import { Package } from "lucide-react";
+import { Package, Truck, Check, X } from "lucide-react";
 
 interface Props {
   order: Order;
   handleStatusChange: (newStatus: EOrderStatusBusiness) => void;
   setShowDeliverySelector: (show: boolean) => void;
   defaultDeliveryCompanyId: string | null;
-  defaultDeliveryCompanyName: string | null; // <-- Nueva prop
+  defaultDeliveryCompanyName: string | null;
   handleAssignDelivery: (companyId: string) => Promise<void>;
 }
 
@@ -23,7 +21,7 @@ export default function OrderStatusButtons({
   handleStatusChange,
   setShowDeliverySelector,
   defaultDeliveryCompanyId,
-  defaultDeliveryCompanyName, // <-- Usamos la nueva prop aquí
+  defaultDeliveryCompanyName,
   handleAssignDelivery,
 }: Props) {
   const status = order.status as unknown as OrderStatus;
@@ -36,26 +34,36 @@ export default function OrderStatusButtons({
     );
   }, [status, order.deliveryType, defaultDeliveryCompanyId]);
 
+  const buttonClasses =
+    "px-4 py-2 text-sm rounded-lg font-semibold flex items-center justify-center gap-2 transition-all duration-200";
+
+  const primaryButton = "bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm";
+  const successButton = "bg-green-500 text-white hover:bg-green-600 shadow-sm";
+  const dangerButton = "bg-red-500 text-white hover:bg-red-600 shadow-sm";
+  const secondaryButton = "bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm";
+  const infoButton = "bg-purple-500 text-white hover:bg-purple-600 shadow-sm";
+
   switch (status) {
     case OrderStatus.PENDING:
-      return (
-        <>
-          <button
-            onClick={() => handleStatusChange(EOrderStatusBusiness.CONFIRMED)}
-            className="px-3 py-1 text-sm rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors"
-          >
-            Confirmar
-          </button>
-          <button
-            onClick={() =>
-              handleStatusChange(EOrderStatusBusiness.REJECTED_BY_BUSINESS)
-            }
-            className="px-3 py-1 text-sm rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors"
-          >
-            Rechazar
-          </button>
-        </>
-      );
+      // return (
+      //   <div className="flex flex-wrap gap-2">
+      //     <button
+      //       onClick={() => handleStatusChange(EOrderStatusBusiness.CONFIRMED)}
+      //       className={`${buttonClasses} ${successButton}`}
+      //     >
+      //       <Check className="w-4 h-4" /> Confirmar
+      //     </button>
+      //     <button
+      //       onClick={() =>
+      //         handleStatusChange(EOrderStatusBusiness.REJECTED_BY_BUSINESS)
+      //       }
+      //       className={`${buttonClasses} ${dangerButton}`}
+      //     >
+      //       <X className="w-4 h-4" /> Rechazar
+      //     </button>
+      //   </div>
+      // );
+      break;
     case OrderStatus.CONFIRMED:
     case OrderStatus.PREPARING:
       return (
@@ -67,7 +75,7 @@ export default function OrderStatusButtons({
                 : EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP;
             handleStatusChange(nextStatus);
           }}
-          className="px-3 py-1 text-sm rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors"
+          className={`${buttonClasses} ${primaryButton}`}
         >
           Pedido Completado
         </button>
@@ -76,28 +84,27 @@ export default function OrderStatusButtons({
       return (
         <button
           onClick={() => handleStatusChange(EOrderStatusBusiness.COMPLETED)}
-          className="px-3 py-1 text-sm rounded-lg bg-indigo-500 text-white font-semibold hover:bg-indigo-600 transition-colors"
+          className={`${buttonClasses} ${successButton}`}
         >
           Entregado
         </button>
       );
     case OrderStatus.READY_FOR_DELIVERY_PICKUP:
       return (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {shouldShowAutomaticAssignment && (
             <button
               onClick={() => handleAssignDelivery(defaultDeliveryCompanyId!)}
-              className="px-3 py-1 text-sm rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors flex items-center gap-1"
+              className={`${buttonClasses} ${successButton}`}
             >
-              <Package className="w-4 h-4" />
-              Asignar a {defaultDeliveryCompanyName}
+              <Package className="w-4 h-4" /> Asignar a {defaultDeliveryCompanyName}
             </button>
           )}
           <button
             onClick={() => setShowDeliverySelector(true)}
-            className="px-3 py-1 text-sm rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 transition-colors flex items-center gap-1"
+            className={`${buttonClasses} ${infoButton}`}
           >
-            Asignar Delivery
+            <Truck className="w-4 h-4" /> Asignar Delivery
           </button>
         </div>
       );
@@ -105,7 +112,7 @@ export default function OrderStatusButtons({
       return (
         <button
           onClick={() => handleStatusChange(EOrderStatusBusiness.COMPLETED)}
-          className="px-3 py-1 text-sm rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors"
+          className={`${buttonClasses} ${primaryButton}`}
         >
           Entregado al Delivery
         </button>
@@ -114,7 +121,7 @@ export default function OrderStatusButtons({
       return (
         <button
           onClick={() => handleStatusChange(EOrderStatusBusiness.COMPLETED)}
-          className="px-3 py-1 text-sm rounded-lg bg-gray-500 text-white font-semibold hover:bg-gray-600 transition-colors"
+          className={`${buttonClasses} ${secondaryButton}`}
         >
           Marcar como Completada
         </button>

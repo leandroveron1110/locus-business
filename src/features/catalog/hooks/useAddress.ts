@@ -6,15 +6,16 @@ import {
   fetchUserAddresses,
 } from "../api/catalog-api";
 import { Address, AddressCreateDto } from "../types/address";
+import { ApiResult } from "@/lib/apiFetch";
 
 export const useAddress = () => {
-  return useMutation<AddressCreateDto, Error, Address>({
+  return useMutation<ApiResult<AddressCreateDto>, Error, Address>({
     mutationFn: fetchCreateAddress,
   });
 };
 
 export const useAddresses = (userId?: string) => {
-  return useQuery<AddressCreateDto[]>({
+  return useQuery<ApiResult<AddressCreateDto[]>>({
     queryKey: ["addresses", userId],
     queryFn: () => fetchUserAddresses(userId!),
     enabled: !!userId, // solo ejecuta si hay userId

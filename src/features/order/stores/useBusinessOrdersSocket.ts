@@ -19,19 +19,16 @@ export function useBusinessOrdersSocket(businessId: string) {
     });
 
     socket.on("connect", () => {
-      console.log("Conectado al socket como negocio", socket.id);
       socket.emit("join_role", { role: "business", id: businessId });
     });
 
     socket.on("new_order", (order: Order) => {
-      console.log("Nueva orden recibida:", order);
       addOrder(order);
     });
 
     socket.on(
       "order_status_updated",
       (data: { orderId: string; status: string }) => {
-        console.log("Estado de orden actualizado:", data);
         updateOrderStatus(data.orderId, data.status);
       }
     );
@@ -43,7 +40,6 @@ export function useBusinessOrdersSocket(businessId: string) {
         paymentStatus: string;
         paymentReceiptUrl: string;
       }) => {
-        console.log("Estado de pago actualizado:", data);
         updatePaymentStatus(
           data.orderId,
           data.paymentStatus as PaymentStatus,

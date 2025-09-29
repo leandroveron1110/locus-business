@@ -1,8 +1,13 @@
 "use client";
+import { RoleManager } from "@/features/roles/components/RoleManager";
 import { EmployeeList } from "./EmployeeList";
 import { NewEmployeeForm } from "./news/NewEmployeeForm";
 
-export function EmployeesContainer() {
+interface RoleManagerProps {
+  businessId: string;
+  initialData?: any; // Puedes tipar mejor según tu caso
+}
+export function EmployeesContainer({ businessId }: RoleManagerProps) {
   return (
     <div className="max-w-7xl mx-auto md:p-10">
       <h1 className="text-4xl font-bold text-center text-gray-800 mb-10">
@@ -25,6 +30,8 @@ export function EmployeesContainer() {
           </div>
         </div>
       </div>
+
+      <RoleManager businessId={businessId} />
     </div>
   );
 }

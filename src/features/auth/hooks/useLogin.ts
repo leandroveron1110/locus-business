@@ -4,16 +4,17 @@ import { useAuthStore } from '../store/authStore'; // Importa tu store de Zustan
 import { login as apiLogin } from '../api/authApi'; // Importa la función de login de la API
 import { LoginPayload, LoginResponse, User } from '../types/auth';
 import { useRouter } from 'next/navigation'; // Para la redirección después del login
+import { ApiResult } from '@/lib/apiFetch';
 
 export const useLogin = () => {
   const authStoreLogin = useAuthStore((state) => state.login); // Obtiene la acción login de Zustand
   const router = useRouter();
 
-  return useMutation<LoginResponse, Error, LoginPayload>({
+  return useMutation<ApiResult<LoginResponse>, Error, LoginPayload>({
     mutationFn: apiLogin, // La función que realiza la llamada a la API
     onSuccess: (data) => {
       // Esta función se ejecuta si la mutación (login) es exitosa
-      authStoreLogin(data); // Actualiza el store de Zustand con los datos del usuario
+      authStoreLogin(data as LoginResponse); // Actualiza el store de Zustand con los datos del usuario
       // Redirige al usuario a la página principal o a la que intentaba acceder
       const redirectPath = new URLSearchParams(window.location.search).get('redirect') || '/';
       router.push(redirectPath);

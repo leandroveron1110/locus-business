@@ -33,11 +33,11 @@ export default function BusinessProfile({ business }: Props) {
   const [activeSection, setActiveSection] = useState<string>("schedule");
 
   return (
-    <main className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
-      <section className="bg-white rounded-3xl shadow-lg p-8 sm:p-12 space-y-10">
+    <main className="">
+      <section className="bg-white rounded-3xl shadow-lg p-3 sm:p-12 space-y-10">
         {/* Header */}
         <BusinessHeaderContainer
-        businessId={business.id}
+          businessId={business.id}
           fullDescription={business.fullDescription}
           logoUrl={business.logoUrl}
           name={business.name}

@@ -1,4 +1,3 @@
-import axios from "@/lib/api";
 import { CreateOrderFull } from "../types/order";
 import { Address, AddressCreateDto } from "../types/address";
 import {
@@ -14,25 +13,26 @@ import {
   SectionCreate,
 } from "../types/catlog";
 import { handleApiError } from "@/lib/handleApiError";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut, ApiResult } from "@/lib/apiFetch";
 
 
 // -----------------------------
 // CATALOG
 // -----------------------------
 
-export const fetchCatalogByBusinessID = async (businessId: string): Promise<IMenu[]> => {
+export const fetchCatalogByBusinessID = async (businessId: string): Promise<ApiResult<IMenu[]>> => {
   try {
-    const res = await axios.get(`/menus/business/all/${businessId}`);
-    return res.data;
+    const res = await apiGet<IMenu[]>(`/menus/business/all/${businessId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener el catálogo del negocio");
   }
 };
 
-export const fetchMenuProducDetaillByProductId = async (productId: string): Promise<IMenuProduct> => {
+export const fetchMenuProducDetaillByProductId = async (productId: string): Promise<ApiResult<IMenuProduct>> => {
   try {
-    const res = await axios.get(`/menu-products/product/${productId}`);
-    return res.data;
+    const res = await apiGet<IMenuProduct>(`/menu-products/product/${productId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener el detalle del producto");
   }
@@ -40,26 +40,26 @@ export const fetchMenuProducDetaillByProductId = async (productId: string): Prom
 
 export const fetchCreateOrder = async (payload: CreateOrderFull): Promise<any> => {
   try {
-    const { data } = await axios.post("/orders/full", payload);
+    const data  = await apiPost("/orders/full", payload);
     return data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la orden");
   }
 };
 
-export const fetchCreateAddress = async (payload: Address): Promise<AddressCreateDto> => {
+export const fetchCreateAddress = async (payload: Address): Promise<ApiResult<AddressCreateDto>> => {
   try {
-    const { data } = await axios.post("/address", payload);
+    const data  = await apiPost<AddressCreateDto>("/address", payload);
     return data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la dirección");
   }
 };
 
-export const fetchUserAddresses = async (userId: string): Promise<AddressCreateDto[]> => {
+export const fetchUserAddresses = async (userId: string): Promise<ApiResult<AddressCreateDto[]>> => {
   try {
-    const res = await axios.get(`/address/user/${userId}`);
-    return res.data;
+    const res = await apiGet<AddressCreateDto[]>(`/address/user/${userId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener las direcciones del usuario");
   }
@@ -69,28 +69,28 @@ export const fetchUserAddresses = async (userId: string): Promise<AddressCreateD
 // MENUS
 // -----------------------------
 
-export const fetchMenuByBusinessId = async (businessId: string): Promise<IMenu[]> => {
+export const fetchMenuByBusinessId = async (businessId: string): Promise<ApiResult<IMenu[]>> => {
   try {
-    const res = await axios.get(`menus/business/${businessId}`);
-    return res.data;
+    const res = await apiGet<IMenu[]>(`menus/business/${businessId}`);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener los menús del negocio");
   }
 };
 
-export const createMenu = async (newMenu: MenuCreate): Promise<IMenu> => {
+export const createMenu = async (newMenu: MenuCreate): Promise<ApiResult<IMenu>> => {
   try {
-    const res = await axios.post(`menus/`, newMenu);
-    return res.data;
+    const res = await apiPost<IMenu>(`menus/`, newMenu);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear el menú");
   }
 };
 
-export const updateMenu = async (menuId: string, data: Partial<MenuCreate>): Promise<IMenu> => {
+export const updateMenu = async (menuId: string, data: Partial<MenuCreate>): Promise<ApiResult<IMenu>> => {
   try {
-    const res = await axios.put(`menus/${menuId}`, data);
-    return res.data;
+    const res = await apiPut<IMenu>(`menus/${menuId}`, data);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar el menú");
   }
@@ -98,7 +98,7 @@ export const updateMenu = async (menuId: string, data: Partial<MenuCreate>): Pro
 
 export const deleteMenu = async (menuId: string): Promise<void> => {
   try {
-    await axios.delete(`menus/${menuId}`);
+    await apiDelete(`menus/${menuId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar el menú");
   }
@@ -108,19 +108,19 @@ export const deleteMenu = async (menuId: string): Promise<void> => {
 // SECTIONS
 // -----------------------------
 
-export const createSection = async (section: SectionCreate): Promise<IMenuSectionWithProducts> => {
+export const createSection = async (section: SectionCreate): Promise<ApiResult<IMenuSectionWithProducts>> => {
   try {
-    const res = await axios.post(`menu/secciones`, section);
-    return res.data;
+    const res = await apiPost<IMenuSectionWithProducts>(`menu/secciones`, section);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la sección");
   }
 };
 
-export const updateSection = async (sectionId: string, data: Partial<SectionCreate>): Promise<IMenuSectionWithProducts> => {
+export const updateSection = async (sectionId: string, data: Partial<SectionCreate>): Promise<ApiResult<IMenuSectionWithProducts>> => {
   try {
-    const res = await axios.patch(`menu/secciones/${sectionId}`, data);
-    return res.data;
+    const res = await apiPatch<IMenuSectionWithProducts>(`menu/secciones/${sectionId}`, data);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar la sección");
   }
@@ -128,7 +128,7 @@ export const updateSection = async (sectionId: string, data: Partial<SectionCrea
 
 export const deleteSection = async (sectionId: string): Promise<void> => {
   try {
-    await axios.delete(`menu/secciones/${sectionId}`);
+    await apiDelete(`menu/secciones/${sectionId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar la sección");
   }
@@ -138,19 +138,19 @@ export const deleteSection = async (sectionId: string): Promise<void> => {
 // MENU PRODUCTS
 // -----------------------------
 
-export const createMenuProduct = async (product: MenuProductCreate): Promise<IMenuProduct> => {
+export const createMenuProduct = async (product: MenuProductCreate): Promise<ApiResult<IMenuProduct>> => {
   try {
-    const res = await axios.post(`menu-products/`, product);
-    return res.data;
+    const res = await apiPost<IMenuProduct>(`menu-products/`, product);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear el producto");
   }
 };
 
-export const updateMenuProduct = async (productId: string, data: Partial<MenuProductCreate>): Promise<IMenuProduct> => {
+export const updateMenuProduct = async (productId: string, data: Partial<MenuProductCreate>): Promise<ApiResult<IMenuProduct>> => {
   try {
-    const res = await axios.patch(`menu-products/${productId}`, data);
-    return res.data;
+    const res = await apiPatch<IMenuProduct>(`menu-products/${productId}`, data);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar el producto");
   }
@@ -158,7 +158,7 @@ export const updateMenuProduct = async (productId: string, data: Partial<MenuPro
 
 export const deleteMenuProduct = async (productId: string): Promise<void> => {
   try {
-    await axios.delete(`menu-products/${productId}`);
+    await apiDelete(`menu-products/${productId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar el producto");
   }
@@ -168,16 +168,16 @@ export const deleteMenuProduct = async (productId: string): Promise<void> => {
 // IMAGE
 // -----------------------------
 
-export const uploadMenuProductImage = async (menuProductId: string, file: File): Promise<{ url: string }> => {
+export const uploadMenuProductImage = async (menuProductId: string, file: File): Promise<ApiResult<{ url: string }>> => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await axios.post(
+    const res = await apiPost<{url: string}>(
       `menu-product-images/upload?menuProductId=${menuProductId}`,
       formData,
       { headers: { "Content-Type": "multipart/form-data" } }
     );
-    return res.data;
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al subir la imagen del producto");
   }
@@ -185,7 +185,7 @@ export const uploadMenuProductImage = async (menuProductId: string, file: File):
 
 export const deleteMenuProductImage = async (menuProductId: string) => {
   try {
-    await axios.delete(`menu-product-images?menuProductId=${menuProductId}`);
+    await apiDelete(`menu-product-images?menuProductId=${menuProductId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar la imagen del producto");
   }
@@ -195,19 +195,19 @@ export const deleteMenuProductImage = async (menuProductId: string) => {
 // OPTION GROUPS
 // -----------------------------
 
-export const createOptionGroup = async (group: OptionGroupCreate): Promise<IOptionGroup> => {
+export const createOptionGroup = async (group: OptionGroupCreate): Promise<ApiResult<IOptionGroup>> => {
   try {
-    const res = await axios.post(`option-groups/`, group);
-    return res.data;
+    const res = await apiPost<IOptionGroup>(`option-groups/`, group);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear el grupo de opciones");
   }
 };
 
-export const updateOptionGroup = async (groupId: string, data: Partial<OptionGroupCreate>): Promise<IOptionGroup> => {
+export const updateOptionGroup = async (groupId: string, data: Partial<OptionGroupCreate>): Promise<ApiResult<IOptionGroup>> => {
   try {
-    const res = await axios.patch(`option-groups/${groupId}`, data);
-    return res.data;
+    const res = await apiPatch<IOptionGroup>(`option-groups/${groupId}`, data);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar el grupo de opciones");
   }
@@ -215,7 +215,7 @@ export const updateOptionGroup = async (groupId: string, data: Partial<OptionGro
 
 export const deleteOptionGroup = async (groupId: string): Promise<void> => {
   try {
-    await axios.delete(`option-groups/${groupId}`);
+    await apiDelete(`option-groups/${groupId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar el grupo de opciones");
   }
@@ -225,19 +225,19 @@ export const deleteOptionGroup = async (groupId: string): Promise<void> => {
 // OPTIONS
 // -----------------------------
 
-export const createOption = async (option: OptionCreate): Promise<IOption> => {
+export const createOption = async (option: OptionCreate): Promise<ApiResult<IOption>> => {
   try {
-    const res = await axios.post(`options/`, option);
-    return res.data;
+    const res = await apiPost<IOption>(`options/`, option);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la opción");
   }
 };
 
-export const updateOption = async (optionId: string, data: Partial<OptionCreate>): Promise<IOption> => {
+export const updateOption = async (optionId: string, data: Partial<OptionCreate>): Promise<ApiResult<IOption>> => {
   try {
-    const res = await axios.patch(`options/${optionId}`, data);
-    return res.data;
+    const res = await apiPatch<IOption>(`options/${optionId}`, data);
+    return res;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar la opción");
   }
@@ -245,7 +245,7 @@ export const updateOption = async (optionId: string, data: Partial<OptionCreate>
 
 export const deleteOption = async (optionId: string): Promise<void> => {
   try {
-    await axios.delete(`options/${optionId}`);
+    await apiDelete(`options/${optionId}`);
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar la opción");
   }
@@ -253,7 +253,7 @@ export const deleteOption = async (optionId: string): Promise<void> => {
 
 export const deleteManyOption = async (optionIds: string[]): Promise<void> => {
   try {
-    await axios.delete(`options/multiple`, { data: { ids: optionIds } });
+    await apiDelete(`options/multiple`, { data: { ids: optionIds } });
   } catch (error: unknown) {
     throw handleApiError(error, "Error al eliminar múltiples opciones");
   }

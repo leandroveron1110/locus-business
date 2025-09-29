@@ -111,7 +111,7 @@ export const useAuthStore = create<AuthStore>()(
 
         // Si hay un token, intenta obtener los datos del usuario
         try {
-          const user: User = await apiGetMe(); // Usa la función de la API para obtener el perfil
+          const user = await apiGetMe(); // Usa la función de la API para obtener el perfil
           set({
             user: user,
             token: token, // Mantiene el token que ya teníamos

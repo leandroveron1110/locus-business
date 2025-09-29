@@ -1,20 +1,26 @@
-import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { createRoleApi } from '../api/roles-api';
-import { BusinessRole, CreateBusinessRole } from '../types/roles';
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import { createRoleApi } from "../api/roles-api";
+import { BusinessRole, CreateBusinessRole } from "../types/roles";
+import { ApiResult } from "@/lib/apiFetch";
+import { ApiError } from "@/types/api";
 
 export const useCreateRole = (
-  options?: UseMutationOptions<BusinessRole, Error, CreateBusinessRole>
+  options?: UseMutationOptions<
+    ApiResult<BusinessRole>,
+    ApiError,
+    CreateBusinessRole
+  >
 ) => {
-  return useMutation({
+  return useMutation<ApiResult<BusinessRole>, ApiError, CreateBusinessRole>({
     mutationFn: createRoleApi,
     onSuccess: (data) => {
       console.log("Rol creado exitosamente:", data);
-      // Puedes manejar la navegación aquí, o dejarlo en el componente
-      // router.push('/roles'); 
+      // Si querés, podés usar "variables" para mostrar qué rol se creó
     },
-    onError: () => {
-      alert("Error al crear el rol. Inténtalo de nuevo.");
+    onError: (error) => {
+      alert(error.message || "Error al crear el rol. Inténtalo de nuevo.");
     },
-    ...options, // Permite sobrescribir las opciones por defecto
+    retry: false,
+    ...options,
   });
 };

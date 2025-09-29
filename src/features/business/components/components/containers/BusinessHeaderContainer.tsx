@@ -22,7 +22,7 @@ export default function BusinessHeaderContainer({
   shortDescription,
   fullDescription,
 }: BusinessHeaderContainerProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [businessData, setBusinessData] = useState<BusinessHeaderData>({
     logoUrl,
     name,
@@ -31,7 +31,7 @@ export default function BusinessHeaderContainer({
   });
 
   // Utiliza el hook de mutación
-  const { updateHeader, isUpdating } = useBusinessHeaderUpdater(businessId);
+  const { updateHeader } = useBusinessHeaderUpdater(businessId);
 
   // La función getChangedFields se mantiene igual para identificar cambios
   const getChangedFields = (

@@ -14,11 +14,12 @@ import {
   deleteRoleEmployees,
   findByEmail,
 } from "../api/employees-api";
-import { ApiErrorResponse } from "@/types/api";
+import { ApiError } from "@/types/api";
+import { ApiResult } from "@/lib/apiFetch";
 
 // Hook para buscar un usuario por ID
 export const useFindUser = (userEmail: string | null) => {
-  return useQuery<UserSearchResponse, ApiErrorResponse>({
+  return useQuery<ApiResult<UserSearchResponse>, ApiError>({
     queryKey: ["findUser", userEmail],
     queryFn: () => findByEmail(userEmail!),
     enabled: !!userEmail,
@@ -33,7 +34,7 @@ export const useFindUser = (userEmail: string | null) => {
 
 // Hook para obtener los roles de un negocio
 export const useBusinessRoles = (businessId: string | undefined) => {
-  return useQuery<BusinessRole[], ApiErrorResponse>({
+  return useQuery<ApiResult<BusinessRole[]>, ApiError>({
     queryKey: ["businessRoles", businessId],
     queryFn: () => getBusinessRolesAndPermissions(businessId!),
     enabled: !!businessId,
@@ -41,7 +42,7 @@ export const useBusinessRoles = (businessId: string | undefined) => {
 };
 
 export const useBusinessEmployees = (businessId: string | undefined) => {
-  return useQuery<IEmployee[], ApiErrorResponse>({
+  return useQuery<ApiResult<IEmployee[]>, ApiError>({
     queryKey: ["employees", businessId],
     queryFn: () => getBusinessEmployees(businessId!),
     enabled: !!businessId,

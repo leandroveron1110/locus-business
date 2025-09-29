@@ -23,9 +23,6 @@ export interface ISearchBusinessParams {
 
 export interface ISearchBusiness {
   data: SearchResultBusiness[];
-  total: number;
-  skip: number;
-  take: number;
 }
 
 export interface SearchResultBusiness {

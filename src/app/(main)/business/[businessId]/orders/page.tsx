@@ -21,12 +21,12 @@ export default function BusinessCatalog() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 min-h-screen">
       <Header />
       <div className="max-w-4xl mx-auto mb-6">
         <BackButton />
       </div>
-      <div className="max-w-4xl mx-auto">
+      <div className="">
         <Order businessId={businessId} />
       </div>
     </div>

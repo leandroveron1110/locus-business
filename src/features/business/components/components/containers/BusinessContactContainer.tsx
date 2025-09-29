@@ -45,7 +45,7 @@ export default function BusinessContactContainer({
   facebookUrl,
   instagramUrl,
 }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
 
   const [contactData, setContactData] = useState({
     address,

@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchWeeklySchedule, updateWeeklySchedule } from "../api/businessApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiErrorResponse } from "@/types/api";
+import { ApiError } from "@/types/api";
+import { ApiResult } from "@/lib/apiFetch";
 
 export function useSchedule(businessId: string) {
-  return useQuery<Record<string, string[]>, ApiErrorResponse>({
+  return useQuery<ApiResult<Record<string, string[]>>, ApiError>({
     queryKey: ["schedule", businessId],
     queryFn: () => fetchWeeklySchedule(businessId),
   });

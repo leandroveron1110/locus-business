@@ -40,9 +40,11 @@ export default function BusinessContact({
       label: "Dirección",
       value: (
         <div>
-          <span>{address}</span>
+          <span className="line-clamp-2 break-words" title={address}>
+            {address}
+          </span>
           {latitude !== undefined && longitude !== undefined && (
-            <span className="block text-gray-400 text-sm mt-1">
+            <span className="block text-gray-400 text-xs mt-1">
               Lat: {latitude.toFixed(6)}, Lng: {longitude.toFixed(6)}
             </span>
           )}
@@ -111,31 +113,41 @@ export default function BusinessContact({
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {contacts.map((contact, idx) =>
-          contact ? (
-            <div
-              key={idx}
-              className="flex items-center gap-4 p-4 bg-white shadow-sm rounded-lg hover:shadow-md transition"
-            >
-              <div className="flex-shrink-0">{contact.icon}</div>
-              <div className="flex flex-col">
-                <span className="text-gray-500 text-sm">{contact.label}</span>
-                {contact.link ? (
-                  <a
-                    href={contact.link}
-                    target={contact.external ? "_blank" : "_self"}
-                    rel={contact.external ? "noopener noreferrer" : undefined}
-                    className="text-gray-800 font-medium hover:text-blue-600 transition"
-                  >
-                    {contact.value}
-                  </a>
-                ) : (
-                  <span className="text-gray-800 font-medium">{contact.value}</span>
-                )}
-              </div>
+        {contacts.map((contact, idx) => (
+
+          contact && (
+                      <div
+            key={idx}
+            className="flex items-start gap-4 p-4 bg-white shadow-sm rounded-lg hover:shadow-md transition"
+          >
+            <div className="flex-shrink-0">{contact.icon}</div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-gray-500 text-sm">{contact.label}</span>
+              {contact.link ? (
+                <a
+                  href={contact.link}
+                  target={contact.external ? "_blank" : "_self"}
+                  rel={contact.external ? "noopener noreferrer" : undefined}
+                  className="text-gray-800 font-medium hover:text-blue-600 transition truncate"
+                  title={
+                    typeof contact.value === "string" ? contact.value : undefined
+                  }
+                >
+                  {contact.value}
+                </a>
+              ) : (
+                <span
+                  className="text-gray-800 font-medium truncate"
+                  title={typeof contact.value === "string" ? contact.value : undefined}
+                >
+                  {contact.value}
+                </span>
+              )}
             </div>
-          ) : null
-        )}
+          </div>
+          )
+
+        ))}
       </div>
     </section>
   );
