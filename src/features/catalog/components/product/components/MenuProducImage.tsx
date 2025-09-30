@@ -11,6 +11,7 @@ interface MenuProductImageProp {
   image: string;
   name: string;
   menuProductId: string;
+  businessId: string;
   onUpdate: (data: { imageUrl: string }) => void;
 }
 
@@ -18,6 +19,7 @@ export default function MenuProductImage({
   image,
   name,
   menuProductId,
+  businessId,
   onUpdate,
 }: MenuProductImageProp) {
   const [preview, setPreview] = useState(image);
@@ -25,8 +27,8 @@ export default function MenuProductImage({
 
   const { addAlert } = useAlert();
 
-  const uploadMutate = useUploadMenuProductImage();
-  const deleteMutate = useDeleteMenuProductImage();
+  const uploadMutate = useUploadMenuProductImage(businessId);
+  const deleteMutate = useDeleteMenuProductImage(businessId);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

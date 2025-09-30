@@ -196,6 +196,7 @@ export default function MenuProduct({
     <div className="max-w-xl mx-auto space-y-6">
       {/* Imagen */}
       <MenuProductImage
+        businessId={businessId}
         menuProductId={product.id}
         image={product.imageUrl || ""}
         name={product.name}
