@@ -23,7 +23,7 @@ export const RoleViewer: React.FC<RoleViewerProps> = ({ businessId }) => {
       message: getDisplayErrorMessage(error),
       type: "error",
     });
-  }, [isError, error]);
+  }, [isError, error, addAlert]);
 
   if (isLoading) return <p>Cargando roles...</p>;
   if (!roles) return <p>Sin roles</p>;
