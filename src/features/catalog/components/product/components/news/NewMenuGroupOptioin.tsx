@@ -108,7 +108,7 @@ export default function NewMenuGroupOption({
         </div>
 
         {/* Cantidad máxima */}
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <label className="text-sm text-gray-600">
             Cantidad máxima que puede elegir el cliente
           </label>
@@ -118,7 +118,7 @@ export default function NewMenuGroupOption({
             onChange={(e) => handleChange("maxQuantity", e.target.value)}
             className="border rounded-md px-2 py-1"
           />
-        </div>
+        </div> */}
 
         {/* Stock */}
         <label className="flex items-center gap-2 text-sm text-gray-600">

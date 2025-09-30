@@ -77,16 +77,16 @@ export default function ViewCatalogSection({
     <div className="mb-12 relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 border-b pb-3 gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4">
-<div className="flex items-center gap-2 sm:gap-4 mb-4">
-  {/* El título de la sección se ajusta para ser más legible y consistente */}
-  <h3 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
-    {section.name}
-  </h3>
-  {/* El contador de productos es más compacto en móvil */}
-  <span className="bg-gray-200 text-gray-600 text-xs sm:text-sm font-semibold rounded-full px-2 py-0.5 sm:px-3 sm:py-1 whitespace-nowrap">
-    {sortedProducts.length || 0} productos
-  </span>
-</div>
+          <div className="flex items-center gap-2 sm:gap-4 mb-4">
+            {/* El título de la sección se ajusta para ser más legible y consistente */}
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
+              {section.name}
+            </h3>
+            {/* El contador de productos es más compacto en móvil */}
+            <span className="bg-gray-200 text-gray-600 text-xs sm:text-sm font-semibold rounded-full px-2 py-0.5 sm:px-3 sm:py-1 whitespace-nowrap">
+              {sortedProducts.length || 0} productos
+            </span>
+          </div>
           {sortedProducts.length > 0 && (
             <button
               onClick={handleToggleCollapse}

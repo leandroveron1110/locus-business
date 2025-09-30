@@ -4,6 +4,9 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { useBusinesses } from "../hooks/useBusinesses";
 import { withSkeleton } from "@/features/common/utils/withSkeleton";
 import SearchBusinessListSkeleton from "./skeleton/SearchBusinessListSkeleton";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { useEffect } from "react";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 const DynamicSearchBusinessList = withSkeleton(
   () => import("./SearchBusinessList"),
@@ -14,7 +17,19 @@ export default function SearchPage() {
   const { user } = useAuthStore();
 
   const businessIds = user?.businesses?.map((b) => b.id) || [];
-  const { data, isLoading, isError } = useBusinesses(businessIds);
+  const { data, isLoading, isError, error } = useBusinesses(businessIds);
+
+  const { addAlert } = useAlert();
+
+  useEffect(() => {
+    if(isError){
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+
+    }
+  }, [isError, error]);
 
   if (isLoading) {
     return (
@@ -42,11 +57,9 @@ export default function SearchPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-            <div className="mt-6">
-
-              <DynamicSearchBusinessList businesses={data.data} />
-
-            </div>
+      <div className="mt-6">
+        <DynamicSearchBusinessList businesses={data.data} />
+      </div>
     </div>
   );
 }

@@ -38,7 +38,7 @@ export const fetchMenuProducDetaillByProductId = async (productId: string): Prom
   }
 };
 
-export const fetchCreateOrder = async (payload: CreateOrderFull): Promise<any> => {
+export const fetchCreateOrder = async (payload: CreateOrderFull): Promise<unknown> => {
   try {
     const data  = await apiPost("/orders/full", payload);
     return data;

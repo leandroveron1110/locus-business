@@ -1,6 +1,11 @@
 "use client";
 import { useState, useRef } from "react";
-import { useDeleteMenuProductImage, useUploadMenuProductImage } from "../../../hooks/useMenuHooks";
+import {
+  useDeleteMenuProductImage,
+  useUploadMenuProductImage,
+} from "../../../hooks/useMenuHooks";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface MenuProductImageProp {
   image: string;
@@ -18,6 +23,8 @@ export default function MenuProductImage({
   const [preview, setPreview] = useState(image);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { addAlert } = useAlert();
+
   const uploadMutate = useUploadMenuProductImage();
   const deleteMutate = useDeleteMenuProductImage();
 
@@ -29,8 +36,16 @@ export default function MenuProductImage({
       { menuProductId, file },
       {
         onSuccess: (data) => {
-          setPreview(data.url);
-          onUpdate({ imageUrl: data.url });
+          if (data) {
+            setPreview(data.url);
+            onUpdate({ imageUrl: data.url });
+          }
+        },
+        onError: (error) => {
+          addAlert({
+            message: getDisplayErrorMessage(error),
+            type: "error",
+          });
         },
       }
     );
@@ -42,6 +57,12 @@ export default function MenuProductImage({
         setPreview("");
         onUpdate({ imageUrl: "" });
         if (inputRef.current) inputRef.current.value = "";
+      },
+      onError: (error) => {
+        addAlert({
+          message: getDisplayErrorMessage(error),
+          type: "error",
+        });
       },
     });
   };

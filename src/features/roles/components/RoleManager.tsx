@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { RoleForm } from "./RoleForm";
 import { useCreateRole } from "@/features/roles/hooks/useCreateRole";
 import { RoleViewer } from "./RoleViewer";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface RoleManagerProps {
   businessId: string;
@@ -13,11 +15,18 @@ interface RoleManagerProps {
 export const RoleManager: React.FC<RoleManagerProps> = ({ businessId, initialData }) => {
   const { mutate, isPending } = useCreateRole();
   const [showForm, setShowForm] = useState(false);
+  const { addAlert } = useAlert()
 
   const handleSubmit = (formData: any) => {
     mutate({ ...formData, businessId }, {
       onSuccess: () => {
         setShowForm(false); // ocultamos el form después de crear el rol
+      },
+      onError: (error)=> {
+        addAlert({
+          message: getDisplayErrorMessage(error),
+          type: 'error'
+        })
       }
     });
   };

@@ -17,6 +17,8 @@ import {
   useUpdateOptionGroup,
 } from "../../hooks/useMenuHooks";
 import { useMenuStore } from "../../stores/menuStore";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Props {
   menuId: string;
@@ -33,6 +35,7 @@ export default function MenuProduct({
 }: Props) {
   const [saving, setSaving] = useState(false);
   const [showNewGroup, setShowNewGroup] = useState(false);
+  const { addAlert } = useAlert();
 
   // 📌 producto desde la store
   const product = useMenuStore((state) =>
@@ -74,26 +77,29 @@ export default function MenuProduct({
   };
 
   const handleSaveAll = async () => {
+    const modified = getModifiedFields();
+
+    if (Object.keys(modified).length <= 1) {
+      onClose();
+      return;
+    }
+
     setSaving(true);
     try {
-      const modified = getModifiedFields();
-      // si no hay cambios, no llamamos al back
-      if (Object.keys(modified).length <= 1) {
-        // solo id
-        onClose();
-        return;
-      }
-
-      const updatedProduct = await updateMenuProductMutate.mutateAsync({
+      const data = await updateMenuProductMutate.mutateAsync({
         productId,
         data: modified,
       });
 
-      updateProduct({ menuId, sectionId, productId }, updatedProduct);
-      onClose();
+      if (data) {
+        updateProduct({ menuId, sectionId, productId }, data);
+        onClose();
+      }
     } catch (error) {
-      console.error(error);
-      alert("Error al actualizar el producto");
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
     } finally {
       setSaving(false);
     }
@@ -108,17 +114,22 @@ export default function MenuProduct({
         groupId,
         data: updatedData,
       });
-      updateGroupStore(
-        {
-          menuId,
-          groupId,
-          sectionId,
-          productId,
-        },
-        result
-      );
+      if (result) {
+        updateGroupStore(
+          {
+            menuId,
+            groupId,
+            sectionId,
+            productId,
+          },
+          result
+        );
+      }
     } catch (error) {
-      console.error("Error actualizando grupo", error);
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
     }
   };
 
@@ -135,24 +146,35 @@ export default function MenuProduct({
         productId,
         sectionId,
       });
-    } catch (e) {
-      console.error("Error eliminando grupo y opciones", e);
+    } catch (error) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
     }
   };
 
   const handleNewGroupCreate = async (group: OptionGroupCreate) => {
     try {
       const result = await createGroup.mutateAsync(group);
-      addGroupStore(
-        {
-          menuId,
-          productId,
-          sectionId,
-        },
-        result
-      );
-      setShowNewGroup(false);
-    } catch {}
+
+      if (result) {
+        addGroupStore(
+          {
+            menuId,
+            productId,
+            sectionId,
+          },
+          result
+        );
+        setShowNewGroup(false);
+      }
+    } catch (error) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
   };
 
   return (

@@ -2,9 +2,13 @@
 import { useEffect } from "react";
 import { useBusinessOrdersStore } from "./useBusinessOrdersStore";
 import { fetchOrdersByBusinessId } from "../api/catalog-api";
+import { Order } from "../types/order";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 export function useFetchBusinessOrders(businessId: string) {
   const addOrder = useBusinessOrdersStore((s) => s.addOrder);
+  const { addAlert } = useAlert();
 
   useEffect(() => {
     if (!businessId) return;
@@ -13,8 +17,16 @@ export function useFetchBusinessOrders(businessId: string) {
   }, [businessId, addOrder]);
 
   const fetch = async () => {
-    const res = await fetchOrdersByBusinessId(businessId);
-
-    res.forEach((order: any) => addOrder(order));
+    try {
+      const res = await fetchOrdersByBusinessId(businessId);
+      if (res) {
+        res.forEach((order: Order) => addOrder(order));
+      }
+    } catch (error: unknown) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
   };
 }

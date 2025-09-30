@@ -19,10 +19,15 @@ interface DaySelectorProps {
   onAddDay: (day: Weekday) => void;
 }
 
-export default function DaySelector({ existingDays, onAddDay }: DaySelectorProps) {
+export default function DaySelector({
+  existingDays,
+  onAddDay,
+}: DaySelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const availableDays = (Object.keys(daysES) as Weekday[]).filter(day => !existingDays.includes(day));
+  const availableDays = (Object.keys(daysES) as Weekday[]).filter(
+    (day) => !existingDays.includes(day)
+  );
   if (availableDays.length === 0) return null;
 
   const handleSelectDay = (day: Weekday) => {
@@ -45,7 +50,7 @@ export default function DaySelector({ existingDays, onAddDay }: DaySelectorProps
       {isOpen && (
         <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div className="py-1">
-            {availableDays.map(day => (
+            {availableDays.map((day) => (
               <button
                 key={day}
                 onClick={() => handleSelectDay(day)}

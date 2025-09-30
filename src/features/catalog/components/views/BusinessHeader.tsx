@@ -19,7 +19,7 @@ const truncateDescription = (description: string, maxLength: number) => {
 
 export default function BusinessHeader({ business }: Props) {
   const logoUrl = business.logoUrl || "/placeholder-logo.png";
-  const truncatedDescription = business.fullDescription 
+  const truncatedDescription = business.fullDescription
     ? truncateDescription(business.fullDescription, 100)
     : null;
 

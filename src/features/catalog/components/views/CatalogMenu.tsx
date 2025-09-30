@@ -1,5 +1,3 @@
-// Código mejorado para CatalogMenu.jsx
-
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -9,7 +7,9 @@ import NewCatalogSection from "../news/NewCatalogSection";
 import { useCreateSection, useUpdateMenu } from "../../hooks/useMenuHooks";
 import EditCatalogMenu from "../edits/EditCatalogMenu";
 import { useMenuStore } from "../../stores/menuStore";
-import { Pencil } from 'lucide-react'; // Importa el ícono de lápiz
+import { Pencil } from "lucide-react";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Props {
   businessId: string;
@@ -26,12 +26,15 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
 
   const updateMenuStore = useMenuStore((state) => state.updateMenu);
   const addSection = useMenuStore((state) => state.addSection);
+  const { addAlert } = useAlert();
 
-  const createSectionMutation = useCreateSection();
-  const updateMenuMutation = useUpdateMenu();
+  const createSectionMutation = useCreateSection(businessId);
+  const updateMenuMutation = useUpdateMenu(businessId);
 
   const sortedSections = useMemo(() => {
-    return menu ? [...(menu.sections ?? [])].sort((a, b) => a.index - b.index) : [];
+    return menu
+      ? [...(menu.sections ?? [])].sort((a, b) => a.index - b.index)
+      : [];
   }, [menu]);
 
   const handleSaveMenu = async (newName: string) => {
@@ -41,20 +44,32 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
         menuId: menu.id,
         data: { name: newName, businessId, ownerId },
       });
-      updateMenuStore(menu.id, updatedMenu);
-      setShowEditMenuModal(false);
+      if (updatedMenu) {
+        updateMenuStore(menu.id, updatedMenu);
+        setShowEditMenuModal(false);
+      }
     } catch (err) {
-      console.error("Error actualizando el menú:", err);
+      addAlert({
+        message: getDisplayErrorMessage(err),
+        type: "error",
+      });
     }
   };
 
   const handleAddSection = async (newSection: SectionCreate) => {
     if (!menu) return;
     try {
-      const createdSection = await createSectionMutation.mutateAsync(newSection);
-      addSection({ menuId: menu.id }, createdSection);
+      const createdSection = await createSectionMutation.mutateAsync(
+        newSection
+      );
+      if (createdSection) {
+        addSection({ menuId: menu.id }, createdSection);
+      }
     } catch (err) {
-      console.error("Error creando sección:", err);
+      addAlert({
+        message: getDisplayErrorMessage(err),
+        type: "error",
+      });
     }
   };
 
@@ -63,11 +78,12 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
   return (
     <div className="bg-gray-50 ">
       <div className="bg-white">
-        
         {/* Header con botón e ícono */}
         <header className="p-8 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight">{menu.name}</h2>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight">
+              {menu.name}
+            </h2>
             <button
               onClick={() => setShowEditMenuModal(true)}
               className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"

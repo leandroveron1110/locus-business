@@ -5,7 +5,6 @@ import { NewEmployeeForm } from "./news/NewEmployeeForm";
 
 interface RoleManagerProps {
   businessId: string;
-  initialData?: any; // Puedes tipar mejor según tu caso
 }
 export function EmployeesContainer({ businessId }: RoleManagerProps) {
   return (

@@ -84,7 +84,6 @@ export default function CatalogProduct({ product, onClick }: Props) {
             )}
           </div>
 
-          {/* ⭐ Contenedor que centra verticalmente el contenido */}
           <div className="flex flex-col flex-grow justify-center">
             {/* Título */}
             <h4 className="text-sm font-semibold text-gray-900 uppercase pr-2 line-clamp-1">

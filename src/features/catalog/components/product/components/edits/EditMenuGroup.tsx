@@ -47,7 +47,6 @@ export default function EditMenuGroup({
 
   const handleSave = () => {
     const modified = getModifiedFields();
-    console.log("mod", modified)
     if (Object.keys(modified).length === 0) {
       onCancel?.();
       return;
@@ -79,7 +78,7 @@ export default function EditMenuGroup({
           />
         </div>
 
-        <div className="flex flex-col gap-1">
+        {/* <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-600">
             Cantidad mínima
           </label>
@@ -119,7 +118,7 @@ export default function EditMenuGroup({
             <option value="FIXED">Fijo</option>
             <option value="MIN_MAX">Mín/Máx</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* Error */}

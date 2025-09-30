@@ -5,26 +5,18 @@ import { login as apiLogin } from '../api/authApi'; // Importa la función de lo
 import { LoginPayload, LoginResponse, User } from '../types/auth';
 import { useRouter } from 'next/navigation'; // Para la redirección después del login
 import { ApiResult } from '@/lib/apiFetch';
+import { ApiError } from '@/types/api';
 
 export const useLogin = () => {
   const authStoreLogin = useAuthStore((state) => state.login); // Obtiene la acción login de Zustand
   const router = useRouter();
 
-  return useMutation<ApiResult<LoginResponse>, Error, LoginPayload>({
+  return useMutation<ApiResult<LoginResponse>, ApiError, LoginPayload>({
     mutationFn: apiLogin, // La función que realiza la llamada a la API
     onSuccess: (data) => {
-      // Esta función se ejecuta si la mutación (login) es exitosa
       authStoreLogin(data as LoginResponse); // Actualiza el store de Zustand con los datos del usuario
-      // Redirige al usuario a la página principal o a la que intentaba acceder
       const redirectPath = new URLSearchParams(window.location.search).get('redirect') || '/';
       router.push(redirectPath);
-    },
-    onError: (error) => {
-      // Esta función se ejecuta si la mutación (login) falla
-      console.error('Error en el login:', error);
-      // El error ya es manejado por el interceptor de Axios y el store de Zustand,
-      // pero puedes añadir lógica adicional aquí si es necesario.
-      // Por ejemplo, mostrar un mensaje de error global con un toast.
     },
   });
 };

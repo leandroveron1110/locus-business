@@ -14,6 +14,9 @@ import MenuGroupOption from "../MenuGroupOption";
 import NewMenuGroupOption from "../news/NewMenuGroupOptioin";
 import EditMenuGroup from "../edits/EditMenuGroup";
 import { useMenuStore } from "@/features/catalog/stores/menuStore";
+import { getDisplayErrorMessage } from "@/lib/uiErrors"; // 💡 Importación de tu helper centralizado
+import { AlertTriangle, X } from "lucide-react"; // Iconos para la alerta
+import { useAlert } from "@/features/common/ui/Alert/Alert";
 
 interface ViewMenuGroupProps {
   menuId: string;
@@ -50,6 +53,8 @@ export default function ViewMenuGroup({
   const deleteOptionStore = useMenuStore((state) => state.deleteOption);
 
   const [editing, setEditing] = useState(false);
+  const { addAlert } = useAlert();
+
   const [showNewOption, setShowNewOption] = useState(false);
 
   if (!group) {
@@ -63,18 +68,17 @@ export default function ViewMenuGroup({
         data: option,
         optionId: option.id || "",
       });
-      updateOptionStore(
-        {
-          groupId,
-          menuId,
-          optionId: result.id,
-          productId,
-          sectionId,
-        },
-        result
-      );
+      if (result) {
+        updateOptionStore(
+          { groupId, menuId, optionId: result.id, productId, sectionId },
+          result
+        );
+      }
     } catch (e) {
-      console.error("Error actualizando opción", e);
+      addAlert({
+        message: getDisplayErrorMessage(e),
+        type: "error",
+      });
     }
   };
 
@@ -84,7 +88,11 @@ export default function ViewMenuGroup({
       await deleteOption.mutateAsync(optionId);
       deleteOptionStore({ menuId, groupId, optionId, productId, sectionId });
     } catch (e) {
-      console.error("Error eliminando opción", e);
+      // 🎯 Captura el ApiError y usa el helper para mostrar el mensaje
+      addAlert({
+        message: getDisplayErrorMessage(e),
+        type: "error",
+      });
     }
   };
 
@@ -92,18 +100,16 @@ export default function ViewMenuGroup({
   const handleNewOptionCreate = async (option: OptionCreate) => {
     try {
       const result = await createOption.mutateAsync(option);
-      createOptionStore(
-        {
-          groupId,
-          menuId,
-          productId,
-          sectionId,
-        },
-        result
-      );
-      setShowNewOption(false);
+
+      if (result) {
+        createOptionStore({ groupId, menuId, productId, sectionId }, result);
+        setShowNewOption(false);
+      }
     } catch (e) {
-      console.error("Error creando opción", e);
+      addAlert({
+        message: getDisplayErrorMessage(e),
+        type: "error",
+      });
     }
   };
 
@@ -115,19 +121,21 @@ export default function ViewMenuGroup({
         <div className="flex items-center gap-3">
           <button
             className="text-blue-600 text-sm hover:underline"
-            onClick={() => setEditing(true)}
+            onClick={() => {
+              setEditing(true);
+            }}
           >
             Editar
           </button>
           {onDeleteGroup && (
             <button
               className="text-red-500 text-sm hover:underline"
-              onClick={() =>
+              onClick={() => {
                 onDeleteGroup(
                   group.id,
                   group.options.map((op) => op.id)
-                )
-              }
+                );
+              }}
             >
               Eliminar
             </button>
@@ -135,7 +143,6 @@ export default function ViewMenuGroup({
         </div>
       </div>
 
-      {/* Opciones */}
       <div className="p-4">
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {(group.options ?? []).map((option) => (
@@ -153,18 +160,21 @@ export default function ViewMenuGroup({
           <NewMenuGroupOption
             optionGroupId={group.id}
             onCreate={handleNewOptionCreate}
+            // Asumo que tu componente NewMenuGroupOption tiene un onCancel
+            // onCancel={() => setShowNewOption(false)}
           />
         ) : (
           <button
             className="mt-4 text-blue-600 text-sm hover:underline"
-            onClick={() => setShowNewOption(true)}
+            onClick={() => {
+              setShowNewOption(true);
+            }}
           >
             + Agregar opción
           </button>
         )}
       </div>
 
-      {/* Modal / Inline edición */}
       {editing && (
         <EditMenuGroup
           group={group}

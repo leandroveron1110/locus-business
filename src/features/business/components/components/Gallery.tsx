@@ -8,13 +8,16 @@ import { useImageGaleryUploader } from "../../hooks/useImageGaleryUploader";
 import { SkeletonGallery } from "./Skeleton/SkeletonGallery";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
 import { useImageGaleryRemover } from "../../hooks/useImageGaleryRemover";
+import { useApiError } from "@/features/common/utils/useApiError";
 
 interface Props {
   businessId: string;
 }
 
 export default function Gallery({ businessId }: Props) {
-  const { data, isLoading, isError, refetch } = useGallery(businessId);
+  const { data, isLoading, isError, refetch, error } = useGallery(businessId);
+
+  useApiError(isError, error);
   const { uploadImage, isUploading } = useImageGaleryUploader(businessId, refetch);
   const { removeImage, isRemoving } = useImageGaleryRemover(businessId);
 
@@ -37,7 +40,7 @@ export default function Gallery({ businessId }: Props) {
   const handleDelete = async (imageId: string) => {
     const confirmed = confirm("¿Eliminar esta imagen?");
     if (confirmed) {
-      await removeImage(imageId);
+      removeImage(imageId);
       refetch();
     }
   };

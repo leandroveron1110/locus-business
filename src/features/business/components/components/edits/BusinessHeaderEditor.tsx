@@ -4,6 +4,8 @@
 import { useState } from "react";
 import { Image, X, Save, UploadCloud } from "lucide-react";
 import { useFileUploader } from "@/features/business/hooks/useImageUploader";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface BusinessHeaderEditorProps {
   businessId: string; // Agregamos el businessId
@@ -41,6 +43,8 @@ export default function BusinessHeaderEditor({
   // Usamos el hook y le pasamos la URL del endpoint para el logo
   const { uploadFile, isUploading } = useFileUploader(businessId);
 
+  const { addAlert } = useAlert()
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -56,11 +60,15 @@ export default function BusinessHeaderEditor({
     try {
       // Llamamos al hook para subir el archivo
       const data = await uploadFile(file);
-      // Actualizamos el estado con la URL del nuevo logo
-      setFormData((prev) => ({ ...prev, logoUrl: data.url }));
+
+      if(data){
+        setFormData((prev) => ({ ...prev, logoUrl: data.url }));
+      }
     } catch (err) {
-      // El hook ya maneja el error, aquí solo se muestra un log
-      console.error("Failed to upload image:", err);
+      addAlert({
+        message: getDisplayErrorMessage(err),
+        type: 'error'
+      })
     }
   };
 

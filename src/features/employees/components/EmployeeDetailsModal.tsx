@@ -1,9 +1,7 @@
 // src/app/business/employees/EmployeeDetailsModal.tsx
 "use client";
 
-import { RoleList } from "@/features/roles/components/RoleList";
 import { IEmployee } from "../api/employees-api";
-import { PermissionsEnum } from "@/features/common/utils/permissions.enum";
 import { PermissionLabels } from "@/features/common/utils/permissions-translations";
 import { PlusCircle, MinusCircle, BadgeCheck, XCircle } from "lucide-react";
 

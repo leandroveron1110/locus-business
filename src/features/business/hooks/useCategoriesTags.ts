@@ -56,10 +56,6 @@ export function useUpdateCategories() {
         queryKey: ["business-categories-tags", variables.businessId],
       });
     },
-    onError: (error) => {
-      // Aquí puedes manejar el error, por ejemplo, mostrando una notificación
-      console.error("Error updating categories:", error);
-    },
   });
 }
 
@@ -80,9 +76,6 @@ export function useUpdateTags() {
       queryClient.invalidateQueries({
         queryKey: ["business-categories-tags", variables.businessId],
       });
-    },
-    onError: (error) => {
-      console.error("Error updating tags:", error);
-    },
+    }
   });
 }

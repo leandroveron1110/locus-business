@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash, Loader2 } from "lucide-react";
 import { useUpdateSchedule } from "@/features/business/hooks/useSchedule";
 import { useState } from "react";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 const daysOfWeek = [
   "MONDAY",
@@ -49,7 +51,13 @@ interface Props {
   onSuccess?: () => void;
 }
 
-export default function WeeklyScheduleForm({ businessId, initialSchedule, onSuccess }: Props) {
+export default function WeeklyScheduleForm({
+  businessId,
+  initialSchedule,
+  onSuccess,
+}: Props) {
+  const { addAlert } = useAlert();
+
   const defaultValues: FormValues = {
     schedule: daysOfWeek.reduce((acc, day) => {
       const ranges = initialSchedule?.[day] ?? [];
@@ -58,7 +66,7 @@ export default function WeeklyScheduleForm({ businessId, initialSchedule, onSucc
         return { start, end };
       });
       return acc;
-    }, {} as Record<typeof daysOfWeek[number], { start: string; end: string }[]>),
+    }, {} as Record<(typeof daysOfWeek)[number], { start: string; end: string }[]>),
   };
 
   const { control, handleSubmit } = useForm<FormValues>({
@@ -83,9 +91,16 @@ export default function WeeklyScheduleForm({ businessId, initialSchedule, onSucc
       onSuccess: () => {
         setSuccess(true);
         onSuccess?.();
-        setTimeout(() => setSuccess(false), 3000);
+      },
+      onError: (error) => {
+        addAlert({
+          message: getDisplayErrorMessage(error),
+          type: "error",
+        });
       },
     });
+
+    setSuccess(false);
   };
 
   return (
@@ -109,7 +124,9 @@ export default function WeeklyScheduleForm({ businessId, initialSchedule, onSucc
           disabled={updateSchedule.isPending}
           className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 shadow-md transition"
         >
-          {updateSchedule.isPending && <Loader2 className="animate-spin" size={18} />}
+          {updateSchedule.isPending && (
+            <Loader2 className="animate-spin" size={18} />
+          )}
           {updateSchedule.isPending ? "Guardando..." : "Guardar Horario"}
         </button>
       </div>
@@ -160,11 +177,15 @@ function DayScheduleField({ control, day, label, isDisabled }: DayProps) {
                     {...field}
                     disabled={isDisabled}
                     className={`border rounded-lg p-2 w-28 focus:outline-none focus:ring-2 ${
-                      fieldState.error ? "border-red-500 focus:ring-red-300" : "border-gray-300 focus:ring-blue-300"
+                      fieldState.error
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-gray-300 focus:ring-blue-300"
                     }`}
                   />
                   {fieldState.error && (
-                    <span className="text-xs text-red-500 mt-1">{fieldState.error.message}</span>
+                    <span className="text-xs text-red-500 mt-1">
+                      {fieldState.error.message}
+                    </span>
                   )}
                 </div>
               )}
@@ -180,11 +201,15 @@ function DayScheduleField({ control, day, label, isDisabled }: DayProps) {
                     {...field}
                     disabled={isDisabled}
                     className={`border rounded-lg p-2 w-28 focus:outline-none focus:ring-2 ${
-                      fieldState.error ? "border-red-500 focus:ring-red-300" : "border-gray-300 focus:ring-blue-300"
+                      fieldState.error
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-gray-300 focus:ring-blue-300"
                     }`}
                   />
                   {fieldState.error && (
-                    <span className="text-xs text-red-500 mt-1">{fieldState.error.message}</span>
+                    <span className="text-xs text-red-500 mt-1">
+                      {fieldState.error.message}
+                    </span>
                   )}
                 </div>
               )}

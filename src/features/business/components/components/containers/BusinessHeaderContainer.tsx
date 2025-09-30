@@ -6,6 +6,8 @@ import BusinessHeaderEditor from "../edits/BusinessHeaderEditor";
 import BusinessHeader from "../views/BusinessHeader";
 import { BusinessHeaderData } from "@/features/business/types/business-form";
 import { useBusinessHeaderUpdater } from "@/features/business/hooks/useBusinessHeaderUpdater";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface BusinessHeaderContainerProps {
   businessId: string;
@@ -32,6 +34,7 @@ export default function BusinessHeaderContainer({
 
   // Utiliza el hook de mutación
   const { updateHeader } = useBusinessHeaderUpdater(businessId);
+  const { addAlert } = useAlert()
 
   // La función getChangedFields se mantiene igual para identificar cambios
   const getChangedFields = (
@@ -47,8 +50,6 @@ export default function BusinessHeaderContainer({
 
     keysToCompare.forEach((key) => {
       if (newData[key] !== oldData[key]) {
-        // Ahora, TypeScript sabe que 'key' nunca será 'logoUrl'
-        // por lo que el error de tipado se elimina.
         diff[key] = newData[key] as any; // Usamos 'as any' para evitar un error de "assignability" que pueda surgir en la comparación de los tipos, aunque la solución ideal sería usar una aserción de tipo más específica si es posible.
       }
     });
@@ -61,7 +62,6 @@ export default function BusinessHeaderContainer({
 
     // Solo actualiza si hay cambios en los campos de texto
     if (Object.keys(changes).length === 0) {
-      console.log("⚠️ No hay cambios en los campos de texto para guardar");
       setIsEditing(false);
       return;
     }
@@ -73,8 +73,10 @@ export default function BusinessHeaderContainer({
         setIsEditing(false);
       },
       onError: (err) => {
-        // La lógica del hook ya maneja la salida de error a la consola.
-        // Aquí puedes agregar un toast o un mensaje de error si lo necesitas.
+        addAlert({
+          message: getDisplayErrorMessage(err),
+          type: 'error'
+        })
       },
     });
   };

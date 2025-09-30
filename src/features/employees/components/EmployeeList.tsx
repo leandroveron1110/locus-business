@@ -3,12 +3,9 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import { RoleList } from "@/features/roles/components/RoleList";
-import { MoreHorizontal } from "lucide-react"; // ✅ Importación del icono
 import { EditEmployeeForm } from "./edit/EditEmployeeForm";
 import { useBusinessEmployees } from "../hooks/useFindUserById";
 import { IEmployee } from "../api/employees-api";
-import { PermissionLabels } from "@/features/common/utils/permissions-translations";
 import { EmployeeDetailsModal } from "./EmployeeDetailsModal";
 
 // Componente del Modal de Detalles

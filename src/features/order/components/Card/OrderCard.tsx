@@ -22,6 +22,8 @@ import { DeliveryCompanySelector } from "../DeliveryCompanySelector";
 import PaymentPendingCard from "./PaymentPendingCard";
 import OrderSummary from "./OrderSummary";
 import { OrderModal } from "./OrderListProduct";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface OrderCardProps {
   order: Order;
@@ -30,11 +32,16 @@ interface OrderCardProps {
 
 const DEFAULT_DELIVERY_KEY = "defaultDeliveryCompany";
 
-export default function OrderCard({ order, deliveryCompanies }: OrderCardProps) {
+export default function OrderCard({
+  order,
+  deliveryCompanies,
+}: OrderCardProps) {
   const updateOrderStatus = useBusinessOrdersStore((s) => s.updateOrderStatus);
   const updatePaymentStatus = useBusinessOrdersStore(
     (s) => s.updatePaymentStatus
   );
+
+  const { addAlert } = useAlert();
 
   const [showDeliverySelector, setShowDeliverySelector] = useState(false);
   const [showProduct, setShowProduct] = useState(false);
@@ -42,8 +49,12 @@ export default function OrderCard({ order, deliveryCompanies }: OrderCardProps) 
   const [hasSeenVoucher, setHasSeenVoucher] = useState(false);
   const [paymentActionTaken, setPaymentActionTaken] = useState(false);
 
-  const [defaultDeliveryCompanyId, setDefaultDeliveryCompanyId] = useState<string | null>(null);
-  const [defaultDeliveryCompanyName, setDefaultDeliveryCompanyName] = useState<string | null>(null);
+  const [defaultDeliveryCompanyId, setDefaultDeliveryCompanyId] = useState<
+    string | null
+  >(null);
+  const [defaultDeliveryCompanyName, setDefaultDeliveryCompanyName] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const savedDefaultId = localStorage.getItem(DEFAULT_DELIVERY_KEY);
@@ -58,11 +69,20 @@ export default function OrderCard({ order, deliveryCompanies }: OrderCardProps) 
 
   const handleStatusChange = async (newStatus: EOrderStatusBusiness) => {
     try {
-      const updatedOrder = await fetchUpdateOrdersByOrderID(order.id, newStatus);
-      updateOrderStatus(updatedOrder.id, updatedOrder.status);
+      const updatedOrder = await fetchUpdateOrdersByOrderID(
+        order.id,
+        newStatus
+      );
+      if (updatedOrder) {
+        updateOrderStatus(updatedOrder.id, updatedOrder.status);
+      }
     } catch (error) {
-      console.error("Error cambiando el estado:", error);
-      alert("Hubo un error al cambiar el estado de la orden.");
+      addAlert({
+        message: `Hubo un error al cambiar el estado de la orden. ${getDisplayErrorMessage(
+          error
+        )} `,
+        type: "error",
+      });
     }
   };
 
@@ -76,14 +96,19 @@ export default function OrderCard({ order, deliveryCompanies }: OrderCardProps) 
         order.id,
         newStatus
       );
-      updatePaymentStatus(
-        updatedOrder.id,
-        updatedOrder.paymentStatus,
-        updatedOrder.paymentReceiptUrl || ""
-      );
-      setPaymentActionTaken(true); // Oculta los botones
+      if (updatedOrder) {
+        updatePaymentStatus(
+          updatedOrder.id,
+          updatedOrder.paymentStatus,
+          updatedOrder.paymentReceiptUrl || ""
+        );
+        setPaymentActionTaken(true); // Oculta los botones
+      }
     } catch (error) {
-      console.error(error);
+      addAlert({
+        message: `${getDisplayErrorMessage(error)} `,
+        type: "error",
+      });
     }
   };
 
@@ -100,7 +125,12 @@ export default function OrderCard({ order, deliveryCompanies }: OrderCardProps) 
       setDefaultDeliveryCompanyId(companyId);
       setDefaultDeliveryCompanyName(companyName);
     } catch (error) {
-      alert("Error al asignar el delivery.");
+      addAlert({
+        message: `Error al asignar el delivery.. ${getDisplayErrorMessage(
+          error
+        )} `,
+        type: "error",
+      });
     }
   };
 
@@ -139,8 +169,11 @@ export default function OrderCard({ order, deliveryCompanies }: OrderCardProps) 
   );
 
   const shouldShowPaymentButtons =
-    ((order.paymentType === PaymentMethodType.CASH && order.paymentStatus === PaymentStatus.PENDING) ||
-      (order.paymentType === PaymentMethodType.TRANSFER && shouldShowPaymentReview && hasSeenVoucher)) &&
+    ((order.paymentType === PaymentMethodType.CASH &&
+      order.paymentStatus === PaymentStatus.PENDING) ||
+      (order.paymentType === PaymentMethodType.TRANSFER &&
+        shouldShowPaymentReview &&
+        hasSeenVoucher)) &&
     !paymentActionTaken;
 
   const isPickup = order.deliveryType === DeliveryType.PICKUP;

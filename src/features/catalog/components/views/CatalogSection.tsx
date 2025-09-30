@@ -5,6 +5,8 @@ import { IMenuSectionWithProducts } from "../../types/catlog";
 import ViewCatalogSection from "./ViewCatalogSection";
 import { useDeleteSection, useUpdateSection } from "../../hooks/useMenuHooks";
 import { useMenuStore } from "../../stores/menuStore";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Props {
   menuId: string;
@@ -23,29 +25,46 @@ export default function CatalogSection({
   const deleteSectionMutation = useDeleteSection();
   const updateSection = useMenuStore((state) => state.updateSection);
   const deleteSection = useMenuStore((state) => state.deleteSection);
+  const { addAlert } = useAlert();
 
   const handleSectionChange = async (
     updated: Partial<IMenuSectionWithProducts>
   ) => {
-    const up = await updateSectionMutation.mutateAsync({
-      sectionId,
-      data: {
-        businessId,
-        menuId,
-        ownerId,
-        ...updated,
-      },
-    });
+    try {
+      const up = await updateSectionMutation.mutateAsync({
+        sectionId,
+        data: {
+          businessId,
+          menuId,
+          ownerId,
+          ...updated,
+        },
+      });
 
-    updateSection({ menuId, sectionId }, up);
+      if (up) {
+        updateSection({ menuId, sectionId }, up);
+      }
+    } catch (error) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
   };
 
   const handleSectionDelete = () => {
-    deleteSectionMutation.mutateAsync(sectionId);
-    deleteSection({
-      menuId,
-      sectionId,
-    });
+    try {
+      deleteSectionMutation.mutateAsync(sectionId);
+      deleteSection({
+        menuId,
+        sectionId,
+      });
+    } catch (error) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
   };
 
   return (

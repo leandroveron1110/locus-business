@@ -1,12 +1,17 @@
 // src/hooks/useImageUploader.ts
 import { useState } from "react";
 import axios from "@/lib/api";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { fetchUploadImageGelery } from "../api/businessApi";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 type RefetchFunction = () => Promise<any>;
 
 export const useImageGaleryUploader = (businessId: string, refetch: RefetchFunction) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { addAlert } = useAlert()
+  
 
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -20,17 +25,14 @@ export const useImageGaleryUploader = (businessId: string, refetch: RefetchFunct
 
     try {
       // Usamos la URL que define tu controlador
-      await axios.post(`/business/${businessId}/gallery`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await fetchUploadImageGelery(businessId, formData);
 
-      // Si la subida es exitosa, refresca la galería
       await refetch();
     } catch (err) {
-      console.error("Error al subir la imagen:", err);
-      // Aquí puedes manejar el error de forma más detallada
+      addAlert({
+        message: getDisplayErrorMessage(err),
+        type: 'error'
+      })
     } finally {
       setIsUploading(false);
     }

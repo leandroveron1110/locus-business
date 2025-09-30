@@ -6,6 +6,8 @@ import BusinessContactEditor from "../edits/BusinessContactEditor";
 import BusinessContact from "../views/BusinessContact";
 import { useBusinessContactUpdater } from "@/features/business/hooks/useBusinessContactUpdater";
 import { AddressData } from "@/features/locationSelector/types/address-data";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface OnSaveData {
   address?: string;
@@ -46,6 +48,7 @@ export default function BusinessContactContainer({
   instagramUrl,
 }: Props) {
   const [isEditing, setIsEditing] = useState(true);
+  const { addAlert } = useAlert()
 
   const [contactData, setContactData] = useState({
     address,
@@ -97,6 +100,12 @@ export default function BusinessContactContainer({
         setContactData((prev) => ({ ...prev, ...changes }));
         setIsEditing(false);
       },
+      onError: (error)=> {
+        addAlert({
+          message: getDisplayErrorMessage(error),
+          type: 'error'
+        })
+      }
     });
   };
 

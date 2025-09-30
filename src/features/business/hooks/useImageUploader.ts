@@ -1,6 +1,7 @@
 // src/hooks/useImageUploader.ts
 import { useState } from "react";
 import axios from "@/lib/api";
+import { fetchFileUploader } from "../api/businessApi";
 
 
 export const useFileUploader = (businessId: string) => {
@@ -17,19 +18,17 @@ export const useFileUploader = (businessId: string) => {
     setUploadError(null);
 
     try {
-      const response = await axios.post(`/business/${businessId}/logo`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await fetchFileUploader(businessId, formData)
+
+      if(response) {
+        return response;
+
+      }
 
       // Retorna los datos de la respuesta para que el componente los maneje
-      return response.data;
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Error al subir la imagen.";
-      setUploadError(errorMessage);
-      console.error("Error al subir el archivo:", err);
-      throw new Error(errorMessage);
+    } catch (err) {
+
+      throw err;
     } finally {
       setIsUploading(false);
     }

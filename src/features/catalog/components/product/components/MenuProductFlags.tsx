@@ -4,10 +4,7 @@ import { useState } from "react";
 interface Props {
   isMostOrdered?: boolean;
   isRecommended?: boolean;
-  onUpdate: (data: {
-    isMostOrdered: boolean;
-    isRecommended: boolean;
-  }) => void;
+  onUpdate: (data: { isMostOrdered: boolean; isRecommended: boolean }) => void;
 }
 
 export default function MenuProductFlags({

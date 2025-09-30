@@ -21,9 +21,6 @@ export const useFollowMutation = () => {
           };
         }
       );
-    },
-    onError: (error) => {
-      console.error("Error al seguir el negocio:", error);
-    },
+    }
   });
 };

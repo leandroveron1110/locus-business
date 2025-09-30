@@ -8,6 +8,8 @@ import MenuProductStock from "../components/MenuProductStock";
 import MenuProductFlags from "../components/MenuProductFlags";
 import EnabledSwitch from "../components/EnabledSwitch";
 import { useMenuStore } from "../../../stores/menuStore";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Props {
   menuId: string;
@@ -26,6 +28,8 @@ export default function NewMenuProduct({
   onClose,
   onCreated,
 }: Props) {
+
+  const { addAlert } = useAlert();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [prices, setPrices] = useState({
@@ -76,18 +80,23 @@ export default function NewMenuProduct({
       };
 
       const created = await createProduct.mutateAsync(newProduct);
-      onCreated(created);
 
-      const add: IMenuProduct = {
-        ...created,
-        ...newProduct,
-      };
-
-      addProduct({ menuId, sectionId }, add);
-      onClose();
+      if(created) {
+        onCreated(created);
+  
+        const add: IMenuProduct = {
+          ...created,
+          ...newProduct,
+        };
+  
+        addProduct({ menuId, sectionId }, add);
+        onClose();
+      }
     } catch (error) {
-      console.error(error);
-      alert("Error creando el producto");
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: 'error'
+      })
     } finally {
       setSaving(false);
     }

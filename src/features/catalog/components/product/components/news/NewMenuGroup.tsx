@@ -68,7 +68,7 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
       </div>
 
       {/* Cantidad mínima */}
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-600">Cantidad mínima</label>
         <input
           type="number"
@@ -76,10 +76,10 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
           onChange={(e) => handleChange("minQuantity", Number(e.target.value))}
           className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         />
-      </div>
+      </div> */}
 
       {/* Cantidad máxima */}
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-600">Cantidad máxima</label>
         <input
           type="number"
@@ -87,10 +87,10 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
           onChange={(e) => handleChange("maxQuantity", Number(e.target.value))}
           className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         />
-      </div>
+      </div> */}
 
       {/* Tipo de cantidad */}
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-600">Tipo de cantidad</label>
         <select
           value={newGroup.quantityType}
@@ -100,7 +100,7 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
           <option value="FIXED">Fijo</option>
           <option value="MIN_MAX">Mín/Máx</option>
         </select>
-      </div>
+      </div> */}
 
       {/* Error */}
       {error && (

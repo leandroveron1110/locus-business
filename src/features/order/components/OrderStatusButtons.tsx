@@ -5,7 +5,7 @@ import {
   DeliveryType,
   OrderStatus,
 } from "../types/order";
-import { Package, Truck, Check, X } from "lucide-react";
+import { Package, Truck } from "lucide-react";
 
 interface Props {
   order: Order;

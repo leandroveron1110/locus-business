@@ -3,9 +3,9 @@ import { formatPrice } from "@/features/common/utils/formatPrice";
 import { useState, useEffect, useMemo, useRef } from "react";
 
 interface Props {
-  finalPrice?: string;
-  originalPrice?: string;
-  discountPercentage?: string;
+  finalPrice?: string | number;
+  originalPrice?: string | number;
+  discountPercentage?: string | number;
   currencyMask?: string;
   onUpdate: (data: {
     finalPrice: number;
@@ -30,7 +30,6 @@ export default function MenuProductPrice({
     discountPercentage: "",
   });
 
-  // 👇 referencia al input de precio original
   const originalPriceInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

@@ -13,13 +13,6 @@ export const useCreateRole = (
 ) => {
   return useMutation<ApiResult<BusinessRole>, ApiError, CreateBusinessRole>({
     mutationFn: createRoleApi,
-    onSuccess: (data) => {
-      console.log("Rol creado exitosamente:", data);
-      // Si querés, podés usar "variables" para mostrar qué rol se creó
-    },
-    onError: (error) => {
-      alert(error.message || "Error al crear el rol. Inténtalo de nuevo.");
-    },
     retry: false,
     ...options,
   });

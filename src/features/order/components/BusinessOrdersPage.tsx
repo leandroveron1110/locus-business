@@ -7,7 +7,6 @@ import { useBusinessOrdersSocket } from "../stores/useBusinessOrdersSocket";
 import { useBusinessOrdersStore } from "../stores/useBusinessOrdersStore";
 import { useFetchBusinessOrders } from "../stores/useFetchBusinessOrders";
 import {
-  EOrderStatusBusiness,
   Order,
   OrderStatus,
   PaymentMethodType,
@@ -17,6 +16,8 @@ import { Search } from "lucide-react";
 import OrderCard from "./Card/OrderCard";
 import OrdersFilters from "./OrdersFilters";
 import { simplifiedFilters } from "@/features/common/utils/filtersData";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Props {
   businessId: string;
@@ -25,6 +26,8 @@ interface Props {
 export default function BusinessOrdersPage({ businessId }: Props) {
   useFetchBusinessOrders(businessId);
   useBusinessOrdersSocket(businessId);
+
+  const { addAlert } = useAlert();
 
   const orders = useBusinessOrdersStore((s) => s.orders as Order[]);
   const [deliveryCompanies, setDeliveryCompanies] = useState<
@@ -35,8 +38,19 @@ export default function BusinessOrdersPage({ businessId }: Props) {
 
   useEffect(() => {
     fetchDeliveryCompany()
-      .then(setDeliveryCompanies)
-      .catch((e) => console.error("Error cargando delivery companies", e));
+      .then((c) => {
+        if (c) {
+          setDeliveryCompanies(c);
+        }
+      })
+      .catch((e) =>
+        addAlert({
+          message: `Error cargando delivery companies. ${getDisplayErrorMessage(
+            e
+          )} `,
+          type: "error",
+        })
+      );
   }, []);
 
   // Filtra órdenes según método de pago y su estado

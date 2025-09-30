@@ -35,7 +35,6 @@ const DraggableMarker = ({ initialPosition, onPositionChange }: DraggableMarkerP
           const newPos: [number, number] = [marker.getLatLng().lat, marker.getLatLng().lng];
           setPosition(newPos);
           onPositionChange(newPos); // Llama a la función de callback con la nueva posición
-          console.log("Nueva posición del marcador (arrastrado):", newPos);
         }
       },
     }),

@@ -22,7 +22,7 @@ export default function MenuGroupOption({
   const handleCancel = () => setEditing(false);
 
   return (
-    <li className="rounded-xl mb-4 bg-gray-50 shadow-sm p-2">
+    <li className="rounded-xl mb-4 bg-gray-50">
       {editing ? (
         <EditMenuGroupOption
           option={option}
@@ -34,7 +34,6 @@ export default function MenuGroupOption({
       ) : (
         <div className="cursor-pointer" onClick={() => setEditing(true)}>
           <OptionCard
-            currencyMask={currencyMask}
             option={{
               name: option.name,
               hasStock: option.hasStock,

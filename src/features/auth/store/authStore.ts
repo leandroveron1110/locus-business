@@ -48,7 +48,6 @@ export const useAuthStore = create<AuthStore>()(
           });
           return response.user; // Devuelve el usuario para uso en el componente
         } catch (error: any) {
-          console.error("Login failed:", error);
           set({
             ...initialState, // Resetea el estado a no autenticado
             isLoading: false,
@@ -77,7 +76,6 @@ export const useAuthStore = create<AuthStore>()(
           });
           return response.user;
         } catch (error: any) {
-          console.error("Register failed:", error);
           set({
             ...initialState,
             isLoading: false,
@@ -120,7 +118,6 @@ export const useAuthStore = create<AuthStore>()(
             error: null,
           });
         } catch (error: any) {
-          console.error("Failed to retrieve user session:", error);
           localStorage.removeItem("authToken"); // Token inválido o expirado, lo eliminamos
           set({
             ...initialState,

@@ -24,6 +24,7 @@ export interface PaginationParams {
 export interface ApiError {
   statusCode: number;
   message: string | string[];
+  contextMessage: string;
   errorCode?: string; 
   timestamp: string;
   path: string;

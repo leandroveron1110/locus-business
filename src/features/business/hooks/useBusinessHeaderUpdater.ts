@@ -20,10 +20,6 @@ export const useBusinessHeaderUpdater = (businessId: string) => {
     onSuccess: () => {
       // Invalida la caché de la consulta del negocio para que se refresque
       queryClient.invalidateQueries({ queryKey: ['business', businessId] });
-      console.log('✅ Encabezado del negocio actualizado con éxito.');
-    },
-    onError: (err) => {
-      console.error('❌ Error al actualizar el encabezado:', err);
     },
   });
 
