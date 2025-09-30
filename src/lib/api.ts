@@ -1,6 +1,9 @@
 // src/lib/api.ts
 import { ApiResponse } from "@/types/api";
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance
+} from "axios";
 import Router from "next/router"; // Para redirección en Next.js
 
 // URL base de la API desde variables de entorno
@@ -32,22 +35,24 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error: any) => Promise.reject(error)
+  (error: unknown) => Promise.reject(error)
 );
 
-// Interceptor de respuestas
 api.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
+  (response) => response,
+  async (error: AxiosError<ApiResponse<unknown>>) => {
     if (error.response) {
-      const { status } = error.response;
+      const { status, data: apiResponse } = error.response;
 
-      // Manejo de errores 401: token inválido o expirado
       if (status === 401) {
         if (typeof window !== "undefined") {
           localStorage.removeItem("authToken");
-          // Router.push('/login'); // Redirige a login
+          Router.push("/login");
         }
+      }
+
+      if (apiResponse && apiResponse.error) {
+        return Promise.reject(apiResponse.error);
       }
     }
 
@@ -55,6 +60,9 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Interceptor para normalizar las
+ */
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiResponse<unknown>>) => {
