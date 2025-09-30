@@ -1,12 +1,25 @@
-import { PaymentMethodType, PaymentStatus, OrderStatus } from '@prisma/client';
+import { OrderStatus } from "@/features/order/types/order";
+
+export enum PaymentMethodType {
+  TRANSFER = "TRANSFER", 
+  CASH = "CASH",
+  DELIVERY = "DELIVERY"
+}
+
+export enum PaymentStatus {
+  PENDING = "PENDING", 
+  IN_PROGRESS = "IN_PROGRESS",
+  CONFIRMED = "CONFIRMED",
+  REJECTED = "REJECTED"
+}
 
 export interface CreateOrderOption {
   optionName: string;
   priceModifierType: string;
   quantity: number;
-  priceFinal: string;         // número decimal como string
-  priceWithoutTaxes: string;  // número decimal como string
-  taxesAmount: string;        // número decimal como string
+  priceFinal: string;        
+  priceWithoutTaxes: string; 
+  taxesAmount: string;       
   opcionId?: string;
 }
 
