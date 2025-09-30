@@ -21,8 +21,8 @@ export default function CatalogSection({
   businessId,
   ownerId,
 }: Props) {
-  const updateSectionMutation = useUpdateSection();
-  const deleteSectionMutation = useDeleteSection();
+  const updateSectionMutation = useUpdateSection(businessId);
+  const deleteSectionMutation = useDeleteSection(businessId);
   const updateSection = useMenuStore((state) => state.updateSection);
   const deleteSection = useMenuStore((state) => state.deleteSection);
   const { addAlert } = useAlert();

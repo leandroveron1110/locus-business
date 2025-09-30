@@ -46,7 +46,7 @@ export default function NewMenuProduct({
     isRecommended: false,
   });
 
-  const createProduct = useCreateMenuProduct();
+  const createProduct = useCreateMenuProduct(businessId);
   const addProduct = useMenuStore((status) => status.addProduct);
   const [saving, setSaving] = useState(false);
 
