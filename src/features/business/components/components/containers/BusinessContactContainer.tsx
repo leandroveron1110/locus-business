@@ -62,7 +62,7 @@ export default function BusinessContactContainer({
     instagramUrl,
   });
 
-  const { updateContact, isUpdating } = useBusinessContactUpdater(businessId);
+  const { updateContact } = useBusinessContactUpdater(businessId);
 
   const getChanges = (newData: OnSaveData) => {
     const diff: Partial<typeof contactData> = {};

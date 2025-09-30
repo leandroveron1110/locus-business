@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { OrderItem } from "../../types/order";
 import { OrderCardProduct } from "./OrderCardProduct";
 

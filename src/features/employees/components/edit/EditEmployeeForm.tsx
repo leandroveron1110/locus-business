@@ -14,11 +14,16 @@ import {
   UpdateBusinessEmployeePayload,
   updateBusinessEmployeePermissions,
 } from "../../api/employees-api";
-import { useBusinessRoles, useDeleteRoleEmployess } from "../../hooks/useFindUserById";
+import {
+  useBusinessRoles,
+  useDeleteRoleEmployess,
+} from "../../hooks/useFindUserById";
 import { PermissionsEnum } from "@/features/common/utils/permissions.enum";
 import { PermissionLabels } from "@/features/common/utils/permissions-translations";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
-import ConfirmationModal, { ConfirmationModalRef } from "@/features/common/ui/Modal/ConfirmationModal";
+import ConfirmationModal, {
+  ConfirmationModalRef,
+} from "@/features/common/ui/Modal/ConfirmationModal";
 
 const editEmployeeSchema = z.object({
   roleId: z.string().uuid("Selecciona un rol válido."),
@@ -32,9 +37,13 @@ interface EditEmployeeFormProps {
   onCancel: () => void;
 }
 
-const ALL_PERMISSIONS = Object.values(PermissionsEnum);
+const ALL_PERMISSIONS: PermissionsEnum[] = Object.values(PermissionsEnum);
 
-export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmployeeFormProps) {
+export function EditEmployeeForm({
+  employee,
+  businessId,
+  onCancel,
+}: EditEmployeeFormProps) {
   const queryClient = useQueryClient();
   const { addAlert } = useAlert();
   const { data: roles, isLoading: rolesLoading } = useBusinessRoles(businessId);
@@ -45,15 +54,24 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
       updateBusinessEmployeePermissions(employee.id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees", businessId] });
-      addAlert({ message: "Empleado actualizado con éxito.", type: "success", duration: 3000 });
+      addAlert({
+        message: "Empleado actualizado con éxito.",
+        type: "success",
+        duration: 3000,
+      });
       onCancel();
     },
-    onError: (error: any) => {
-      addAlert({ message: "Error al actualizar: " + error.message, type: "error", duration: 5000 });
+    onError: (error) => {
+      addAlert({
+        message: "Error al actualizar: " + error.message,
+        type: "error",
+        duration: 5000,
+      });
     },
   });
 
-  const { mutate: deleteEmployee, isPending: isDeleting } = useDeleteRoleEmployess(businessId);
+  const { mutate: deleteEmployee, isPending: isDeleting } =
+    useDeleteRoleEmployess(businessId);
 
   const {
     register,
@@ -78,12 +96,18 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
     if (selectedRoleId && roles) {
       const newRole = roles.find((r) => r.id === selectedRoleId);
       const newRolePermissions = new Set(newRole?.permissions || []);
-      const currentOverrides = new Map(employee.overrides.map((o) => [o.permission, o.allowed]));
+      const currentOverrides = new Map(
+        employee.overrides.map((o) => [o.permission, o.allowed])
+      );
 
-      let combinedPermissions = new Set(newRolePermissions);
+      const combinedPermissions = new Set(newRolePermissions);
 
       currentOverrides.forEach((allowed, permission) => {
-        allowed ? combinedPermissions.add(permission) : combinedPermissions.delete(permission);
+        if (allowed) {
+          combinedPermissions.add(permission);
+        } else {
+          combinedPermissions.delete(permission);
+        }
       });
 
       reset({ ...watch(), permissions: Array.from(combinedPermissions) });
@@ -102,7 +126,7 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
         acc.push({ permission, allowed: hasFormPermission });
       }
       return acc;
-    }, [] as { permission: string; allowed: boolean }[]);
+    }, [] as { permission: PermissionsEnum; allowed: boolean }[]);
 
     updateEmployee({ roleId: data.roleId, overrides });
   };
@@ -116,11 +140,19 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
       { employeeId: employee.id },
       {
         onSuccess: () => {
-          addAlert({ message: "Empleado eliminado con éxito.", type: "success", duration: 3000 });
+          addAlert({
+            message: "Empleado eliminado con éxito.",
+            type: "success",
+            duration: 3000,
+          });
           onCancel();
         },
-        onError: (error: any) => {
-          addAlert({ message: "Error al eliminar el empleado: " + error.message, type: "error", duration: 5000 });
+        onError: (error) => {
+          addAlert({
+            message: "Error al eliminar el empleado: " + error.message,
+            type: "error",
+            duration: 5000,
+          });
         },
       }
     );
@@ -129,11 +161,16 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
   return (
     <>
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Editar Empleado</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Editar Empleado
+        </h2>
 
         <form onSubmit={handleSubmit(onUpdateSubmit)} className="space-y-6">
           <div>
-            <label htmlFor="roleId" className="block text-gray-700 font-medium mb-2">
+            <label
+              htmlFor="roleId"
+              className="block text-gray-700 font-medium mb-2"
+            >
               Rol del Empleado
             </label>
             {rolesLoading ? (
@@ -152,11 +189,17 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
                 ))}
               </select>
             )}
-            {errors.roleId && <p className="text-red-500 text-sm mt-1">{errors.roleId.message}</p>}
+            {errors.roleId && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.roleId.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-700">Permisos</h3>
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">
+              Permisos
+            </h3>
             <p className="text-gray-500 text-sm mb-3">
               Selecciona los permisos que tendrá el empleado.
             </p>
@@ -170,7 +213,10 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
                     {...register("permissions")}
                     className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500"
                   />
-                  <label htmlFor={permission} className="ml-2 text-sm font-medium text-gray-900">
+                  <label
+                    htmlFor={permission}
+                    className="ml-2 text-sm font-medium text-gray-900"
+                  >
                     {PermissionLabels[permission]}
                   </label>
                 </div>
@@ -192,7 +238,8 @@ export function EditEmployeeForm({ employee, businessId, onCancel }: EditEmploye
               disabled={isUpdating}
               className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              <Save size={20} /> {isUpdating ? "Actualizando..." : "Actualizar Empleado"}
+              <Save size={20} />{" "}
+              {isUpdating ? "Actualizando..." : "Actualizar Empleado"}
             </button>
           </div>
 

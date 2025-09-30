@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, CheckCircle, CircleSlash } from "lucide-react";
+import { CheckCircle, CircleSlash } from "lucide-react";
 import dayjs from "dayjs";
 
 interface Props {

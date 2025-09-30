@@ -1,6 +1,5 @@
 // src/features/common/utils/permissions-groups.ts
 import { PermissionsEnum } from "./permissions.enum";
-import { PermissionLabels } from "./permissions-translations";
 
 export const PermissionGroups = {
   EMPLOYEES: {

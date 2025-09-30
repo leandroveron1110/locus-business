@@ -9,7 +9,6 @@ import LocationReview from "./components/LocationReview";
 import ConfirmationCard from "../ConfirmationCard";
 import { AddressData } from "../../types/address-data";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
-import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 const MapComponent = dynamic(() => import("./components/Map"), { ssr: false });
 
@@ -63,7 +62,7 @@ const LocationSelector = ({ onSave }: LocationSelectorProps) => {
         })
         resetSearch();
       }
-    } catch (err) {
+    } catch {
       addAlert({
         message: `Error al buscar la dirección. Inténtalo de nuevo.`,
         type: 'error'

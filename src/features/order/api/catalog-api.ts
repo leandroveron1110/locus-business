@@ -1,5 +1,5 @@
 import { apiGet, apiPatch, apiPost, ApiResult } from "@/lib/apiFetch";
-import { Order, OrderStatus } from "../types/order";
+import { Order } from "../types/order";
 import { ICompany } from "../types/company";
 import { handleApiError } from "@/lib/handleApiError";
 

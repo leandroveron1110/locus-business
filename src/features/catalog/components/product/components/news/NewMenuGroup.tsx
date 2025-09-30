@@ -27,7 +27,10 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
 
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (field: keyof OptionGroupCreate, value: any) => {
+  const handleChange = <K extends keyof OptionGroupCreate>(
+      field: K,
+      value: OptionGroupCreate[K]
+    ) => {
     setNewGroup((prev) => ({ ...prev, [field]: value }));
   };
 

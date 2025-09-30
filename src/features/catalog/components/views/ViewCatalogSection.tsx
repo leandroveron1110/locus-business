@@ -39,6 +39,14 @@ export default function ViewCatalogSection({
       ?.sections.find((s) => s.id === sectionId)
   );
 
+  
+  const sortedProducts = useMemo(() => {
+    if(!section){
+      return []
+    }
+    return [...(section.products ?? [])];
+  }, [section?.products]);
+
   const handleSelectProduct = useCallback((product: IMenuProduct) => {
     setSelectedProduct(product);
   }, []);
@@ -47,7 +55,7 @@ export default function ViewCatalogSection({
     setSelectedProduct(null);
   }, []);
 
-  const handleProductCreated = (newProduct: IMenuProduct) => {
+  const handleProductCreated = () => {
     setShowNewProductModal(false);
   };
 
@@ -69,9 +77,6 @@ export default function ViewCatalogSection({
 
   if (!section) return <div />;
 
-  const sortedProducts = useMemo(() => {
-    return [...(section.products ?? [])];
-  }, [section.products]);
 
   return (
     <div className="mb-12 relative">
@@ -160,6 +165,7 @@ export default function ViewCatalogSection({
             onClose={handleCloseModal}
             menuId={menuId}
             sectionId={sectionId}
+            businessId={businessId}
           />
         </Modal>
       )}

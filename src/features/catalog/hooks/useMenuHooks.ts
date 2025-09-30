@@ -34,23 +34,24 @@ import {
 } from "../types/catlog";
 import { ApiResult } from "@/lib/apiFetch";
 import { ApiError } from "@/types/api";
-import { useAlert } from "@/features/common/ui/Alert/Alert";
-import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 // Clave base única y precisa para la caché de todo el catálogo.
 // El businessId es clave para la actualización de la caché.
-const CATALOG_QUERY_KEY = (businessId: string) => ["menu-all-business", businessId];
+const CATALOG_QUERY_KEY = (businessId: string) => [
+  "menu-all-business",
+  businessId,
+];
 
 // Función utilitaria para actualizar el catálogo anidado en la caché
 // NOTA: Esta es una función PLACEHOLDER y debe contener la lógica de
 // navegación profunda (menú -> sección -> producto) para encontrar y
 // reemplazar el elemento que se actualiza.
-const updateCatalogCache = (
+const updateCatalogCache = <T>(
   queryClient: ReturnType<typeof useQueryClient>,
   businessId: string,
   itemId: string, // ID del elemento actualizado (producto, opción, etc.)
-  updatedData: any, // El objeto actualizado devuelto por la API
-  updateType: 'menu' | 'section' | 'product' | 'optionGroup' | 'option'
+  updatedData: T, // El objeto actualizado devuelto por la API
+  updateType: "menu" | "section" | "product" | "optionGroup" | "option"
 ) => {
   queryClient.setQueryData<ApiResult<IMenu[]> | undefined>(
     CATALOG_QUERY_KEY(businessId),
@@ -65,14 +66,15 @@ const updateCatalogCache = (
       // -------------------------------------------------------------------
 
       // Ejemplo MÍNIMO y NO-FUNCIONABLE para fines de demostración:
-      console.log(`Actualización optimista para ${updateType} con ID ${itemId}.`);
+      console.log(
+        `Actualización optimista para ${updateType} con ID ${itemId}.`
+      );
       // Si no se puede hacer la actualización in-place de forma segura,
       // se vuelve al invalidateQueries para garantizar la coherencia de los datos.
       return undefined; // Devolver undefined fuerza el re-fetch (comportamiento de fallback)
     }
   );
 };
-
 
 // -----------------------------
 // MENUS
@@ -88,38 +90,65 @@ export const useAllMenuByBusinessId = (businessId: string) => {
   });
 };
 
-export const useCreateMenu = (businessId: string) => { // Se añade businessId
+export const useCreateMenu = (businessId: string) => {
+  // Se añade businessId
   const queryClient = useQueryClient();
   // Al crear un menú, es seguro invalidar, ya que afecta la estructura superior.
   return useMutation<ApiResult<IMenu>, ApiError, MenuCreate>({
     mutationFn: (data: MenuCreate) => createMenu(data),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
-export const useUpdateMenu = (businessId: string) => { // Se añade businessId
+export const useUpdateMenu = (businessId: string) => {
+  // Se añade businessId
   const queryClient = useQueryClient();
-  return useMutation<ApiResult<IMenu>, ApiError, { menuId: string; data: Partial<MenuCreate>; }>({
-    mutationFn: ({ menuId, data, }: { menuId: string; data: Partial<MenuCreate>; }) => updateMenu(menuId, data),
+  return useMutation<
+    ApiResult<IMenu>,
+    ApiError,
+    { menuId: string; data: Partial<MenuCreate> }
+  >({
+    mutationFn: ({
+      menuId,
+      data,
+    }: {
+      menuId: string;
+      data: Partial<MenuCreate>;
+    }) => updateMenu(menuId, data),
     // 💡 OPTIMIZADO: Actualización directa.
     onSuccess: (updatedMenuResult, { menuId }) => {
       // ⚠️ Usar setQueryData es la OPTIMIZACIÓN REAL.
-                              if(!updatedMenuResult) return
+      if (!updatedMenuResult) return;
 
-      updateCatalogCache(queryClient, businessId, menuId, updatedMenuResult, 'menu');
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId), exact: true, stale: true }); // Fallback suave
-    }
+      updateCatalogCache(
+        queryClient,
+        businessId,
+        menuId,
+        updatedMenuResult,
+        "menu"
+      );
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+        exact: true,
+        stale: true,
+      }); // Fallback suave
+    },
   });
 };
 
-export const useDeleteMenu = (businessId: string) => { // Se añade businessId
+export const useDeleteMenu = (businessId: string) => {
+  // Se añade businessId
   const queryClient = useQueryClient();
   // Al eliminar, es más seguro forzar un re-fetch.
   return useMutation<void, ApiError, string>({
     mutationFn: (menuId: string) => deleteMenu(menuId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -129,24 +158,50 @@ export const useDeleteMenu = (businessId: string) => { // Se añade businessId
 
 export const useCreateSection = (businessId: string) => {
   const queryClient = useQueryClient();
-  return useMutation<ApiResult<IMenuSectionWithProducts>, ApiError, SectionCreate>({
+  return useMutation<
+    ApiResult<IMenuSectionWithProducts>,
+    ApiError,
+    SectionCreate
+  >({
     mutationFn: (data: SectionCreate) => createSection(data),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
 export const useUpdateSection = (businessId: string) => {
   const queryClient = useQueryClient();
-  return useMutation<ApiResult<IMenuSectionWithProducts>, ApiError, { sectionId: string; data: Partial<SectionCreate>; }>({
-    mutationFn: ({ sectionId, data, }: { sectionId: string; data: Partial<SectionCreate>; }) => updateSection(sectionId, data),
+  return useMutation<
+    ApiResult<IMenuSectionWithProducts>,
+    ApiError,
+    { sectionId: string; data: Partial<SectionCreate> }
+  >({
+    mutationFn: ({
+      sectionId,
+      data,
+    }: {
+      sectionId: string;
+      data: Partial<SectionCreate>;
+    }) => updateSection(sectionId, data),
     // 💡 OPTIMIZADO: Actualización directa.
     onSuccess: (updatedSectionResult, { sectionId }) => {
-                        if(!updatedSectionResult) return
+      if (!updatedSectionResult) return;
 
-      updateCatalogCache(queryClient, businessId, sectionId, updatedSectionResult, 'section');
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId), exact: true, stale: true }); // Fallback suave
-    }
+      updateCatalogCache(
+        queryClient,
+        businessId,
+        sectionId,
+        updatedSectionResult,
+        "section"
+      );
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+        exact: true,
+        stale: true,
+      }); // Fallback suave
+    },
   });
 };
 
@@ -155,7 +210,9 @@ export const useDeleteSection = (businessId: string) => {
   return useMutation<void, ApiError, string>({
     mutationFn: (sectionId: string) => deleteSection(sectionId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -169,21 +226,43 @@ export const useCreateMenuProduct = (businessId: string) => {
   return useMutation<ApiResult<IMenuProduct>, ApiError, MenuProductCreate>({
     mutationFn: (data: MenuProductCreate) => createMenuProduct(data),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
 export const useUpdateMenuProduct = (businessId: string) => {
   const queryClient = useQueryClient();
-  return useMutation<ApiResult<IMenuProduct>, ApiError, { productId: string; data: Partial<MenuProductCreate>; } >({
-    mutationFn: ({ productId, data, }: { productId: string; data: Partial<MenuProductCreate>; }) => updateMenuProduct(productId, data),
+  return useMutation<
+    ApiResult<IMenuProduct>,
+    ApiError,
+    { productId: string; data: Partial<MenuProductCreate> }
+  >({
+    mutationFn: ({
+      productId,
+      data,
+    }: {
+      productId: string;
+      data: Partial<MenuProductCreate>;
+    }) => updateMenuProduct(productId, data),
     // 💡 OPTIMIZADO: Actualización directa para evitar re-fetch de todo el catálogo.
     onSuccess: (updatedProductResult, { productId }) => {
-                  if(!updatedProductResult) return
+      if (!updatedProductResult) return;
 
-      updateCatalogCache(queryClient, businessId, productId, updatedProductResult, 'product');
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId), exact: true, stale: true }); // Fallback suave
-    }
+      updateCatalogCache(
+        queryClient,
+        businessId,
+        productId,
+        updatedProductResult,
+        "product"
+      );
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+        exact: true,
+        stale: true,
+      }); // Fallback suave
+    },
   });
 };
 
@@ -192,7 +271,9 @@ export const useDeleteMenuProduct = (businessId: string) => {
   return useMutation<void, ApiError, string>({
     mutationFn: (productId: string) => deleteMenuProduct(productId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -203,28 +284,47 @@ export const useDeleteMenuProduct = (businessId: string) => {
 export const useUploadMenuProductImage = (businessId: string) => {
   const queryClient = useQueryClient();
   return useMutation<
-    ApiResult<{ url: string; }>,
+    ApiResult<{ url: string }>,
     ApiError,
-    { menuProductId: string; file: File; }
+    { menuProductId: string; file: File }
   >({
-    mutationFn: ({ menuProductId, file, }: { menuProductId: string; file: File; }) => uploadMenuProductImage(menuProductId, file),
+    mutationFn: ({
+      menuProductId,
+      file,
+    }: {
+      menuProductId: string;
+      file: File;
+    }) => uploadMenuProductImage(menuProductId, file),
     // 💡 OPTIMIZADO: Si solo se actualiza la URL de la imagen en el producto, se puede usar setQueryData.
     onSuccess: (result, { menuProductId }) => {
       // Idealmente, se actualizaría el producto en caché con la nueva URL de imagen.
-            if(!result) return
+      if (!result) return;
 
-      updateCatalogCache(queryClient, businessId, menuProductId, result, 'product');
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId), exact: true, stale: true }); // Fallback suave
-    }
+      updateCatalogCache(
+        queryClient,
+        businessId,
+        menuProductId,
+        result,
+        "product"
+      );
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+        exact: true,
+        stale: true,
+      }); // Fallback suave
+    },
   });
 };
 
 export const useDeleteMenuProductImage = (businessId: string) => {
   const queryClient = useQueryClient();
   return useMutation<void, ApiError, string>({
-    mutationFn: (menuProductId: string) => deleteMenuProductImage(menuProductId),
+    mutationFn: (menuProductId: string) =>
+      deleteMenuProductImage(menuProductId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -238,20 +338,42 @@ export const useCreateOptionGroup = (businessId: string) => {
   return useMutation<ApiResult<IOptionGroup>, ApiError, OptionGroupCreate>({
     mutationFn: (data: OptionGroupCreate) => createOptionGroup(data),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
 export const useUpdateOptionGroup = (businessId: string) => {
   const queryClient = useQueryClient();
-  return useMutation<ApiResult<IOptionGroup>, ApiError, { groupId: string; data: Partial<OptionGroupCreate>; }>({
-    mutationFn: ({ groupId, data, }: { groupId: string; data: Partial<OptionGroupCreate>; }) => updateOptionGroup(groupId, data),
+  return useMutation<
+    ApiResult<IOptionGroup>,
+    ApiError,
+    { groupId: string; data: Partial<OptionGroupCreate> }
+  >({
+    mutationFn: ({
+      groupId,
+      data,
+    }: {
+      groupId: string;
+      data: Partial<OptionGroupCreate>;
+    }) => updateOptionGroup(groupId, data),
     // 💡 OPTIMIZADO: Actualización directa.
     onSuccess: (updatedGroupResult, { groupId }) => {
-      if(!updatedGroupResult) return
-      updateCatalogCache(queryClient, businessId, groupId, updatedGroupResult, 'optionGroup');
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId), exact: true, stale: true }); // Fallback suave
-    }
+      if (!updatedGroupResult) return;
+      updateCatalogCache(
+        queryClient,
+        businessId,
+        groupId,
+        updatedGroupResult,
+        "optionGroup"
+      );
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+        exact: true,
+        stale: true,
+      }); // Fallback suave
+    },
   });
 };
 
@@ -260,7 +382,9 @@ export const useDeleteOptionGroup = (businessId: string) => {
   return useMutation<void, ApiError, string>({
     mutationFn: (groupId: string) => deleteOptionGroup(groupId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -273,7 +397,9 @@ export const useCreateOption = (businessId: string) => {
   return useMutation<ApiResult<IOption>, ApiError, OptionCreate>({
     mutationFn: (data: OptionCreate) => createOption(data),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -282,14 +408,31 @@ export const useUpdateOption = (businessId: string) => {
   return useMutation<
     ApiResult<IOption>,
     ApiError,
-    { optionId: string; data: Partial<OptionCreate>; }
+    { optionId: string; data: Partial<OptionCreate> }
   >({
-    mutationFn: ({ optionId, data, }: { optionId: string; data: Partial<OptionCreate>; }) => updateOption(optionId, data),
+    mutationFn: ({
+      optionId,
+      data,
+    }: {
+      optionId: string;
+      data: Partial<OptionCreate>;
+    }) => updateOption(optionId, data),
     // 💡 OPTIMIZADO: Actualización directa.
     onSuccess: (updatedOptionResult, { optionId }) => {
-      if(updatedOptionResult) updateCatalogCache(queryClient, businessId, optionId, updatedOptionResult, 'option');
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId), exact: true, stale: true }); // Fallback suave
-    }
+      if (updatedOptionResult)
+        updateCatalogCache(
+          queryClient,
+          businessId,
+          optionId,
+          updatedOptionResult,
+          "option"
+        );
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+        exact: true,
+        stale: true,
+      }); // Fallback suave
+    },
   });
 };
 
@@ -298,7 +441,9 @@ export const useDeleteOption = (businessId: string) => {
   return useMutation<void, ApiError, string>({
     mutationFn: (optionId: string) => deleteOption(optionId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };
 
@@ -307,6 +452,8 @@ export const useDeleteManyOption = (businessId: string) => {
   return useMutation<void, ApiError, string[]>({
     mutationFn: (optionId: string[]) => deleteManyOption(optionId),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CATALOG_QUERY_KEY(businessId) }),
+      queryClient.invalidateQueries({
+        queryKey: CATALOG_QUERY_KEY(businessId),
+      }),
   });
 };

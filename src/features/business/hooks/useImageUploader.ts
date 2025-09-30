@@ -1,6 +1,5 @@
 // src/hooks/useImageUploader.ts
 import { useState } from "react";
-import axios from "@/lib/api";
 import { fetchFileUploader } from "../api/businessApi";
 
 

@@ -1,11 +1,10 @@
 // src/hooks/useImageUploader.ts
 import { useState } from "react";
-import axios from "@/lib/api";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { fetchUploadImageGelery } from "../api/businessApi";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
-type RefetchFunction = () => Promise<any>;
+type RefetchFunction = () => Promise<unknown>;
 
 export const useImageGaleryUploader = (businessId: string, refetch: RefetchFunction) => {
   const [isUploading, setIsUploading] = useState(false);

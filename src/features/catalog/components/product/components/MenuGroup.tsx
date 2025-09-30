@@ -3,6 +3,7 @@ import { IOptionGroup } from "../../../types/catlog";
 import ViewMenuGroup from "./views/ViewMenuGroup";
 
 interface MenuGroupProps {
+  businessId: string;
   menuId: string;
   sectionId: string;
   groupId: string;
@@ -13,6 +14,7 @@ interface MenuGroupProps {
 }
 
 export default function MenuGroup({
+  businessId,
   groupId,
   menuId,
   productId,
@@ -23,6 +25,7 @@ export default function MenuGroup({
 }: MenuGroupProps) {
   return (
     <ViewMenuGroup
+      businessId={businessId}
       groupId={groupId}
       menuId={menuId}
       productId={productId}

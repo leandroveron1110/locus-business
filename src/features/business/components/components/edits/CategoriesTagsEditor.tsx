@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Tag, X, Plus } from "lucide-react";
+import { X } from "lucide-react";
 import { useCategoriesTags } from "@/features/business/hooks/useCategoriesTags";
 
 interface Category {
@@ -22,7 +22,6 @@ interface Props {
 }
 
 export default function CategoriesTagsEditor({
-  businessId,
   initialCategories,
   initialTags,
   onSave,
@@ -32,9 +31,6 @@ export default function CategoriesTagsEditor({
   const [selectedCategories, setSelectedCategories] =
     useState<string[]>(initialCategories);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
-
-  const [newCategory, setNewCategory] = useState("");
-  const [newTag, setNewTag] = useState("");
 
   useEffect(() => {
     if (data) {
@@ -74,23 +70,6 @@ export default function CategoriesTagsEditor({
     setSelectedTags((prev) =>
       prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
     );
-  };
-
-  const handleAddCategory = () => {
-    if (
-      newCategory.trim() &&
-      !selectedCategories.includes(newCategory.trim())
-    ) {
-      setSelectedCategories((prev) => [...prev, newCategory.trim()]);
-      setNewCategory("");
-    }
-  };
-
-  const handleAddTag = () => {
-    if (newTag.trim() && !selectedTags.includes(newTag.trim())) {
-      setSelectedTags((prev) => [...prev, newTag.trim()]);
-      setNewTag("");
-    }
   };
 
   const handleSave = () => {

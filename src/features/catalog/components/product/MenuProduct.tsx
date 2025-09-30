@@ -21,6 +21,7 @@ import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Props {
+  businessId: string;
   menuId: string;
   sectionId: string;
   productId: string;
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export default function MenuProduct({
+  businessId,
   menuId,
   sectionId,
   productId,
@@ -51,11 +53,11 @@ export default function MenuProduct({
   const deleteGroupStore = useMenuStore((state) => state.deleteGroup);
   const addGroupStore = useMenuStore((state) => state.addGroup);
 
-  const createGroup = useCreateOptionGroup();
-  const updateGroup = useUpdateOptionGroup();
-  const deleteGroup = useDeleteOptionGroup();
-  const deleteManyOptionsMutate = useDeleteManyOption();
-  const updateMenuProductMutate = useUpdateMenuProduct();
+  const createGroup = useCreateOptionGroup(businessId);
+  const updateGroup = useUpdateOptionGroup(businessId);
+  const deleteGroup = useDeleteOptionGroup(businessId);
+  const deleteManyOptionsMutate = useDeleteManyOption(businessId);
+  const updateMenuProductMutate = useUpdateMenuProduct(businessId);
 
   if (!product) return null;
 
@@ -65,15 +67,28 @@ export default function MenuProduct({
 
   const getModifiedFields = (): Partial<IMenuProduct> => {
     if (!initialProduct) return {};
-    const modified: Partial<IMenuProduct> = { id: product.id };
+
+    // Cambiamos el tipo de construcción a uno más flexible inicialmente
+    const modified: Record<string, unknown> = { id: product.id };
+
     (Object.keys(product) as (keyof IMenuProduct)[]).forEach((key) => {
+      // Es mejor usar '===' para la comparación de igualdad
       if (
         JSON.stringify(product[key]) !== JSON.stringify(initialProduct[key])
       ) {
-        modified[key] = product[key] as any;
+        const value = product[key];
+
+        // La verificación 'value !== null' sigue siendo esencial para tu lógica de negocio
+        if (value !== null) {
+          // Asignamos sin problemas de tipo porque modified es Record<string, unknown>
+          modified[key as string] = value;
+        }
       }
     });
-    return modified;
+
+    // Asertamos el objeto construido a tu tipo final antes de devolverlo.
+    // Esto es seguro ya que Object.keys(product) solo produce claves de IMenuProduct.
+    return modified as Partial<IMenuProduct>;
   };
 
   const handleSaveAll = async () => {
@@ -231,6 +246,7 @@ export default function MenuProduct({
         {(product.optionGroups ?? []).map((group) => (
           <MenuGroup
             key={group.id}
+            businessId={businessId}
             groupId={group.id}
             menuId={menuId}
             productId={productId}

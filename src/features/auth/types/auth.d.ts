@@ -30,7 +30,7 @@ export interface User {
   email: string;
   role: UserRole;
   businesses?: BusinessEmployeeInfo[]; // Usa la nueva interfaz corregida
-  deliveries?: any[]; // Puedes definir una interfaz similar para 'deliveries'
+  deliveries?: unknown[]; // Puedes definir una interfaz similar para 'deliveries'
 }
 
 // Interface for the data needed for login
@@ -72,7 +72,6 @@ export interface AuthState {
 // NUEVA INTERFAZ: Define los tipos para las acciones (funciones) del store
 export interface AuthStoreActions {
   login: (payload: LoginResponse) => Promise<User>;
-  register: (payload: RegisterResponse) => Promise<User>;
   logout: () => void;
   checkAuth: () => Promise<void>;
 }

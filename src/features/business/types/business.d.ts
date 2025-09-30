@@ -1,5 +1,3 @@
-import { DayOfWeek } from "@/features/schedules/types/schedule";
-
 export type BusinessTag = {
   id: string;
   name: string;

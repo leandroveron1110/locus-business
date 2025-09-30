@@ -17,25 +17,44 @@ const optionSchema = z.object({
   maxQuantity: z.number().int().min(1, "La cantidad máxima debe ser >= 1"),
 });
 
+interface TempOption {
+  id: string;
+  name: string;
+  maxQuantity: number;
+  priceFinal: string;
+  hasStock: boolean;
+}
+
 export default function EditMenuGroupOption({
   option,
   onUpdate,
   onDelete,
   onCancel,
 }: EditMenuGroupOptionProps) {
-  const [temp, setTemp] = useState({ ...option });
+  const [temp, setTemp] = useState<TempOption>({
+    maxQuantity: option.maxQuantity || 1,
+    name: option.name,
+    id: option.id,
+    priceFinal: option.priceFinal,
+    hasStock: option.hasStock,
+  });
   const [error, setError] = useState<string | null>(null);
   const isFree = parseFloat(temp.priceFinal) === 0;
 
   const getModifiedFields = (): Partial<IOption> => {
-    const modified: Partial<IOption> = { id: option.id };
-    (Object.keys(temp) as (keyof IOption)[]).forEach((key) => {
-      if (temp[key] !== option[key]) modified[key] = temp[key] as any;
+    const modified: Record<string, unknown> = { id: option.id };
+    (Object.keys(temp) as (keyof typeof temp)[]).forEach((key) => {
+      if (temp[key] !== option[key]) {
+        modified[key] = temp[key];
+      }
     });
-    return modified;
+    return modified as Partial<IOption>;
   };
 
-  const handleChange = (field: keyof IOption, value: any) => {
+  const handleChange = <K extends keyof TempOption>(
+    field: K,
+    value: TempOption[K]
+  ) => {
     setTemp((prev) => ({ ...prev, [field]: value }));
   };
 

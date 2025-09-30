@@ -15,7 +15,6 @@ interface Props {
 }
 
 export default function MenuProductPrice({
-  finalPrice,
   originalPrice,
   discountPercentage,
   currencyMask = "$",

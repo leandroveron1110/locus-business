@@ -1,7 +1,7 @@
 // OrderCard.tsx
 "use client";
 
-import { Check, Copy, DollarSign, Wallet } from "lucide-react";
+import { Copy, DollarSign, Wallet } from "lucide-react";
 import {
   DeliveryType,
   EOrderStatusBusiness,
@@ -45,7 +45,6 @@ export default function OrderCard({
 
   const [showDeliverySelector, setShowDeliverySelector] = useState(false);
   const [showProduct, setShowProduct] = useState(false);
-  const [showVoucher, setShowVoucher] = useState(false);
   const [hasSeenVoucher, setHasSeenVoucher] = useState(false);
   const [paymentActionTaken, setPaymentActionTaken] = useState(false);
 
@@ -233,7 +232,6 @@ export default function OrderCard({
           paymentReceiptUrl={order.paymentReceiptUrl || null}
           onViewProducts={() => setShowProduct(true)}
           onViewVoucher={() => {
-            setShowVoucher(true);
             setHasSeenVoucher(true);
           }}
         />

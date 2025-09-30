@@ -17,30 +17,40 @@ const sectionSchema = z.object({
   index: z.number().int().min(0, "El índice debe ser mayor o igual a 0"),
 });
 
+type TempSection = {
+  name: string;
+  index: number;
+};
+
 export default function EditCatalogSection({
   section,
   onUpdate,
   onDelete,
   onCancel,
 }: Props) {
-  const [temp, setTemp] = useState({
+  const [temp, setTemp] = useState<TempSection>({
     name: section.name,
     index: section.index,
   });
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (field: keyof typeof temp, value: any) => {
+  const handleChange = <K extends keyof TempSection>(
+    field: K,
+    value: TempSection[K]
+  ) => {
     setTemp((prev) => ({ ...prev, [field]: value }));
   };
 
   const getModifiedFields = (): Partial<IMenuSectionWithProducts> => {
-    const modified: Partial<IMenuSectionWithProducts> = { id: section.id };
-    (Object.keys(temp) as (keyof typeof temp)[]).forEach((key) => {
-      if (temp[key] !== section[key as keyof IMenuSectionWithProducts]) {
-        modified[key] = temp[key] as any;
+    const modified: Record<string, unknown> = { id: section.id };
+
+    (Object.keys(temp) as (keyof TempSection)[]).forEach((key) => {
+      if (temp[key] !== section[key]) {
+        modified[key] = temp[key];
       }
     });
-    return modified;
+
+    return modified as Partial<IMenuSectionWithProducts>;
   };
 
   const handleSave = () => {

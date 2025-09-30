@@ -65,7 +65,7 @@ interface MenuState {
 }
 
 export const useMenuStore = create<MenuState>()(
-  immer<MenuState>((set, get) => ({
+  immer<MenuState>((set) => ({
     menus: [],
 
     // Base

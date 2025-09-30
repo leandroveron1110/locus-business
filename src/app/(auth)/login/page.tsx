@@ -13,7 +13,7 @@ import Link from 'next/link';
  */
 export default function LoginPage() {
   const router = useRouter();
-  const { error, isAuthenticated, isLoading, checkAuth   } = useAuthStore(); // Obtiene el estado de autenticación
+  const { isAuthenticated, isLoading, checkAuth   } = useAuthStore(); // Obtiene el estado de autenticación
 
   useEffect(() => {
     // Al montar la página, verifica el estado de autenticación.

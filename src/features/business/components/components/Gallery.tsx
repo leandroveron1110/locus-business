@@ -50,8 +50,8 @@ export default function Gallery({ businessId }: Props) {
     setDragOver(false);
     const file = e.dataTransfer.files[0];
     if (file) {
-      const fakeEvent = { target: { files: [file] } } as any;
-      await uploadImage(fakeEvent);
+      const fakeEvent = { target: { files: [file] } } as unknown;
+      await uploadImage(fakeEvent as React.ChangeEvent<HTMLInputElement>);
     }
   };
 

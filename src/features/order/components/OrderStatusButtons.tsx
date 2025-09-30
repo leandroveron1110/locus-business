@@ -39,7 +39,6 @@ export default function OrderStatusButtons({
 
   const primaryButton = "bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm";
   const successButton = "bg-green-500 text-white hover:bg-green-600 shadow-sm";
-  const dangerButton = "bg-red-500 text-white hover:bg-red-600 shadow-sm";
   const secondaryButton = "bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm";
   const infoButton = "bg-purple-500 text-white hover:bg-purple-600 shadow-sm";
 

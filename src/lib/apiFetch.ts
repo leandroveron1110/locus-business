@@ -35,7 +35,7 @@ export async function apiPut<T>(
   return res.data.data;
 }
 
-export async function apiPatch<T>(url: string, body?: any): Promise<ApiResult<T>> {
+export async function apiPatch<T>(url: string, body?: unknown): Promise<ApiResult<T>> {
   const res = await api.patch<ApiResponse<T>>(url, body);
   return res.data.data ?? null;
 }

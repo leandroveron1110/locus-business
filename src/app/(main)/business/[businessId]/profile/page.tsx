@@ -13,7 +13,18 @@ import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 export default function DeliveryProfilePage() {
   const { businessId } = useParams<{ businessId: string }>();
+  const { data, isLoading, error, isError } = useBusinessProfile(businessId);
   const { addAlert } = useAlert();
+
+  useEffect(() => {
+    if (isError && error) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
+  }, [isError, error, addAlert]);
+
 
   const containerClass =
     "flex items-center justify-center min-h-screen bg-gray-50 p-4";
@@ -26,16 +37,6 @@ export default function DeliveryProfilePage() {
     );
   }
 
-  const { data, isLoading, error, isError } = useBusinessProfile(businessId);
-
-  useEffect(() => {
-    if (isError && error) {
-      addAlert({
-        message: getDisplayErrorMessage(error),
-        type: "error",
-      });
-    }
-  }, [isError, error]);
 
   if (isLoading) {
     return (

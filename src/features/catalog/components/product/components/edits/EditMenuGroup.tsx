@@ -17,13 +17,20 @@ const groupSchema = z.object({
   quantityType: z.enum(["FIXED", "MIN_MAX"]),
 });
 
+interface TempGroup {
+  name: string;
+  minQuantity: number;
+  maxQuantity: number;
+  quantityType: string;
+}
+
 export default function EditMenuGroup({
   group,
   onUpdate,
   onDelete,
   onCancel,
 }: EditMenuGroupProps) {
-  const [temp, setTemp] = useState({
+  const [temp, setTemp] = useState<TempGroup>({
     name: group.name,
     minQuantity: group.minQuantity,
     maxQuantity: group.maxQuantity,
@@ -31,18 +38,21 @@ export default function EditMenuGroup({
   });
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (field: keyof IOptionGroup, value: any) => {
+  const handleChange = <K extends keyof TempGroup>(
+    field: K,
+    value: TempGroup[K]
+  ) => {
     setTemp((prev) => ({ ...prev, [field]: value }));
   };
 
   const getModifiedFields = (): Partial<IOptionGroup> => {
-    const modified: Partial<IOptionGroup> = { id: group.id };
+    const modified: Record<string, unknown> = { id: group.id };
     (Object.keys(temp) as (keyof typeof temp)[]).forEach((key) => {
-      if (temp[key] !== group[key as keyof IOptionGroup]) {
-        modified[key] = temp[key] as any;
+      if (temp[key] !== group[key]) {
+        modified[key] = temp[key];
       }
     });
-    return modified;
+    return modified as Partial<IOptionGroup>;
   };
 
   const handleSave = () => {

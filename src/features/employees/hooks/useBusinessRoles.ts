@@ -21,7 +21,6 @@ export function useBusinessRoles() {
   const {
     register: employeeRegister,
     handleSubmit: handleEmployeeSubmit,
-    watch,
     formState: { errors: employeeErrors },
     reset: resetEmployeeForm,
   } = useForm<EmployeeAssignmentFormValues>({

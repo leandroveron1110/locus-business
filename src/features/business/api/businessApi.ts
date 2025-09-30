@@ -38,7 +38,7 @@ export const fetchBusinessesByID = async (
 
 export interface ContactUpdateData {
   address?: string;
-  addressData?: any;
+  addressData?: unknown;
   phone?: string;
   whatsapp?: string;
   email?: string;
@@ -280,13 +280,17 @@ export const fetchUploadImageGelery = async (
 export const fetchFileUploader = async (
   businessId: string,
   formData: FormData
-): Promise< ApiResult<{url: string}>> => {
+): Promise<ApiResult<{ url: string }>> => {
   try {
-    const res = await apiPost<{url: string}>(`/business/${businessId}/logo`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const res = await apiPost<{ url: string }>(
+      `/business/${businessId}/logo`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
     return res;
   } catch (error: unknown) {

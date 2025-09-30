@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray, Controller, Control } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash, Loader2 } from "lucide-react";
@@ -141,7 +141,7 @@ export default function WeeklyScheduleForm({
 }
 
 interface DayProps {
-  control: any;
+  control: Control<FormValues>;
   day: string;
   label: string;
   isDisabled?: boolean;

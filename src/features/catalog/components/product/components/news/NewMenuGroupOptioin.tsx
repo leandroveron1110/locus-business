@@ -1,4 +1,4 @@
-import { OptionCreate } from "@/features/menu/types/menu";
+import { OptionCreate } from "@/features/catalog/types/catlog";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -12,12 +12,10 @@ const optionSchema = z.object({
   name: z.string().min(1, "El nombre no puede estar vacío"),
   priceFinal: z.string().min(1, "El precio final es obligatorio"),
   hasStock: z.boolean(),
-  maxQuantity: z
-    .string()
-    .refine((val) => {
-      const num = Number(val);
-      return !isNaN(num) && num >= 1;
-    }, "La cantidad máxima debe ser un número mayor o igual a 1"),
+  maxQuantity: z.string().refine((val) => {
+    const num = Number(val);
+    return !isNaN(num) && num >= 1;
+  }, "La cantidad máxima debe ser un número mayor o igual a 1"),
 });
 
 export default function NewMenuGroupOption({
@@ -38,7 +36,10 @@ export default function NewMenuGroupOption({
 
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (field: keyof OptionCreate, value: any) => {
+  const handleChange = <K extends keyof OptionCreate>(
+    field: K,
+    value: OptionCreate[K]
+  ) => {
     setNewOption((prev) => ({ ...prev, [field]: value }));
   };
 

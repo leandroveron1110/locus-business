@@ -2,7 +2,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore'; // Importa tu store de Zustand
 import { login as apiLogin } from '../api/authApi'; // Importa la función de login de la API
-import { LoginPayload, LoginResponse, User } from '../types/auth';
+import { LoginPayload, LoginResponse } from '../types/auth';
 import { useRouter } from 'next/navigation'; // Para la redirección después del login
 import { ApiResult } from '@/lib/apiFetch';
 import { ApiError } from '@/types/api';

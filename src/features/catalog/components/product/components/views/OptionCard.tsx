@@ -1,6 +1,6 @@
 "use client";
 import { formatPrice } from "@/features/common/utils/formatPrice";
-import { CheckCircle, XCircle, ShoppingCart } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
 
 interface OptionCardProps {
@@ -15,8 +15,6 @@ interface OptionCardProps {
 
 export default function OptionCard({ option }: OptionCardProps) {
   // Estado para la edición (mantido)
-  const [editing, setEditing] = useState(false);
-
   // Lógica para determinar si el precio es cero para mostrar "Gratis"
   const isFree = parseFloat(option.priceFinal) === 0;
 
@@ -31,7 +29,7 @@ export default function OptionCard({ option }: OptionCardProps) {
             ? "hover:bg-gray-50"
             : "opacity-50 cursor-not-allowed"
         }`}
-      onClick={() => option.hasStock && setEditing(true)}
+      onClick={() => option.hasStock}
     >
       
       {/* Información principal: Nombre + Estado */}

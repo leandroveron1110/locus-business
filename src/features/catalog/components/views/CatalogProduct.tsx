@@ -20,7 +20,7 @@ export default function CatalogProduct({ product, onClick }: Props) {
     currencyMask,
   } = product;
 
-  const { isAvailable, hasDiscount, discountPercent, discountValue } =
+  const { isAvailable, hasDiscount, discountPercent } =
     useMemo(() => {
       const isAvailable = available && stock > 0;
       const hasDiscount = product.originalPrice
@@ -37,7 +37,7 @@ export default function CatalogProduct({ product, onClick }: Props) {
         ? Number(originalPrice) - Number(finalPrice)
         : 0;
       return { isAvailable, hasDiscount, discountPercent, discountValue };
-    }, [available, stock, originalPrice, discountPercentage, finalPrice]);
+    }, [available, stock, originalPrice, discountPercentage, finalPrice, product.originalPrice]);
 
   return (
     <li

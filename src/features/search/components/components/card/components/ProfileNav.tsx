@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, ShoppingCart, Package, Users, Pencil } from "lucide-react";
+import { ShoppingCart, Package, Users, Pencil } from "lucide-react";
 
 interface Section {
   id: string;

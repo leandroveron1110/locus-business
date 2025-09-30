@@ -15,10 +15,10 @@ import NewMenuGroupOption from "../news/NewMenuGroupOptioin";
 import EditMenuGroup from "../edits/EditMenuGroup";
 import { useMenuStore } from "@/features/catalog/stores/menuStore";
 import { getDisplayErrorMessage } from "@/lib/uiErrors"; // 💡 Importación de tu helper centralizado
-import { AlertTriangle, X } from "lucide-react"; // Iconos para la alerta
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 
 interface ViewMenuGroupProps {
+  businessId: string;
   menuId: string;
   sectionId: string;
   groupId: string;
@@ -29,6 +29,7 @@ interface ViewMenuGroupProps {
 }
 
 export default function ViewMenuGroup({
+  businessId,
   menuId,
   sectionId,
   productId,
@@ -44,9 +45,9 @@ export default function ViewMenuGroup({
       ?.products.find((p) => p.id == productId)
       ?.optionGroups.find((g) => g.id == groupId)
   );
-  const createOption = useCreateOption();
-  const updateOption = useUpdateOption();
-  const deleteOption = useDeleteOption();
+  const createOption = useCreateOption(businessId);
+  const updateOption = useUpdateOption(businessId);
+  const deleteOption = useDeleteOption(businessId);
 
   const createOptionStore = useMenuStore((state) => state.addOption);
   const updateOptionStore = useMenuStore((state) => state.updateOption);

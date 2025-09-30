@@ -36,26 +36,26 @@ export default function BusinessHeaderContainer({
   const { updateHeader } = useBusinessHeaderUpdater(businessId);
   const { addAlert } = useAlert()
 
-  // La función getChangedFields se mantiene igual para identificar cambios
-  const getChangedFields = (
-    oldData: BusinessHeaderData,
-    newData: BusinessHeaderData
-  ) => {
-    const diff: Partial<Omit<BusinessHeaderData, "logoUrl">> = {};
+const getChangedFields = (
+  oldData: BusinessHeaderData,
+  newData: BusinessHeaderData
+) => {
+  const diff: Partial<Omit<BusinessHeaderData, "logoUrl">> = {};
 
-    // Filtramos 'logoUrl' del array de claves para evitar el error.
-    const keysToCompare = (
-      Object.keys(newData) as (keyof BusinessHeaderData)[]
-    ).filter((key) => key !== "logoUrl");
+  const keysToCompare = (
+    Object.keys(newData) as (keyof BusinessHeaderData)[]
+  ).filter((key) => key !== "logoUrl");
 
-    keysToCompare.forEach((key) => {
-      if (newData[key] !== oldData[key]) {
-        diff[key] = newData[key] as any; // Usamos 'as any' para evitar un error de "assignability" que pueda surgir en la comparación de los tipos, aunque la solución ideal sería usar una aserción de tipo más específica si es posible.
-      }
-    });
+  keysToCompare.forEach((key) => {
+    if (newData[key] !== oldData[key]) {
+      // Cast seguro, no usamos 'any'
+      diff[key] = newData[key] as Partial<Omit<BusinessHeaderData, "logoUrl">>[typeof key];
+    }
+  });
 
-    return diff;
-  };
+  return diff;
+};
+
 
   const handleSave = (newData: BusinessHeaderData) => {
     const changes = getChangedFields(businessData, newData);

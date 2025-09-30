@@ -6,29 +6,42 @@ import { useCreateRole } from "@/features/roles/hooks/useCreateRole";
 import { RoleViewer } from "./RoleViewer";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
+import { CreateBusinessRole } from "../types/roles";
+import { PermissionsEnum } from "@/features/common/utils/permissions.enum";
 
 interface RoleManagerProps {
   businessId: string;
-  initialData?: any; // Puedes tipar mejor según tu caso
+  initialData?: CreateBusinessRole; // Puedes tipar mejor según tu caso
 }
 
-export const RoleManager: React.FC<RoleManagerProps> = ({ businessId, initialData }) => {
+export const RoleManager: React.FC<RoleManagerProps> = ({
+  businessId,
+  initialData,
+}) => {
   const { mutate, isPending } = useCreateRole();
   const [showForm, setShowForm] = useState(false);
-  const { addAlert } = useAlert()
+  const { addAlert } = useAlert();
 
-  const handleSubmit = (formData: any) => {
-    mutate({ ...formData, businessId }, {
-      onSuccess: () => {
-        setShowForm(false); // ocultamos el form después de crear el rol
-      },
-      onError: (error)=> {
-        addAlert({
-          message: getDisplayErrorMessage(error),
-          type: 'error'
-        })
+  const handleSubmit = (formData: { name: string; permissions: string[] }) => {
+    const create: CreateBusinessRole = {
+      businessId,
+      name: formData.name,
+      permissions: formData.permissions as PermissionsEnum[],
+    };
+    mutate(
+      { ...create, businessId },
+      {
+        onSuccess: () => {
+          setShowForm(false); // ocultamos el form después de crear el rol
+        },
+        onError: (error) => {
+          addAlert({
+            message: getDisplayErrorMessage(error),
+            type: "error",
+          });
+        },
       }
-    });
+    );
   };
 
   return (
