@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
-  const [selectedBusiness, _setSelectedBusiness] = useState(
+  const [selectedBusiness] = useState(
     user?.businesses?.[0] ?? null
   );
 

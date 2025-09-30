@@ -1,7 +1,5 @@
-"use client";
 import { formatPrice } from "@/features/common/utils/formatPrice";
 import { CheckCircle, XCircle } from "lucide-react";
-import { useState } from "react";
 
 interface OptionCardProps {
   option: {

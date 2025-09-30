@@ -85,7 +85,7 @@ export default function NewMenuGroupOption({
         {/* Nombre */}
         <div className="flex flex-col">
           <label className="text-sm text-gray-600">
-            Nombre de la opción (ej: "Coca Cola 500ml")
+            Nombre de la opción (ej: &quot;Coca Cola 500ml&quot;)
           </label>
           <input
             type="text"

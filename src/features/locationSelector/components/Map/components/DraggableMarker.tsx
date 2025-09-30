@@ -2,7 +2,7 @@
 "use client";
 
 import { useRef, useState, useMemo, useEffect } from "react";
-import { Marker, Popup, useMap } from "react-leaflet";
+import { Marker, Popup } from "react-leaflet";
 import * as L from "leaflet";
 
 // @ts-expect-error Leaflet internal property, safe to delete
