@@ -7,8 +7,6 @@ import SearchBusinessListSkeleton from "./skeleton/SearchBusinessListSkeleton";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { useEffect } from "react";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
-// 1. Importar el hook de router de Next.js
-import { useRouter } from "next/navigation"; // Asegúrate de que esta sea la importación correcta para tu versión de Next.js (app router)
 
 const DynamicSearchBusinessList = withSkeleton(
   () => import("./SearchBusinessList"),
@@ -17,8 +15,6 @@ const DynamicSearchBusinessList = withSkeleton(
 
 export default function SearchPage() {
   const { user } = useAuthStore();
-  // Inicializar el router
-  const router = useRouter(); 
 
   const businessIds = user?.businesses?.map((b) => b.id) || [];
   const { data, isLoading, isError, error } = useBusinesses(businessIds);

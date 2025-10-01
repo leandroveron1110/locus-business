@@ -18,7 +18,6 @@ interface Props {
 }
 
 export default function Catalog({ businessId }: Props) {
-
   const { addAlert } = useAlert();
 
   const { data, isLoading, isError, error } = useCatalg(businessId);
@@ -63,7 +62,7 @@ export default function Catalog({ businessId }: Props) {
         duration: 8000,
       });
     }
-  }, [isError, error]);
+  }, [isError, error, addAlert]);
 
   const handleAddMenu = async (menuCreate: MenuCreate) => {
     try {

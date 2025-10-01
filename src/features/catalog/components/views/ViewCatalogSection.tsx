@@ -44,8 +44,8 @@ export default function ViewCatalogSection({
     if(!section){
       return []
     }
-    return [...(section.products ?? [])];
-  }, [section?.products]);
+    return [...(section.products)];
+  }, [section]);
 
   const handleSelectProduct = useCallback((product: IMenuProduct) => {
     setSelectedProduct(product);

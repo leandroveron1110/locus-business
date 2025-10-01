@@ -2,7 +2,6 @@
 import { OptionGroupCreate } from "@/features/catalog/types/catlog";
 import { useState } from "react";
 import { z } from "zod";
-import { Check, X } from "lucide-react";
 
 interface NewMenuGroupProps {
   menuProductId: string;

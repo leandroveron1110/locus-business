@@ -51,7 +51,7 @@ export default function BusinessOrdersPage({ businessId }: Props) {
           type: "error",
         })
       );
-  }, []);
+  }, [addAlert]);
 
   // Filtra órdenes según método de pago y su estado
   const filterOrdersView = (order: Order) => {
