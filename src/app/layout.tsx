@@ -3,8 +3,6 @@ import { Providers } from "./providers";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-
-
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -13,6 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Locus",
   description: "la plataforma de tu ciudad",
+  icons: "./locus.svg",
 };
 
 export default function RootLayout({
@@ -23,11 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body
-        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

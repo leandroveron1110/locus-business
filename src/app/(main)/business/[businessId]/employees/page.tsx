@@ -21,12 +21,15 @@ export default function NewEmployeePage() {
     );
   }
   return (
-    <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <>
       <Header />
-      <div className="max-w-xl mx-auto mb-6">
-        <BackButton />
+
+      <div className="bg-gray-50 min-h-[calc(100vh-60px)] pt-4 pb-12 relative">
+        <div className="ml-4 mb-4">
+          <BackButton />
+        </div>
+        <EmployeesContainer businessId={businessId} />
       </div>
-      <EmployeesContainer businessId={businessId} />
-    </div>
+    </>
   );
 }

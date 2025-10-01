@@ -10,6 +10,10 @@ export const useRolesByBusinessId = (businessId: string) => {
     queryKey: ["roles", businessId],
     queryFn: () => getRolesByBusinessIdApi(businessId),
     enabled: !!businessId,
-    retry: false
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    staleTime: 1000 * 60 * 60,
+    retry: false,
   });
 };

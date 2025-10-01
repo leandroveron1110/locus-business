@@ -18,13 +18,15 @@ export default function BusinessPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <>
       <Header />
-      <div className="max-w-4xl mx-auto mb-6">
-        <BackButton />
+      <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto mb-6">
+          <BackButton />
+        </div>
+        <BusinessDashboard businessId={businessId} />
+        {/* Podés agregar más componentes que reciban businessId aquí */}
       </div>
-      <BusinessDashboard businessId={businessId} />
-      {/* Podés agregar más componentes que reciban businessId aquí */}
-    </div>
+    </>
   );
 }

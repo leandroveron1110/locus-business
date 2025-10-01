@@ -7,6 +7,7 @@ import { Check, X } from "lucide-react";
 interface NewMenuGroupProps {
   menuProductId: string;
   onCreate?: (group: OptionGroupCreate) => void;
+  onClose: () => void;
 }
 
 const groupSchema = z.object({
@@ -16,7 +17,11 @@ const groupSchema = z.object({
   quantityType: z.enum(["FIXED", "MIN_MAX"]),
 });
 
-export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupProps) {
+export default function NewMenuGroup({
+  menuProductId,
+  onCreate,
+  onClose,
+}: NewMenuGroupProps) {
   const [newGroup, setNewGroup] = useState<OptionGroupCreate>({
     maxQuantity: 1,
     menuProductId,
@@ -28,9 +33,9 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = <K extends keyof OptionGroupCreate>(
-      field: K,
-      value: OptionGroupCreate[K]
-    ) => {
+    field: K,
+    value: OptionGroupCreate[K]
+  ) => {
     setNewGroup((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -60,7 +65,9 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
     <div className="bg-white rounded-xl border shadow-md p-4 flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-4">
       {/* Nombre */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-600">Nombre del grupo</label>
+        <label className="text-sm font-medium text-gray-600">
+          Nombre del grupo
+        </label>
         <input
           type="text"
           value={newGroup.name}
@@ -107,24 +114,24 @@ export default function NewMenuGroup({ menuProductId, onCreate }: NewMenuGroupPr
 
       {/* Error */}
       {error && (
-        <div className="col-span-1 md:col-span-2 text-red-500 text-sm font-medium">{error}</div>
+        <div className="col-span-1 md:col-span-2 text-red-500 text-sm font-medium">
+          {error}
+        </div>
       )}
 
       {/* Botones */}
       <div className="col-span-1 md:col-span-2 flex flex-col md:flex-row gap-3 justify-end mt-2">
         <button
+          onClick={onClose}
+          className="flex items-center justify-center gap-2 bg-gray-200 text-gray-800 w-full md:w-auto px-4 py-2 rounded-lg hover:bg-gray-300 transition font-medium"
+        >
+          Cancelar
+        </button>
+        <button
           onClick={handleSave}
           className="flex items-center justify-center gap-2 bg-blue-600 text-white w-full md:w-auto px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
         >
-          <Check size={20} />
           Crear
-        </button>
-        <button
-          onClick={() => setNewGroup({ ...newGroup, name: "", minQuantity: 0, maxQuantity: 0, quantityType: "FIXED" })}
-          className="flex items-center justify-center gap-2 bg-gray-200 text-gray-800 w-full md:w-auto px-4 py-2 rounded-lg hover:bg-gray-300 transition font-medium"
-        >
-          <X size={20} />
-          Limpiar
         </button>
       </div>
     </div>

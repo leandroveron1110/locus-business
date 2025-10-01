@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useCategoriesTags } from "@/features/business/hooks/useCategoriesTags";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
 interface Category {
   id: string;
@@ -26,11 +28,22 @@ export default function CategoriesTagsEditor({
   initialTags,
   onSave,
 }: Props) {
-  const { data, isLoading, isError } = useCategoriesTags();
+  const { data, isLoading, isError, error } = useCategoriesTags();
+
+  const { addAlert } = useAlert();
 
   const [selectedCategories, setSelectedCategories] =
     useState<string[]>(initialCategories);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+
+  useEffect(() => {
+    if (isError) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
+  }, [isError, error, addAlert]);
 
   useEffect(() => {
     if (data) {

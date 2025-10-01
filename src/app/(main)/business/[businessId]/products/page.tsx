@@ -11,7 +11,9 @@ export default function BusinessCatalogPage() {
   const businessIdRaw = params.businessId;
 
   // businessId puede ser string | string[] | undefined
-  const businessId = Array.isArray(businessIdRaw) ? businessIdRaw[0] : businessIdRaw;
+  const businessId = Array.isArray(businessIdRaw)
+    ? businessIdRaw[0]
+    : businessIdRaw;
 
   if (!businessId) {
     return (
@@ -22,12 +24,15 @@ export default function BusinessCatalogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+    <>
       <Header />
-      <div className="max-w-4xl mx-auto mb-6">
-        <BackButton />
+
+      <div className="bg-gray-50 min-h-[calc(100vh-60px)] pt-4 pb-12 relative">
+        <div className="ml-4 mb-4">
+          <BackButton />
+        </div>
+        <Catalog businessId={businessId} />
       </div>
-      <Catalog businessId={businessId} />
-    </div>
+    </>
   );
 }

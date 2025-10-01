@@ -19,10 +19,12 @@ export const RoleViewer: React.FC<RoleViewerProps> = ({ businessId }) => {
   } = useRolesByBusinessId(businessId);
   const { addAlert } = useAlert();
   useEffect(() => {
-    addAlert({
-      message: getDisplayErrorMessage(error),
-      type: "error",
-    });
+    if (isError) {
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: "error",
+      });
+    }
   }, [isError, error, addAlert]);
 
   if (isLoading) return <p>Cargando roles...</p>;

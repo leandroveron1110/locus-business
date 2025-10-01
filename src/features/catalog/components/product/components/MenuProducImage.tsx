@@ -70,20 +70,24 @@ export default function MenuProductImage({
   };
 
   return (
-    <div className="w-full h-[170px] rounded overflow-hidden border border-gray-200 relative">
+    <div className="w-full h-32 rounded overflow-hidden border border-gray-200 relative">
       {preview ? (
-        <img src={preview} alt={name} className="w-full h-full object-cover" />
+        <img
+          src={preview}
+          alt={name}
+          className="w-full h-full object-cover"
+        />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+        <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
           Sin imagen
         </div>
       )}
 
-      <div className="absolute top-2 right-2 flex gap-2">
+      <div className="absolute top-1 right-1 flex gap-1">
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="px-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition"
+          className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition"
         >
           Cambiar
         </button>
@@ -91,7 +95,7 @@ export default function MenuProductImage({
           <button
             type="button"
             onClick={handleRemove}
-            className="px-2 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
+            className="px-2 py-0.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition"
           >
             Eliminar
           </button>

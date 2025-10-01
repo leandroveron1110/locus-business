@@ -203,14 +203,6 @@ export default function MenuProduct({
         onUpdate={(data) => handleUpdate({ imageUrl: data.imageUrl })}
       />
 
-      {/* Enabled */}
-      <EnabledSwitch
-        enabled={!!product.enabled}
-        onChange={(val) => handleUpdate({ enabled: val })}
-        label="Visible en la carta"
-        hint="Activa o desactiva la visibilidad del producto."
-      />
-
       {/* Header */}
       <MenuProductHeader
         name={product.name}
@@ -242,6 +234,14 @@ export default function MenuProduct({
         onUpdate={(data) => handleUpdate(data)}
       />
 
+      {/* Enabled */}
+      <EnabledSwitch
+        enabled={!!product.enabled}
+        onChange={(val) => handleUpdate({ enabled: val })}
+        label="Visible en la carta"
+        hint="Activa o desactiva la visibilidad del producto."
+      />
+
       {/* Opciones */}
       <div className="space-y-6 mb-6">
         {(product.optionGroups ?? []).map((group) => (
@@ -262,6 +262,7 @@ export default function MenuProduct({
           <NewMenuGroup
             menuProductId={product.id}
             onCreate={handleNewGroupCreate}
+            onClose={() => setShowNewGroup(false)}
           />
         ) : (
           <button
@@ -273,14 +274,27 @@ export default function MenuProduct({
         )}
       </div>
 
-      {/* Guardar */}
-      <button
-        onClick={handleSaveAll}
-        disabled={saving}
-        className="px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 disabled:opacity-50"
-      >
-        {saving ? "Guardando..." : "Guardar cambios"}
-      </button>
+      <div className="border-t border-gray-200 pt-4 flex flex-col sm:flex-row justify-end gap-3">
+        <button
+          onClick={onClose}
+          className="flex-1 text-sm sm:flex-none px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 disabled:opacity-50"
+          // onClick={}
+        >
+          Eliminar
+        </button>
+        <button
+          onClick={handleSaveAll}
+          disabled={saving}
+          className="px-4 py-2 text-sm bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {saving ? "Guardando..." : "Guardar cambios"}
+        </button>
+      </div>
     </div>
   );
 }

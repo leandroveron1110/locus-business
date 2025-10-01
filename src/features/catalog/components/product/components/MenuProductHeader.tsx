@@ -10,7 +10,6 @@ export default function MenuProductHeader({ name, description, onUpdate }: Props
   const [editingField, setEditingField] = useState<"name" | "description" | null>(null);
   const [tempValue, setTempValue] = useState<string>("");
 
-  // Sincronizamos el valor temporal con el prop cada vez que cambian
   useEffect(() => {
     if (!editingField) {
       setTempValue("");
@@ -31,11 +30,11 @@ export default function MenuProductHeader({ name, description, onUpdate }: Props
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-1">
       {/* NAME */}
       {editingField === "name" ? (
         <input
-          className="text-3xl font-bold text-gray-900 mb-2 border-b border-gray-400 outline-none"
+          className="text-lg font-bold text-gray-900 border-b border-gray-300 outline-none px-1 py-0.5"
           value={tempValue}
           autoFocus
           onChange={(e) => setTempValue(e.target.value)}
@@ -44,7 +43,7 @@ export default function MenuProductHeader({ name, description, onUpdate }: Props
         />
       ) : (
         <h2
-          className="text-3xl font-bold text-gray-900 mb-2 cursor-pointer hover:opacity-70"
+          className="text-lg font-bold text-gray-900 cursor-pointer hover:opacity-80"
           onClick={() => handleEdit("name")}
         >
           {name || "Nuevo producto"}
@@ -54,16 +53,17 @@ export default function MenuProductHeader({ name, description, onUpdate }: Props
       {/* DESCRIPTION */}
       {editingField === "description" ? (
         <textarea
-          className="text-gray-700 text-base mb-6 w-full border-b border-gray-400 outline-none"
+          className="text-sm text-gray-700 w-full border-b border-gray-300 outline-none px-1 py-0.5 resize-none"
           value={tempValue}
           autoFocus
+          rows={2}
           onChange={(e) => setTempValue(e.target.value)}
           onBlur={handleSave}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSave()}
         />
       ) : (
         <p
-          className="text-gray-700 text-base mb-6 cursor-pointer hover:opacity-70"
+          className="text-sm text-gray-700 cursor-pointer hover:opacity-80"
           onClick={() => handleEdit("description")}
         >
           {description || "Agregar descripción"}

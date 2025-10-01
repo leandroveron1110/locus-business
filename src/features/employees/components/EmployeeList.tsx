@@ -1,28 +1,41 @@
 // src/app/business/employees/EmployeeList.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { EditEmployeeForm } from "./edit/EditEmployeeForm";
 import { useBusinessEmployees } from "../hooks/useFindUserById";
 import { IEmployee } from "../api/employees-api";
 import { EmployeeDetailsModal } from "./EmployeeDetailsModal";
+import { useAlert } from "@/features/common/ui/Alert/Alert";
+import { getDisplayErrorMessage } from "@/lib/uiErrors";
 
-// Componente del Modal de Detalles
 
-// Componente principal de la lista de empleados
 export function EmployeeList() {
   const { user } = useAuthStore();
   const businessId = user?.businesses?.[0]?.id;
   const {
     data: employees,
     isLoading,
+    isError,
     error,
   } = useBusinessEmployees(businessId);
   const [selectedEmployee, setSelectedEmployee] = useState<IEmployee | null>(
     null
   );
+  const { addAlert } = useAlert()
   const [isEditing, setIsEditing] = useState(false); // ✅ Nuevo estado para controlar la edición
+
+  useEffect(()=>{
+
+    if(isError){
+      addAlert({
+        message: getDisplayErrorMessage(error),
+        type: 'error'
+      })
+    }
+
+  }, [isError, error, addAlert])
 
   const handleEmployeeClick = (employee: IEmployee) => {
     setSelectedEmployee(employee);
@@ -50,14 +63,6 @@ export function EmployeeList() {
   if (isLoading) {
     return (
       <div className="p-8 text-center text-gray-500">Cargando empleados...</div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-8 text-center text-red-500">
-        Error al cargar empleados: {error.message}
-      </div>
     );
   }
 

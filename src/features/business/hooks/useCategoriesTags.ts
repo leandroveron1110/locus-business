@@ -7,6 +7,9 @@ import {
   updateBusinessCategories,
   updateBusinessTags,
 } from "../api/businessApi";
+import { ApiResult } from "@/lib/apiFetch";
+import { Category, Tag } from "../types/category";
+import { ApiError } from "@/types/api";
 
 export const useCategoriesTagsByBusinessId = (businessId: string) => {
   return useQuery({
@@ -25,7 +28,10 @@ export const useCategoriesTagsByBusinessId = (businessId: string) => {
 };
 
 export const useCategoriesTags = () => {
-  return useQuery({
+  return useQuery<
+    { tags: ApiResult<Tag[]>; categories: ApiResult<Category[]> },
+    ApiError
+  >({
     queryKey: ["business-category-tag"],
     queryFn: async () => {
       const [tags, categories] = await Promise.all([
@@ -37,6 +43,7 @@ export const useCategoriesTags = () => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: 1000 * 60 * 60,
+    retry: false,
   });
 };
 
@@ -76,6 +83,6 @@ export function useUpdateTags() {
       queryClient.invalidateQueries({
         queryKey: ["business-categories-tags", variables.businessId],
       });
-    }
+    },
   });
 }

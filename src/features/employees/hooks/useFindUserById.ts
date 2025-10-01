@@ -23,7 +23,10 @@ export const useFindUser = (userEmail: string | null) => {
     queryKey: ["findUser", userEmail],
     queryFn: () => findByEmail(userEmail!),
     enabled: !!userEmail,
-    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    staleTime: 1000 * 60 * 60,
     retry: (failureCount, error) => {
       // No reintentar si es un 404 (usuario no encontrado)
       if (error?.statusCode === 404) return false;
@@ -38,6 +41,11 @@ export const useBusinessRoles = (businessId: string | undefined) => {
     queryKey: ["businessRoles", businessId],
     queryFn: () => getBusinessRolesAndPermissions(businessId!),
     enabled: !!businessId,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    staleTime: 1000 * 60 * 60,
+    retry: false,
   });
 };
 
@@ -46,6 +54,11 @@ export const useBusinessEmployees = (businessId: string | undefined) => {
     queryKey: ["employees", businessId],
     queryFn: () => getBusinessEmployees(businessId!),
     enabled: !!businessId,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    staleTime: 1000 * 60 * 60,
+    retry: false,
   });
 };
 

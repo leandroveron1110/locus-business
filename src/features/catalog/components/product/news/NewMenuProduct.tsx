@@ -28,7 +28,6 @@ export default function NewMenuProduct({
   onClose,
   onCreated,
 }: Props) {
-
   const { addAlert } = useAlert();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -81,90 +80,104 @@ export default function NewMenuProduct({
 
       const created = await createProduct.mutateAsync(newProduct);
 
-      if(created) {
+      if (created) {
         onCreated(created);
-  
+
         const add: IMenuProduct = {
           ...created,
           ...newProduct,
         };
-  
+
         addProduct({ menuId, sectionId }, add);
         onClose();
       }
     } catch (error) {
       addAlert({
         message: getDisplayErrorMessage(error),
-        type: 'error'
-      })
+        type: "error",
+      });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-lg w-full max-w-xl mx-auto space-y-5">
-      <h2 className="text-xl font-semibold">Nuevo Producto</h2>
+    <div className="p-6 bg-white rounded-xl shadow-lg w-full max-w-xl mx-auto space-y-6">
+      <div className="flex flex-col gap-2">
+        {/* Nombre */}
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-700 mb-0.5">
+            Nombre
+          </label>
+          <input
+            ref={nameInputRef}
+            type="text"
+            value={name}
+            placeholder="Ej: Pizza Napolitana"
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          />
+        </div>
 
-      <EnabledSwitch
-        enabled={enabled}
-        onChange={setEnabled}
-        label="Visible en la carta"
-        hint="Controla si el producto aparece o no para los clientes."
-      />
+        {/* Descripción */}
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-gray-700 mb-0.5">
+            Descripción
+          </label>
+          <textarea
+            value={description}
+            placeholder="Agrega una breve descripción del producto"
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+            rows={2}
+          />
+        </div>
+      </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Nombre</label>
-        <input
-          ref={nameInputRef}
-          type="text"
-          value={name}
-          placeholder="Ej: Pizza Napolitana"
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      {/* --- Precios --- */}
+      <div className="border-t border-gray-200 pt-4">
+        <MenuProductPrice
+          finalPrice={prices.finalPrice}
+          discountPercentage={prices.discountPercentage}
+          originalPrice={prices.originalPrice}
+          onUpdate={(data) =>
+            setPrices({
+              discountPercentage: `${data.discountPercentage}`,
+              finalPrice: `${data.finalPrice}`,
+              originalPrice: `${data.originalPrice}`,
+            })
+          }
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Descripción</label>
-        <textarea
-          value={description}
-          placeholder="Agrega una breve descripción del producto"
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      {/* --- Stock y Flags --- */}
+      <div className="border-t border-gray-200 pt-4 space-y-4">
+        <MenuProductStock
+          stock={stock}
+          available={available}
+          preparationTime={0}
+          onUpdate={(data) => {
+            if (data.stock !== undefined) setStock(data.stock);
+            if (data.available !== undefined) setAvailable(data.available);
+          }}
+        />
+
+        <MenuProductFlags
+          isMostOrdered={flags.isMostOrdered}
+          isRecommended={flags.isRecommended}
+          onUpdate={(data) => setFlags(data)}
+        />
+
+        <EnabledSwitch
+          enabled={enabled}
+          onChange={setEnabled}
+          label="Visible en la carta"
+          hint="Controla si el producto aparece o no para los clientes."
         />
       </div>
 
-      <MenuProductPrice
-        finalPrice={prices.finalPrice}
-        discountPercentage={prices.discountPercentage}
-        originalPrice={prices.originalPrice}
-        onUpdate={(data) =>
-          setPrices({
-            discountPercentage: `${data.discountPercentage}`,
-            finalPrice: `${data.finalPrice}`,
-            originalPrice: `${data.originalPrice}`,
-          })
-        }
-      />
-
-      <MenuProductStock
-        stock={stock}
-        available={available}
-        preparationTime={0}
-        onUpdate={(data) => {
-          if (data.stock !== undefined) setStock(data.stock);
-          if (data.available !== undefined) setAvailable(data.available);
-        }}
-      />
-
-      <MenuProductFlags
-        isMostOrdered={flags.isMostOrdered}
-        isRecommended={flags.isRecommended}
-        onUpdate={(data) => setFlags(data)}
-      />
-
-      <div className="flex flex-col sm:flex-row justify-end gap-3">
+      {/* --- Acciones --- */}
+      <div className="border-t border-gray-200 pt-4 flex flex-col sm:flex-row justify-end gap-3">
         <button
           onClick={onClose}
           className="flex-1 sm:flex-none px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"

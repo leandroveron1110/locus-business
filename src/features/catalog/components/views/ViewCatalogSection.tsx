@@ -159,7 +159,7 @@ export default function ViewCatalogSection({
         ))}
 
       {selectedProduct && (
-        <Modal onClose={handleCloseModal}>
+        <Modal onClose={handleCloseModal} title="Producto" >
           <MenuProduct
             productId={selectedProduct.id}
             onClose={handleCloseModal}
@@ -171,7 +171,7 @@ export default function ViewCatalogSection({
       )}
 
       {showNewProductModal && (
-        <Modal onClose={() => setShowNewProductModal(false)}>
+        <Modal onClose={() => setShowNewProductModal(false)} title="Nuevo Producto" >
           <NewMenuProduct
             sectionId={section.id}
             onClose={() => setShowNewProductModal(false)}
@@ -184,7 +184,7 @@ export default function ViewCatalogSection({
       )}
 
       {showEditSectionModal && (
-        <Modal onClose={() => setShowEditSectionModal(false)}>
+        <Modal onClose={() => setShowEditSectionModal(false)} title="Editar Seccion" >
           <EditCatalogSection
             section={section}
             onUpdate={handleSectionSave}
@@ -197,25 +197,34 @@ export default function ViewCatalogSection({
   );
 }
 
-/** Modal reutilizable y responsivo */
-function Modal({
-  children,
-  onClose,
-}: {
+interface ModalProps {
   children: React.ReactNode;
   onClose: () => void;
-}) {
+  title?: string;
+}
+
+function Modal({ children, onClose, title }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative p-4 sm:p-6">
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-lg sm:text-xl"
-          aria-label="Cerrar modal"
-        >
-          ✕
-        </button>
-        {children}
+        {/* Header del modal con título y botón de cerrar */}
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          {title && (
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+              {title}
+            </h2>
+          )}
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-800 text-lg sm:text-xl p-1 rounded-full transition-colors"
+            aria-label="Cerrar modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Contenido */}
+        <div className="">{children}</div>
       </div>
     </div>
   );

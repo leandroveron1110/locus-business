@@ -13,11 +13,6 @@ export default function SearchBusinessList({ businesses }: Props) {
 
   return (
     <section className="max-w-7xl flex flex-col h-[calc(100vh)]">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        {businesses.length > 0
-          ? `${businesses.length} ${businesses.length === 1 ? "negocio" : "negocios"} encontrados`
-          : "No se encontraron negocios"}
-      </h2>
 
       {businesses.length > 0 ? (
         <div className="flex-1">

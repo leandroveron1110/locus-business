@@ -34,19 +34,6 @@ export default function SearchPage() {
     }
   }, [isError, error, addAlert]);
 
-  // **2. Añadir useEffect para manejar la redirección si no hay negocios
-  //    (Es más seguro hacerlo en un useEffect para evitar problemas de rendering,
-  //     aunque también se podría hacer en la lógica de renderizado condicional con un return).**
-  useEffect(() => {
-    // Si no está cargando, no hay error Y NO HAY datos O la lista de datos está vacía
-    if (!isLoading && !isError && (!data || data.data.length === 0)) {
-        // Redirigir al login. Ajusta la ruta a la de tu login real.
-        // También puedes redirigir a una página de "Crear Negocio" si es más apropiado.
-        router.push("/login"); 
-    }
-  }, [isLoading, isError, data, router]); // Dependencias para re-evaluar
-
-  // ---
 
   // La lógica de `isLoading` y `isError` se mantiene igual.
 
@@ -70,7 +57,7 @@ export default function SearchPage() {
   //    porque la redirección ya se maneja en el `useEffect` de arriba
   //    para que ocurra tan pronto como se determine la ausencia de negocios.**
   
-  /*
+
   // Comentado/Eliminado porque el useEffect se encarga de la redirección
   if (!data || data.data.length === 0) {
     return (
@@ -79,7 +66,7 @@ export default function SearchPage() {
       </div>
     );
   }
-  */
+
   
   // Como el `useEffect` ya ha empujado al `/login` si no hay datos, si el flujo llega aquí,
   // sabemos que `data` existe y tiene elementos.

@@ -8,6 +8,7 @@ export function useSchedule(businessId: string) {
   return useQuery<ApiResult<Record<string, string[]>>, ApiError>({
     queryKey: ["schedule", businessId],
     queryFn: () => fetchWeeklySchedule(businessId),
+    retry: false,
   });
 }
 
