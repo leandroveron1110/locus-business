@@ -8,6 +8,9 @@ export function useSchedule(businessId: string) {
   return useQuery<ApiResult<Record<string, string[]>>, ApiError>({
     queryKey: ["schedule", businessId],
     queryFn: () => fetchWeeklySchedule(businessId),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: 1000 * 60 * 60,
     retry: false,
   });
 }
@@ -15,7 +18,7 @@ export function useSchedule(businessId: string) {
 export function useUpdateSchedule(businessId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, ApiError, Record<string, string[]> >({
+  return useMutation<unknown, ApiError, Record<string, string[]>>({
     mutationFn: (payload: Record<string, string[]>) =>
       updateWeeklySchedule(businessId, payload),
     onSuccess: () => {

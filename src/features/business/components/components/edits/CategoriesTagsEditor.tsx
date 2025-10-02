@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Search } from "lucide-react";
 import { useCategoriesTags } from "@/features/business/hooks/useCategoriesTags";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
@@ -35,6 +35,9 @@ export default function CategoriesTagsEditor({
   const [selectedCategories, setSelectedCategories] =
     useState<string[]>(initialCategories);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+
+  const [categorySearch, setCategorySearch] = useState("");
+  const [tagSearch, setTagSearch] = useState("");
 
   useEffect(() => {
     if (isError) {
@@ -89,18 +92,38 @@ export default function CategoriesTagsEditor({
     onSave(selectedCategories, selectedTags);
   };
 
+  const filteredCategories = data.categories?.filter((cat: Category) =>
+    cat.name.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+  const filteredTags = data.tags?.filter((tag: TagItem) =>
+    tag.name.toLowerCase().includes(tagSearch.toLowerCase())
+  );
+
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 sm:p-10 space-y-6 border border-gray-100">
       {/* Categorías */}
       <div>
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Categorías</h2>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {data.categories &&
-            data.categories.map((cat: Category) => (
+
+        {/* Buscador categorías */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Buscar categoría..."
+            value={categorySearch}
+            onChange={(e) => setCategorySearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-2 max-h-48 overflow-y-auto">
+          {filteredCategories && filteredCategories.length > 0 ? (
+            filteredCategories.map((cat: Category) => (
               <button
                 key={cat.id}
                 onClick={() => handleToggleCategory(cat.id)}
-                className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-sm transition ${
+                className={`px-3 py-1 capitalize rounded-full text-sm font-semibold flex items-center gap-1 shadow-sm transition ${
                   selectedCategories.includes(cat.id)
                     ? "bg-blue-600 text-white"
                     : "bg-blue-100 text-blue-800 hover:bg-blue-200"
@@ -109,20 +132,38 @@ export default function CategoriesTagsEditor({
                 {cat.name}
                 {selectedCategories.includes(cat.id) && <X size={12} />}
               </button>
-            ))}
+            ))
+          ) : (
+            <p className="text-sm text-gray-400">
+              No se encontraron categorías
+            </p>
+          )}
         </div>
       </div>
 
       {/* Tags */}
       <div>
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Tags</h2>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {data.tags &&
-            data.tags.map((tag: TagItem) => (
+
+        {/* Buscador tags */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Buscar tag..."
+            value={tagSearch}
+            onChange={(e) => setTagSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-2 max-h-48 overflow-y-auto">
+          {filteredTags && filteredTags.length > 0 ? (
+            filteredTags.map((tag: TagItem) => (
               <button
                 key={tag.id}
                 onClick={() => handleToggleTag(tag.id)}
-                className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-sm transition ${
+                className={`px-3 py-1 capitalize rounded-full text-sm font-semibold flex items-center gap-1 shadow-sm transition ${
                   selectedTags.includes(tag.id)
                     ? "bg-green-600 text-white"
                     : "bg-green-100 text-green-800 hover:bg-green-200"
@@ -131,7 +172,10 @@ export default function CategoriesTagsEditor({
                 {tag.name}
                 {selectedTags.includes(tag.id) && <X size={12} />}
               </button>
-            ))}
+            ))
+          ) : (
+            <p className="text-sm text-gray-400">No se encontraron tags</p>
+          )}
         </div>
       </div>
 

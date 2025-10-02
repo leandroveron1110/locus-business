@@ -11,7 +11,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Locus",
   description: "la plataforma de tu ciudad",
-  icons: "./locus.svg",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" }, // ✅ correcto
+    ],
+    apple: [
+      { url: "/favicon.svg", sizes: "180x180", type: "image/svg+xml" }, // ✅ ruta absoluta y mime correcto
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -20,10 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.className}>
-      <body
-      // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="es" className={inter.className}>
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>
