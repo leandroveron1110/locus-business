@@ -37,7 +37,7 @@ export default function NewMenuProduct({
     discountPercentage: "",
   });
 
-  const [stock, setStock] = useState(0);
+  const [stock, setStock] = useState(1);
   const [available, setAvailable] = useState(true);
   const [enabled, setEnabled] = useState(true);
   const [flags, setFlags] = useState({

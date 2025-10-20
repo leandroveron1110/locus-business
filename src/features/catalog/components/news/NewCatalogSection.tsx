@@ -22,7 +22,7 @@ export default function NewCatalogSection({
   const [name, setName] = useState("");
 
   const handleCreate = () => {
-    if (!name.trim()) return;
+    if (!name.trim().toLocaleUpperCase()) return;
     const newSection: SectionCreate = {
       businessId,
       menuId,
@@ -50,7 +50,7 @@ export default function NewCatalogSection({
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value.toLocaleUpperCase())}
             placeholder="Nombre de la sección"
             className="border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             autoFocus

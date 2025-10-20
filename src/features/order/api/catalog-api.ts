@@ -24,7 +24,7 @@ export const fetchUpdateOrdersByOrderID = async (
     return res;
     
   } catch (error) {
-    throw handleApiError(error, "Error al actualizar el payment-status");
+    throw handleApiError(error, "Error al actualizar el status");
   }
 };
 

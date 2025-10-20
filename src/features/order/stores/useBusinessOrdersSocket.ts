@@ -23,12 +23,15 @@ export function useBusinessOrdersSocket(businessId: string) {
     });
 
     socket.on("new_order", (order: Order) => {
+      console.log("new_order", order);
       addOrder(order);
     });
 
     socket.on(
       "order_status_updated",
       (data: { orderId: string; status: string }) => {
+        console.log("order_status_updated", data);
+
         updateOrderStatus(data.orderId, data.status);
       }
     );
@@ -40,6 +43,8 @@ export function useBusinessOrdersSocket(businessId: string) {
         paymentStatus: string;
         paymentReceiptUrl: string;
       }) => {
+        console.log("payment_updated", data);
+
         updatePaymentStatus(
           data.orderId,
           data.paymentStatus as PaymentStatus,

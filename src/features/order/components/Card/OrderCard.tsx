@@ -54,6 +54,7 @@ export default function OrderCard({
   const [defaultDeliveryCompanyName, setDefaultDeliveryCompanyName] = useState<
     string | null
   >(null);
+  const [isAutoUpdating, setIsAutoUpdating] = useState(false);
 
   useEffect(() => {
     const savedDefaultId = localStorage.getItem(DEFAULT_DELIVERY_KEY);
@@ -65,6 +66,28 @@ export default function OrderCard({
       }
     }
   }, [deliveryCompanies]);
+
+  // --- NUEVA LÓGICA DE ACTUALIZACIÓN AUTOMÁTICA ---
+  useEffect(() => {
+    // 1. Condición de estado
+    const isReadyForAutomaticAssignment =
+          order.status as unknown as EOrderStatusBusiness == EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP;
+
+    // 2. Condición de asignación de compañía (cliente ya la eligió)
+    const hasDeliveryCompanyAssigned = !!order.deliveryCompanyId;
+    
+    // 3. Condición de prevención de bucles
+    if (isAutoUpdating) return; 
+
+    if (isReadyForAutomaticAssignment && hasDeliveryCompanyAssigned) {
+    
+      if(order.deliveryCompanyId){
+        setIsAutoUpdating(true);
+        handleAssignDelivery(order.deliveryCompanyId);
+
+      }
+    }
+  }, [order.status, order.deliveryCompanyId]);
 
   const handleStatusChange = async (newStatus: EOrderStatusBusiness) => {
     try {
@@ -238,7 +261,7 @@ export default function OrderCard({
       </div>
 
       {/* Comentario */}
-      {order.customerObservations && (
+      {order.notes && (
         <p className="text-xs text-gray-500 text-center">
           {order.customerObservations}
         </p>

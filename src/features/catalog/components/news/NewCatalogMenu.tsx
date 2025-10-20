@@ -14,7 +14,7 @@ export default function NewCatalogMenu({ businessId, ownerId, onAddMenu }: Props
   const [isAdding, setIsAdding] = useState(false); // Nuevo estado para controlar si se está agregando un menú
 
   const handleSubmit = () => {
-    if (!name.trim()) return;
+    if (!name.toUpperCase().trim()) return;
 
     const newMenu: MenuCreate = { name, businessId, ownerId };
 
@@ -32,7 +32,7 @@ export default function NewCatalogMenu({ businessId, ownerId, onAddMenu }: Props
             type="text"
             placeholder="Nombre del menú (ej. Desayunos, Almuerzos)"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value.toLocaleUpperCase())}
             className="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
           />
           <button
