@@ -20,24 +20,30 @@ export default function CatalogProduct({ product, onClick }: Props) {
     currencyMask,
   } = product;
 
-  const { isAvailable, hasDiscount, discountPercent } =
-    useMemo(() => {
-      const isAvailable = available && stock > 0;
-      const hasDiscount = product.originalPrice
-        ? Number(discountPercentage) > 0
-        : false;
-      const discountPercent = hasDiscount
-        ? Math.round(
-            ((Number(originalPrice) - Number(finalPrice)) /
-              Number(originalPrice)) *
-              100
-          )
-        : 0;
-      const discountValue = hasDiscount
-        ? Number(originalPrice) - Number(finalPrice)
-        : 0;
-      return { isAvailable, hasDiscount, discountPercent, discountValue };
-    }, [available, stock, originalPrice, discountPercentage, finalPrice, product.originalPrice]);
+  const { isAvailable, hasDiscount, discountPercent } = useMemo(() => {
+    const isAvailable = available && stock > 0;
+    const hasDiscount = product.originalPrice
+      ? Number(discountPercentage) > 0
+      : false;
+    const discountPercent = hasDiscount
+      ? Math.round(
+          ((Number(originalPrice) - Number(finalPrice)) /
+            Number(originalPrice)) *
+            100
+        )
+      : 0;
+    const discountValue = hasDiscount
+      ? Number(originalPrice) - Number(finalPrice)
+      : 0;
+    return { isAvailable, hasDiscount, discountPercent, discountValue };
+  }, [
+    available,
+    stock,
+    originalPrice,
+    discountPercentage,
+    finalPrice,
+    product.originalPrice,
+  ]);
 
   return (
     <li

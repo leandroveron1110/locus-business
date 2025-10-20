@@ -48,9 +48,9 @@ export default function ScheduleContainer({ businessId }: Props) {
             refetch();
           }}
         />
-      ) : (
-        data ? <Schedule data={data} /> : null
-      )}
+      ) : data ? (
+        <Schedule data={data} />
+      ) : null}
     </div>
   );
 }

@@ -39,12 +39,11 @@ export default function ViewCatalogSection({
       ?.sections.find((s) => s.id === sectionId)
   );
 
-  
   const sortedProducts = useMemo(() => {
-    if(!section){
-      return []
+    if (!section) {
+      return [];
     }
-    return [...(section.products)];
+    return [...section.products];
   }, [section]);
 
   const handleSelectProduct = useCallback((product: IMenuProduct) => {
@@ -76,7 +75,6 @@ export default function ViewCatalogSection({
   }, []);
 
   if (!section) return <div />;
-
 
   return (
     <div className="mb-12 relative">
@@ -159,7 +157,7 @@ export default function ViewCatalogSection({
         ))}
 
       {selectedProduct && (
-        <Modal onClose={handleCloseModal} title="Producto" >
+        <Modal onClose={handleCloseModal} title="Producto">
           <MenuProduct
             productId={selectedProduct.id}
             onClose={handleCloseModal}
@@ -171,7 +169,10 @@ export default function ViewCatalogSection({
       )}
 
       {showNewProductModal && (
-        <Modal onClose={() => setShowNewProductModal(false)} title="Nuevo Producto" >
+        <Modal
+          onClose={() => setShowNewProductModal(false)}
+          title="Nuevo Producto"
+        >
           <NewMenuProduct
             sectionId={section.id}
             onClose={() => setShowNewProductModal(false)}
@@ -184,7 +185,10 @@ export default function ViewCatalogSection({
       )}
 
       {showEditSectionModal && (
-        <Modal onClose={() => setShowEditSectionModal(false)} title="Editar Seccion" >
+        <Modal
+          onClose={() => setShowEditSectionModal(false)}
+          title="Editar Seccion"
+        >
           <EditCatalogSection
             section={section}
             onUpdate={handleSectionSave}
