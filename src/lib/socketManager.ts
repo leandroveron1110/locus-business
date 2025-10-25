@@ -28,9 +28,6 @@ export function getSocketForBusiness(businessId: string): Socket {
     socket.emit("join_role", { role: "business", id: businessId });
   });
 
-  socket.on("disconnect", (reason) => {
-  });
-
   sockets[businessId] = socket;
   return socket;
 }
@@ -57,8 +54,9 @@ export function disconnectSocketForBusiness(businessId: string) {
  * Desconecta y limpia todos los sockets (por ejemplo, al cerrar sesión).
  */
 export function disconnectAllSockets() {
-  Object.entries(sockets).forEach(([_, socket]) => {
+  Object.entries(sockets).forEach(([id, socket]) => {
     socket.disconnect();
+    console.log(`🧹 Socket del negocio ${id} desconectado`);
   });
   Object.keys(sockets).forEach((key) => delete sockets[key]);
 }
