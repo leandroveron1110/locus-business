@@ -13,14 +13,12 @@ export function useBusinessNotificationsSocket(businessId: string | undefined) {
   useEffect(() => {
     if (!socket || !businessId) return; // Aseguramos que businessId exista
 
-    console.log("sk nn", businessId)
     socket.on("new_order_notification", (data: {
       orderId: string;
       customerName: string;
       total: string;
       createdAt: string;
     }) => {
-      console.log("new_order_notification", data)
       addNotification(businessId, {
         id: data.orderId,
         message: `¡Nueva Orden #${data.orderId.slice(0, 8)} de ${data.customerName.toUpperCase() || 'Cliente'}! \n
