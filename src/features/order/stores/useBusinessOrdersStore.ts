@@ -6,13 +6,17 @@ interface BusinessOrdersState {
   orders: Order[];
   addOrder: (order: Order) => void;
   updateOrderStatus: (orderId: string, status: string) => void;
-  // Agregamos la nueva acción para actualizar el estado de pago
-  updatePaymentStatus: (orderId: string, newPaymentStatus: PaymentStatus, paymentReceiptUrl: string) => void;
+  updatePaymentStatus: (
+    orderId: string,
+    newPaymentStatus: PaymentStatus,
+    paymentReceiptUrl: string
+  ) => void;
+  reset: () => void;
 }
 
 export const useBusinessOrdersStore = create<BusinessOrdersState>((set) => ({
   orders: [],
-  
+
   addOrder: (order) =>
     set((state) => {
       // Evitar duplicados
@@ -22,12 +26,14 @@ export const useBusinessOrdersStore = create<BusinessOrdersState>((set) => ({
 
   updateOrderStatus: (orderId, status) =>
     set((state) => ({
-      orders: state.orders.map(o=> o.id == orderId ? 
-        {
-          ...o,
-          status: status as OrderStatus
-        }
-         : o)
+      orders: state.orders.map((o) =>
+        o.id == orderId
+          ? {
+              ...o,
+              status: status as OrderStatus,
+            }
+          : o
+      ),
     })),
 
   // Nueva función para actualizar el estado de pago y el comprobante
@@ -43,4 +49,9 @@ export const useBusinessOrdersStore = create<BusinessOrdersState>((set) => ({
           : order
       ),
     })),
+  reset: () => {
+    set(() => ({
+      orders: [],
+    }));
+  },
 }));

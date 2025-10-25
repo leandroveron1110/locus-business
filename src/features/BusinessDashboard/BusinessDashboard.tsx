@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Package, ShoppingCart, Settings, Users, Shield } from "lucide-react"; // Agregamos Shield
+import { Package, ShoppingCart, Settings, Users, Shield } from "lucide-react"; 
 
 
 interface Props {

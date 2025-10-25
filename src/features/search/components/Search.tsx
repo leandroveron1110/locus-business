@@ -7,6 +7,7 @@ import SearchBusinessListSkeleton from "./skeleton/SearchBusinessListSkeleton";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { useEffect } from "react";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
+import { useInitialNotificationLoad } from "../hooks/useInitialNotificationLoad";
 
 const DynamicSearchBusinessList = withSkeleton(
   () => import("./SearchBusinessList"),
@@ -18,6 +19,8 @@ export default function SearchPage() {
 
   const businessIds = user?.businesses?.map((b) => b.id) || [];
   const { data, isLoading, isError, error } = useBusinesses(businessIds);
+
+  useInitialNotificationLoad(businessIds);
 
   const { addAlert } = useAlert();
 

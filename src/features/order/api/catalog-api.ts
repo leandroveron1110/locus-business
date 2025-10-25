@@ -3,26 +3,26 @@ import { Order } from "../types/order";
 import { ICompany } from "../types/company";
 import { handleApiError } from "@/lib/handleApiError";
 
-  export const fetchOrdersByBusinessId = async (
-    businessId: string
-  ): Promise<ApiResult<Order[]>> => {
-    try {
-      const res = await apiGet<Order[]>(`/orders/business/${businessId}`);
-      return res;
-      
-    } catch (error: unknown) {
-      throw handleApiError(error, "Error al obtener las ordenes del negocio")
-    }
-  };
+export const fetchOrdersByBusinessId = async (
+  businessId: string
+): Promise<ApiResult<Order[]>> => {
+  try {
+    const res = await apiGet<Order[]>(`/orders/business/${businessId}`);
+    return res;
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al obtener las ordenes del negocio");
+  }
+};
 
 export const fetchUpdateOrdersByOrderID = async (
   orderId: string,
   status: string
 ): Promise<ApiResult<Order>> => {
   try {
-    const res = await apiPatch<Order>(`/orders/order/status/${orderId}`, { status });
+    const res = await apiPatch<Order>(`/orders/order/status/${orderId}`, {
+      status,
+    });
     return res;
-    
   } catch (error) {
     throw handleApiError(error, "Error al actualizar el status");
   }
@@ -33,30 +33,34 @@ export const fetchUpdateOrdersPaymentByOrderID = async (
   status: string
 ): Promise<ApiResult<Order>> => {
   try {
-    const res = await apiPatch<Order>(`/orders/order/payment-status/status/${orderId}`, { status });
+    const res = await apiPatch<Order>(
+      `/orders/order/payment-status/status/${orderId}`,
+      { status }
+    );
     return res;
-    
   } catch (error: unknown) {
-    throw handleApiError(error, "Error al actualizar el payment-status")
+    throw handleApiError(error, "Error al actualizar el payment-status");
   }
 };
 
-export const fetchDeliveryCompany = async (): Promise<ApiResult<ICompany[]>> => {
+export const fetchDeliveryCompany = async (): Promise<
+  ApiResult<ICompany[]>
+> => {
   try {
     const res = await apiGet<ICompany[]>(`/delivery/companies`);
     return res;
-    
   } catch (error: unknown) {
-    throw handleApiError(error, "Error cargando delivery companies")
+    throw handleApiError(error, "Error cargando delivery companies");
   }
 };
 
 export async function fetchAssignCompany(orderId: string, companyId: string) {
   try {
-    const res = await apiPost(`/delivery/orders/${orderId}/assign-company/${companyId}`);
+    const res = await apiPost(
+      `/delivery/orders/${orderId}/assign-company/${companyId}`
+    );
     return res;
-    
   } catch (error: unknown) {
-    throw handleApiError(error, "Error al asignar una compania delivery")
+    throw handleApiError(error, "Error al asignar una compania delivery");
   }
 }

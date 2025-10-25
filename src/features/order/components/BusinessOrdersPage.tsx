@@ -1,4 +1,3 @@
-// src/components/BusinessOrdersPage.tsx
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -18,18 +17,21 @@ import OrdersFilters from "./OrdersFilters";
 import { simplifiedFilters } from "@/features/common/utils/filtersData";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
+import { useBusinessNotificationsStore } from "../../common/hooks/useBusinessNotificationsStore";
 
 interface Props {
   businessId: string;
 }
 
 export default function BusinessOrdersPage({ businessId }: Props) {
-  useFetchBusinessOrders(businessId);
-  useBusinessOrdersSocket(businessId);
+  const reset = useBusinessOrdersStore((s) => s.reset);
+  const resetNotificationOrder = useBusinessNotificationsStore(
+    (s) => s.clearNotificationsByType
+  );
 
   const { addAlert } = useAlert();
-
   const orders = useBusinessOrdersStore((s) => s.orders as Order[]);
+
   const [deliveryCompanies, setDeliveryCompanies] = useState<
     { id: string; name: string }[]
   >([]);
@@ -37,11 +39,19 @@ export default function BusinessOrdersPage({ businessId }: Props) {
   const [activeFilter, setActiveFilter] = useState("Todos");
 
   useEffect(() => {
+    reset();
+    if (businessId) {
+      resetNotificationOrder(businessId, "NEW_ORDER");
+    }
+  }, [reset, businessId, resetNotificationOrder]);
+
+  useFetchBusinessOrders(businessId);
+  useBusinessOrdersSocket(businessId);
+
+  useEffect(() => {
     fetchDeliveryCompany()
       .then((c) => {
-        if (c) {
-          setDeliveryCompanies(c);
-        }
+        if (c) setDeliveryCompanies(c);
       })
       .catch((e) =>
         addAlert({
@@ -53,7 +63,7 @@ export default function BusinessOrdersPage({ businessId }: Props) {
       );
   }, [addAlert]);
 
-  // Filtra órdenes según método de pago y su estado
+  // --- filtros y lógica (igual que antes) ---
   const filterOrdersView = (order: Order) => {
     if (order.paymentType === PaymentMethodType.CASH) return true;
     if (
@@ -65,37 +75,28 @@ export default function BusinessOrdersPage({ businessId }: Props) {
     return false;
   };
 
-  // Define prioridad para ordenar las órdenes
   const getOrderPriority = (order: Order) => {
-    // Amarillo → Pago pendiente / en revisión
     if (
-      order.paymentType == PaymentMethodType.CASH &&
-      order.status == OrderStatus.PENDING
-    ) {
+      order.paymentType === PaymentMethodType.CASH &&
+      order.status === OrderStatus.PENDING
+    )
       return 1;
-    }
     if (
       order.paymentType === PaymentMethodType.TRANSFER &&
       (order.paymentStatus === PaymentStatus.PENDING ||
         order.paymentStatus === PaymentStatus.IN_PROGRESS)
     )
       return 2;
-
-    // Azul → Confirmado / en proceso
     if (
       order.status === OrderStatus.CONFIRMED ||
       order.status === OrderStatus.PREPARING
     )
       return 3;
-
-    // Verde → Completado / Entregado
     if (
       order.status === OrderStatus.COMPLETED ||
       order.status === OrderStatus.DELIVERED
     )
       return 4;
-
-    // Rojo → Cancelado / rechazado
     if (
       order.status === OrderStatus.CANCELLED_BY_USER ||
       order.status === OrderStatus.REJECTED_BY_BUSINESS ||
@@ -103,14 +104,12 @@ export default function BusinessOrdersPage({ businessId }: Props) {
       order.status === OrderStatus.DELIVERY_REJECTED
     )
       return 5;
-
-    return 6; // Otros estados sin prioridad
+    return 6;
   };
 
   const filteredAndSortedOrders = useMemo(() => {
     if (!orders) return [];
 
-    // Aplica quick filter activo
     const currentFilter = simplifiedFilters.find(
       (f) => f.label === activeFilter
     );
@@ -124,7 +123,6 @@ export default function BusinessOrdersPage({ businessId }: Props) {
       });
     }
 
-    // Busca por término de búsqueda
     if (searchTerm) {
       filtered = filtered.filter(
         (order) =>
@@ -137,7 +135,6 @@ export default function BusinessOrdersPage({ businessId }: Props) {
       );
     }
 
-    // Ordena por prioridad y fecha descendente
     return filtered.sort((a, b) => {
       const priorityDiff = getOrderPriority(a) - getOrderPriority(b);
       if (priorityDiff !== 0) return priorityDiff;

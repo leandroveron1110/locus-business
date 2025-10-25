@@ -1,12 +1,14 @@
 // src/features/search/components/SearchBusinessCard.tsx
 "use client";
 
-import { Star, Tag, ChevronDown, ChevronUp } from "lucide-react";
+import { Star, Tag } from "lucide-react";
 import { SearchResultBusiness } from "../../../types/search";
 import Image from "next/image";
 import { useState } from "react";
 import ProfileNav from "./components/ProfileNav";
 import { useRouter } from "next/navigation";
+import { NotificationsBell } from "@/features/common/ui/NotificationsBell/NotificationsBell";
+import { useBusinessNotificationsSocket } from "@/features/common/hooks/useBusinessNotificationsSocket";
 
 interface BusinessCardProps {
   business: SearchResultBusiness;
@@ -15,10 +17,10 @@ interface BusinessCardProps {
 export const SearchBusinessCard = ({ business }: BusinessCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  useBusinessNotificationsSocket(business.id);
 
   const handleToggle = () => setIsOpen((prev) => !prev);
 
-  // 🔥 Nuevo: cuando cambia la opción de ProfileNav, redirigimos
   const handleSectionChange = (section: string) => {
     // Acá puedes definir las rutas para cada sección
     switch (section) {
@@ -42,8 +44,12 @@ export const SearchBusinessCard = ({ business }: BusinessCardProps) => {
   return (
     <li
       role="listitem"
-      className="rounded-2xl border border-gray-200 p-3 h-auto transition hover:shadow-md"
+      className="rounded-2xl border border-gray-200 p-3 h-auto transition hover:shadow-md relative"
     >
+      <div className="absolute top-3 right-3 z-10">
+        <NotificationsBell businessId={business.id} />
+      </div>
+
       <div className="flex flex-col">
         {/* Contenido principal */}
         <div
@@ -72,11 +78,6 @@ export const SearchBusinessCard = ({ business }: BusinessCardProps) => {
               <h4 className="text-sm font-semibold text-gray-900 uppercase line-clamp-1">
                 {business.name}
               </h4>
-              {isOpen ? (
-                <ChevronUp size={18} className="text-gray-500" />
-              ) : (
-                <ChevronDown size={18} className="text-gray-500" />
-              )}
             </div>
 
             {business.description && (
