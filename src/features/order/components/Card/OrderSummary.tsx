@@ -9,7 +9,7 @@ interface OrderSummaryProps {
   isPayment: boolean;
   paymentInfo: string;
   onViewProducts: () => void;
-  onViewVoucher: ()=> void;
+  onViewVoucher: () => void;
   paymentReceiptUrl: string | null;
 }
 
@@ -22,7 +22,7 @@ const OrderSummary = ({
   isPickup,
   paymentReceiptUrl,
   onViewProducts,
-  onViewVoucher
+  onViewVoucher,
 }: OrderSummaryProps) => {
   return (
     <div className="w-full">
@@ -42,31 +42,29 @@ const OrderSummary = ({
             {formatPrice(totalProduct)}
           </span>
         </div>
-
       </div>
-<div className="flex flex-col items-center space-y-3">
-  {/* Botón VER ORDEN */}
-  <button
-    className="w-full py-1.5 text-xs font-semibold tracking-wide text-white bg-indigo-600 rounded-full shadow-md transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-    onClick={onViewProducts}
-  >
-    Ver orden
-  </button>
+      <div className="flex flex-col items-center space-y-3">
+        {/* Botón VER ORDEN */}
+        <button
+          className="w-full py-1.5 text-xs font-semibold tracking-wide text-white bg-indigo-600 rounded-full shadow-md transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          onClick={onViewProducts}
+        >
+          Ver orden
+        </button>
 
-  {/* Botón VER COMPROBANTE */}
-  {isPayment && paymentReceiptUrl && (
-    <a
-      href={paymentReceiptUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-full py-1.5 text-xs font-semibold tracking-wide text-white bg-indigo-600 rounded-full shadow-md transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center"
-      onClick={onViewVoucher}
-    >
-      Ver comprobante
-    </a>
-  )}
-</div>
-
+        {/* Botón VER COMPROBANTE */}
+        {isPayment && paymentReceiptUrl && (
+          <a
+            href={paymentReceiptUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-1.5 text-xs font-semibold tracking-wide text-white bg-indigo-600 rounded-full shadow-md transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center"
+            onClick={onViewVoucher}
+          >
+            Ver comprobante
+          </a>
+        )}
+      </div>
 
       {/* Dirección (sin cambios) */}
       <div className="text-center text-xs text-gray-600 mt-3">

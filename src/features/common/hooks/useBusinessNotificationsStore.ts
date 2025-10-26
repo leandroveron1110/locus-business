@@ -1,6 +1,9 @@
-import { create } from "zustand";
+// src/stores/useBusinessNotificationsStore.ts (VERSIÓN CON SYNC INCREMENTAL)
 
-export type NotificationType = 'NEW_ORDER' | 'STOCK_LOW' | 'NEW_MESSAGE';
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer"; // 💡 Importar Immer
+
+export type NotificationType = "NEW_ORDER" | "STOCK_LOW" | "NEW_MESSAGE";
 
 export interface Notification {
   id: string;
@@ -9,61 +12,99 @@ export interface Notification {
   type: NotificationType;
 }
 
-interface NotificationsState {
-  notificationsMap: Record<string, Notification[]>;
+type LastSyncTimes = Record<string, string | undefined>;
+type NotificationsMap = Record<string, Notification[] | undefined>; // Permite undefined
 
+interface NotificationsState {
+  notificationsMap: NotificationsMap;
+  lastSyncTimes: LastSyncTimes;
+
+  // ⚙️ SELECTORES
+  getLastSyncTime: (businessId: string) => string | undefined;
+  getNotifications: (businessId: string) => Notification[] | undefined; // Retorna undefined si no hay
+  // ⚙️ ACCIONES DE SINCRONIZACIÓN
+  setSyncedNotifications: (
+    businessId: string,
+    notifications: Notification[],
+    latestTimestamp: string
+  ) => void;
+
+  // ⚙️ ACCIONES DE MUTACIÓN
   addNotification: (businessId: string, n: Notification) => void;
   clearNotifications: (businessId: string) => void;
   clearAllNotifications: () => void;
-  getNotifications: (businessId: string) => Notification[];
-  clearNotificationsByType: (businessId: string, type: NotificationType) => void;
+  clearNotificationsByType: (
+    businessId: string,
+    type: NotificationType
+  ) => void;
 }
 
-export const useBusinessNotificationsStore = create<NotificationsState>((set, get) => ({
-  notificationsMap: {},
+export const useBusinessNotificationsStore = create<NotificationsState>()(
+  immer((set, get) => ({
+    notificationsMap: {},
+    lastSyncTimes: {}, // 💡 Inicializar el mapa de tiempos
 
-  addNotification: (businessId, newNotification) =>
-    set((state) => {
-      const existing = state.notificationsMap[businessId] ?? [];
+    // ⚙️ SELECTORES IMPLEMENTADOS
+    getLastSyncTime: (businessId) => get().lastSyncTimes[businessId],
+    // Se cambia para retornar 'undefined' si no existe, coherente con el mapa
+    getNotifications: (businessId) => get().notificationsMap[businessId],
 
-      // 🔹 Validar duplicados por `id`
-      const alreadyExists = existing.some(n => n.id === newNotification.id);
-      if (alreadyExists) return state;
+    // 🎯 FUNCIÓN CLAVE PARA LA CACHÉ/SINCRONIZACIÓN
+    setSyncedNotifications: (businessId, notifications, latestTimestamp) => {
+      set((state) => {
+        // 1. Guardar el array completo de notificaciones
+        state.notificationsMap[businessId] = notifications;
+        // 2. Guardar el nuevo tiempo de sincronización
+        state.lastSyncTimes[businessId] = latestTimestamp;
+      });
+    },
 
-      return {
-        notificationsMap: {
-          ...state.notificationsMap,
-          [businessId]: [newNotification, ...existing],
-        },
-      };
-    }),
+    // ⚙️ ACCIONES DE MUTACIÓN (Refactorizadas para usar Immer)
+    addNotification: (businessId, newNotification) =>
+      set((state) => {
+        const existing = state.notificationsMap[businessId];
+        // Inicializar si no existe, usando mutación de Immer
+        if (!existing) {
+          state.notificationsMap[businessId] = [newNotification];
+          return;
+        }
 
-  clearNotifications: (businessId) =>
-    set((state) => ({
-      notificationsMap: {
-        ...state.notificationsMap,
-        [businessId]: [],
-      },
-    })),
+        // 🔹 Validar duplicados por `id`
+        const alreadyExists = existing.some((n) => n.id === newNotification.id);
+        if (alreadyExists) return;
 
-  clearAllNotifications: () => set({ notificationsMap: {} }),
+        // Agregar al inicio
+        existing.unshift(newNotification);
+      }),
 
-  getNotifications: (businessId) => get().notificationsMap[businessId] ?? [],
+    clearNotifications: (businessId) =>
+      set((state) => {
+        state.notificationsMap[businessId] = [];
+      }),
 
-  clearNotificationsByType: (businessId, typeToClear) =>
-    set((state) => {
-      const existingNotifications = state.notificationsMap[businessId] ?? [];
-      const filteredNotifications = existingNotifications.filter(
-        (n) => n.type !== typeToClear
-      );
+    clearAllNotifications: () =>
+      set((state) => {
+        state.notificationsMap = {};
+        state.lastSyncTimes = {}; // 💡 Limpiar también los tiempos
+      }),
 
-      if (filteredNotifications.length === existingNotifications.length) return state;
+    clearNotificationsByType: (businessId, typeToClear) =>
+      set((state) => {
+        const existingNotifications = state.notificationsMap[businessId];
 
-      return {
-        notificationsMap: {
-          ...state.notificationsMap,
-          [businessId]: filteredNotifications,
-        },
-      };
-    }),
-}));
+        if (!existingNotifications) return;
+
+        // Filtrar
+        const filteredNotifications = existingNotifications.filter(
+          (n) => n.type !== typeToClear
+        );
+
+        // Si no hubo cambios, retornar
+        if (filteredNotifications.length === existingNotifications.length)
+          return;
+
+        // Reemplazar el array mutando el estado
+        state.notificationsMap[businessId] = filteredNotifications;
+      }),
+  }))
+);

@@ -9,7 +9,7 @@ export const fetchBusinessID = async (
     const res = await apiGet<Business>(
       `/business/business/porfile/${businessId}`
     ); // endpoint de tu API
-    return res;
+    return res.data;
   } catch (error) {
     throw handleApiError(error, "Error al obtener el perfil del negocio");
   }

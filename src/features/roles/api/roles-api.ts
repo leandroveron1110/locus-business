@@ -6,7 +6,7 @@ export const createRoleApi = async (
   data: CreateBusinessRole
 ): Promise<ApiResult<BusinessRole>> => { 
   try {
-    return await apiPost<BusinessRole>('/roles', data);
+    return (await apiPost<BusinessRole>('/roles', data)).data;
   } catch (error: unknown) {
     throw handleApiError(error, `No se pudo crear el rol "${data.name}".`);
   }
@@ -14,7 +14,7 @@ export const createRoleApi = async (
 
 export const getRoleApi = async (roleId: string): Promise<ApiResult<BusinessRole>> => {
   try {
-    return await apiGet<BusinessRole>(`/roles/${roleId}`);
+    return (await apiGet<BusinessRole>(`/roles/${roleId}`)).data;
   } catch (error: unknown) {
     throw handleApiError(error, `No se pudo obtener el rol con ID ${roleId}.`);
   }
@@ -24,7 +24,7 @@ export const getRolesByBusinessIdApi = async (
   businessId: string
 ): Promise<ApiResult<BusinessRole[]>> => {
   try {
-    return await apiGet<BusinessRole[]>(`/roles/business/${businessId}`);
+    return (await apiGet<BusinessRole[]>(`/roles/business/${businessId}`)).data;
   } catch (error: unknown) {
     throw handleApiError(error, `No se pudieron obtener los roles del negocio con ID ${businessId}.`);
   }
@@ -38,7 +38,7 @@ export const updateRoleApi = async ({
   data: Partial<CreateBusinessRole>;
 }): Promise<ApiResult<BusinessRole>> => {
   try {
-    return await apiPatch<BusinessRole>(`/roles/${roleId}`, data);
+    return (await apiPatch<BusinessRole>(`/roles/${roleId}`, data)).data;
   } catch (error: unknown) {
     throw handleApiError(error, `No se pudo actualizar el rol con ID ${roleId}.`);
   }

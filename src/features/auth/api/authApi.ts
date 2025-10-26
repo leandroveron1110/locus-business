@@ -12,7 +12,7 @@ import { apiGet, apiPost, ApiResult } from '@/lib/apiFetch';
 export const login = async (payload: LoginPayload): Promise<ApiResult<LoginResponse>> => {
   try {
     const response = await apiPost<LoginResponse>('/auth/login/business', payload);
-    return response;
+    return response.data;
   } catch (error: unknown) {
     throw handleApiError(error, 'Unknown error during registration');
   }
@@ -26,7 +26,7 @@ export const login = async (payload: LoginPayload): Promise<ApiResult<LoginRespo
 export const getMe = async (): Promise<ApiResult<User>> => {
   try {
     const response = await apiGet<User>('/auth/me');
-    return response;
+    return response.data;
   } catch (error: unknown) {
     throw handleApiError(error, 'Unknown error getting user data');
   }

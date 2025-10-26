@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { fetchDeliveryCompany } from "../api/catalog-api";
 import { useBusinessOrdersSocket } from "../stores/useBusinessOrdersSocket";
-import { useBusinessOrdersStore } from "../stores/useBusinessOrdersStore";
 import { useFetchBusinessOrders } from "../stores/useFetchBusinessOrders";
 import {
   Order,
@@ -18,20 +17,27 @@ import { simplifiedFilters } from "@/features/common/utils/filtersData";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
 import { useBusinessNotificationsStore } from "../../common/hooks/useBusinessNotificationsStore";
+import { useGlobalBusinessOrdersStore } from "@/lib/stores/orderStoreGlobal";
 
 interface Props {
   businessId: string;
 }
 
 export default function BusinessOrdersPage({ businessId }: Props) {
-  const reset = useBusinessOrdersStore((s) => s.reset);
+
+  // hooks
   const resetNotificationOrder = useBusinessNotificationsStore(
     (s) => s.clearNotificationsByType
   );
 
   const { addAlert } = useAlert();
-  const orders = useBusinessOrdersStore((s) => s.orders as Order[]);
+  const rawOrders = useGlobalBusinessOrdersStore((s) =>
+    s.getOrders(businessId)
+  );
+  const orders = useMemo(() => (rawOrders || []) as Order[], [rawOrders]);
 
+  useFetchBusinessOrders(businessId);
+  useBusinessOrdersSocket(businessId);
   const [deliveryCompanies, setDeliveryCompanies] = useState<
     { id: string; name: string }[]
   >([]);
@@ -39,14 +45,10 @@ export default function BusinessOrdersPage({ businessId }: Props) {
   const [activeFilter, setActiveFilter] = useState("Todos");
 
   useEffect(() => {
-    reset();
     if (businessId) {
       resetNotificationOrder(businessId, "NEW_ORDER");
     }
-  }, [reset, businessId, resetNotificationOrder]);
-
-  useFetchBusinessOrders(businessId);
-  useBusinessOrdersSocket(businessId);
+  }, [businessId, resetNotificationOrder]);
 
   useEffect(() => {
     fetchDeliveryCompany()
@@ -107,6 +109,7 @@ export default function BusinessOrdersPage({ businessId }: Props) {
     return 6;
   };
 
+  console.log(orders.length)
   const filteredAndSortedOrders = useMemo(() => {
     if (!orders) return [];
 
@@ -184,7 +187,8 @@ export default function BusinessOrdersPage({ businessId }: Props) {
           {filteredAndSortedOrders.map((order) => (
             <OrderCard
               key={order.id}
-              order={order}
+              orderId={order.id}
+              businessId={businessId}
               deliveryCompanies={deliveryCompanies}
             />
           ))}

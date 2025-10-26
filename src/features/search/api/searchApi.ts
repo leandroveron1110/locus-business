@@ -14,7 +14,7 @@ export const fetcSearchBusiness = async (
     const response = await apiGet<ISearchBusiness>(`/search/businesses`, {
       params,
     });
-    return response;
+    return response.data;
   } catch (error: unknown) {
     throw handleApiError(
       error,
@@ -33,7 +33,7 @@ export const getBusinessesByIds = async (
     const response = await apiPost<ISearchBusiness>("/search/businesses/ids/", {
       ids,
     });
-    return response;
+    return response.data;
   } catch (error: unknown) {
     throw handleApiError(
       error,
@@ -44,14 +44,6 @@ export const getBusinessesByIds = async (
 
 interface GetNewOrdersNotificationBody {
   businessIds: string[];
-}
-
-export interface OrderNotification {
-  id: string;
-  businessId: string,
-  customerName: string;
-  total: string;
-  createdAt: string;
 }
 
 export const getNewNotificationOrders = async (
@@ -65,7 +57,50 @@ export const getNewNotificationOrders = async (
       `/orders/notifications/new`, // ⬅️ La ruta POST definida en el controlador
       body
     );
-    return response;
+    return response.data;
+  } catch (error: unknown) {
+    throw handleApiError(
+      error,
+      "No se pudieron obtener las nuevas órdenes de notificación."
+    );
+  }
+};
+
+export interface OrderNotification {
+  id: string;
+  businessId: string;
+  customerName: string;
+  total: string;
+  createdAt: string;
+}
+interface SyncTimesMap {
+  [businessId: string]: string | null;
+}
+
+interface ISyncOrdersNotificationResponse {
+  newOrders: (OrderNotification & { latestTimestamp: string })[];
+}
+
+export const syncNewNotificationOrders = async (syncTimes: SyncTimesMap) => {
+  const body = { ...syncTimes };
+  try {
+    const response = await apiPost<ISyncOrdersNotificationResponse>(
+      `/orders/notifications/sync`,
+      body
+    );
+    // 💡 Verificación de éxito más limpia
+    if (!response.success || !response.data) {
+      throw handleApiError(
+        response.error,
+        "No se pudieron obtener las nuevas órdenes de notificación."
+      );
+    }
+
+    // Devolvemos los datos y el timestamp global
+    return {
+      newOrders: response.data.newOrders,
+      latestTimestamp: response.timestamp,
+    };
   } catch (error: unknown) {
     throw handleApiError(
       error,
@@ -82,7 +117,7 @@ export const fetchBusinessTags = async (
 ): Promise<ApiResult<BusinessTag[]>> => {
   try {
     const res = await apiGet<BusinessTag[]>(`business/${businessId}/tags/tags`);
-    return res;
+    return res.data;
   } catch (error: unknown) {
     throw handleApiError(
       error,
@@ -101,7 +136,7 @@ export const fetchBusinessCategories = async (
     const res = await apiGet<BusinessCategory[]>(
       `/business/${businessId}/categories/category`
     );
-    return res;
+    return res.data;
   } catch (error: unknown) {
     throw handleApiError(
       error,

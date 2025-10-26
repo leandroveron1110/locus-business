@@ -63,7 +63,7 @@ export const getBusinessRolesAndPermissions = async (
 ): Promise<ApiResult<BusinessRole[]>> => {
   try {
     const response = await apiGet<BusinessRole[]>(`/roles/business/${businessId}`);
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(error, "No se pudieron obtener los roles del negocio");
   }
@@ -76,7 +76,7 @@ export const getBusinessEmployees = async (
     const response = await apiGet<IEmployee[]>(
       `/employees/business/employess/${businessId}`
     );
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(
       error,
@@ -93,7 +93,7 @@ export const deleteRoleEmployees = async (
     const response = await apiPatch(
       `/employees/remove-role/${businessId}/${employeeId}`
     );
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(error, "No se pudo eliminar el rol del empleado");
   }
@@ -104,7 +104,7 @@ export const findUserById = async (
 ): Promise<ApiResult<UserSearchResponse>> => {
   try {
     const response = await apiGet<UserSearchResponse>(`/users/${userId}`);
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(error, "No se pudo encontrar el usuario por ID");
   }
@@ -115,7 +115,7 @@ export const findByEmail = async (
 ): Promise<ApiResult<UserSearchResponse>> => {
   try {
     const response = await apiGet<UserSearchResponse>(`/users/email/${email}`);
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(error, "No se pudo encontrar el usuario por email");
   }
@@ -130,7 +130,7 @@ export const createBusinessEmployee = async (
       ...payload,
       businessId,
     });
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(error, "No se pudo crear el empleado");
   }
@@ -145,7 +145,7 @@ export const updateBusinessEmployeePermissions = async (
       `/employees/business/${employeeId}`,
       payload
     );
-    return response;
+    return response.data;
   } catch (error) {
     throw handleApiError(
       error,
