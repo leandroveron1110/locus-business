@@ -5,12 +5,13 @@ import { Copy, DollarSign, Wallet } from "lucide-react";
 import {
   DeliveryType,
   EOrderStatusBusiness,
+  Order,
   PaymentMethodType,
   PaymentStatus,
 } from "../../types/order";
 import OrderStatusBadge from "../OrderStatusBadge";
 import OrderStatusButtons from "../OrderStatusButtons";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchAssignCompany,
   fetchUpdateOrdersByOrderID,
@@ -75,28 +76,107 @@ export default function OrderCard({
 
   // --- NUEVA LÓGICA DE ACTUALIZACIÓN AUTOMÁTICA ---
   useEffect(() => {
-    if(order) {
-      const isReadyForAutomaticAssignment =
-        (order.status as unknown as EOrderStatusBusiness) ==
-        EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP;
-  
-      // 2. Condición de asignación de compañía (cliente ya la eligió)
-      const hasDeliveryCompanyAssigned = !!order.deliveryCompanyId;
-  
-      // 3. Condición de prevención de bucles
-      if (isAutoUpdating) return;
-  
-      if (isReadyForAutomaticAssignment && hasDeliveryCompanyAssigned) {
-        if (order.deliveryCompanyId) {
-          setIsAutoUpdating(true);
-          handleAssignDelivery(order.deliveryCompanyId);
-        }
+    if (!order) return;
+
+    // 1. Condición de estado
+    const isReadyForAutomaticAssignment =
+      (order.status as unknown as EOrderStatusBusiness) ==
+      EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP;
+
+    // 2. Condición de asignación de compañía (cliente ya la eligió)
+    const hasDeliveryCompanyAssigned = !!order.deliveryCompanyId;
+
+    // 3. Condición de prevención de bucles
+    if (isAutoUpdating) return;
+
+    if (isReadyForAutomaticAssignment && hasDeliveryCompanyAssigned) {
+      if (order.deliveryCompanyId) {
+        setIsAutoUpdating(true);
+        handleAssignDelivery(order.deliveryCompanyId);
       }
     }
   }, [order?.status, order?.deliveryCompanyId]);
 
+  const handleAssignDelivery = useCallback(
+    async (companyId: string) => {
+      if (!order) {
+        addAlert({
+          message: `No existe la orden`,
+          type: "info",
+        });
+        return;
+      }
+
+      // 1. 💾 GUARDAR estado de rollback
+      const previousStatus = order.status;
+      const previousDeliverySelectorState = showDeliverySelector;
+      const previousDefaultCompanyId = defaultDeliveryCompanyId;
+      const previousDefaultCompanyName = defaultDeliveryCompanyName;
+
+      // 2. ⚡ ACTUALIZACIÓN OPTIMISTA (Sólo cambios locales, el status lo maneja la API)
+
+      // Si la función debe ejecutarse, asumimos éxito local
+      setShowDeliverySelector(false); // Ocultar selector
+
+      const companyName =
+        deliveryCompanies.find((c) => c.id === companyId)?.name || null;
+
+      // Actualizar estados locales y localStorage de la compañía por defecto
+      localStorage.setItem(DEFAULT_DELIVERY_KEY, companyId);
+      setDefaultDeliveryCompanyId(companyId);
+      setDefaultDeliveryCompanyName(companyName);
+
+      try {
+        await fetchAssignCompany(order.id, companyId);
+        await handleStatusChange(EOrderStatusBusiness.DELIVERY_PENDING);
+      } catch (error) {
+        updateOrderStatus(order.businessId, order.id, previousStatus as string);
+        setShowDeliverySelector(previousDeliverySelectorState);
+        if (previousDefaultCompanyId) {
+          localStorage.setItem(DEFAULT_DELIVERY_KEY, previousDefaultCompanyId);
+        } else {
+          localStorage.removeItem(DEFAULT_DELIVERY_KEY);
+        }
+        setDefaultDeliveryCompanyId(previousDefaultCompanyId);
+        setDefaultDeliveryCompanyName(previousDefaultCompanyName);
+        addAlert({
+          message: `Error al asignar el delivery.. ${getDisplayErrorMessage(
+            error
+          )} `,
+          type: "error",
+        });
+      }
+    },
+    [
+      order,
+      deliveryCompanies,
+      showDeliverySelector,
+      defaultDeliveryCompanyId,
+      defaultDeliveryCompanyName,
+      updateOrderStatus,
+      addAlert,
+    ]
+  );
+
+  const shouldShowTransferPending = useMemo(
+    () =>
+      order?.paymentType === PaymentMethodType.TRANSFER &&
+      order?.paymentStatus === PaymentStatus.PENDING,
+    [order?.paymentType, order?.paymentStatus]
+  );
+
+  const shouldShowPaymentReview = useMemo(
+    () =>
+      order?.paymentType === PaymentMethodType.TRANSFER &&
+      order?.paymentStatus === PaymentStatus.IN_PROGRESS &&
+      !!order?.paymentReceiptUrl,
+    [order?.paymentType, order?.paymentStatus, order?.paymentReceiptUrl]
+  );
+
   if (!order) {
-    return null;
+    return (
+      <div className="text-gray-500 text-sm italic">Cargando orden...</div>
+    );
   }
   const handleStatusChange = async (newStatus: EOrderStatusBusiness) => {
     if (!order) {
@@ -110,7 +190,13 @@ export default function OrderCard({
 
     updateOrderStatus(order.businessId, order.id, newStatus);
     try {
-      await fetchUpdateOrdersByOrderID(order.id, newStatus);
+      const res = await fetchUpdateOrdersByOrderID(order.id, newStatus);
+
+      if (res) {
+        updateOrderStatus(order.businessId, order.id, res.status);
+      } else {
+        throw new Error(`No se pudo actualizar el estado`);
+      }
     } catch (error) {
       updateOrderStatus(order.businessId, order.id, previousStatus);
 
@@ -135,7 +221,7 @@ export default function OrderCard({
     // 1. 💾 GUARDAR estado de rollback
     const previousPaymentStatus = order.paymentStatus;
     const previousPaymentReceiptUrl = order.paymentReceiptUrl;
-    const previousPaymentActionTaken = paymentActionTaken; // Estado local
+    const previousPaymentActionTaken = paymentActionTaken;
 
     const newStatus = isConfirmed
       ? PaymentStatus.CONFIRMED
@@ -151,7 +237,17 @@ export default function OrderCard({
     );
     setPaymentActionTaken(true); // Ocultar botones inmediatamente
     try {
-      await fetchUpdateOrdersPaymentByOrderID(order.id, newStatus);
+      const res = await fetchUpdateOrdersPaymentByOrderID(order.id, newStatus);
+      if (res) {
+        updatePaymentStatus(
+          order.businessId,
+          order.id,
+          res.paymentStatus,
+          order.paymentReceiptUrl || ""
+        );
+      } else {
+        throw new Error(`No se pudo actualizar el estado`);
+      }
     } catch (error) {
       updatePaymentStatus(
         order.businessId,
@@ -163,56 +259,6 @@ export default function OrderCard({
       setPaymentActionTaken(previousPaymentActionTaken);
       addAlert({
         message: `${getDisplayErrorMessage(error)} `,
-        type: "error",
-      });
-    }
-  };
-
-  const handleAssignDelivery = async (companyId: string) => {
-    if (!order) {
-      addAlert({
-        message: `No existe la orden`,
-        type: "info",
-      });
-      return;
-    }
-
-    // 1. 💾 GUARDAR estado de rollback
-    const previousStatus = order.status;
-    const previousDeliverySelectorState = showDeliverySelector;
-    const previousDefaultCompanyId = defaultDeliveryCompanyId;
-    const previousDefaultCompanyName = defaultDeliveryCompanyName;
-
-    // 2. ⚡ ACTUALIZACIÓN OPTIMISTA (Sólo cambios locales, el status lo maneja la API)
-
-    // Si la función debe ejecutarse, asumimos éxito local
-    setShowDeliverySelector(false); // Ocultar selector
-
-    const companyName =
-      deliveryCompanies.find((c) => c.id === companyId)?.name || null;
-
-    // Actualizar estados locales y localStorage de la compañía por defecto
-    localStorage.setItem(DEFAULT_DELIVERY_KEY, companyId);
-    setDefaultDeliveryCompanyId(companyId);
-    setDefaultDeliveryCompanyName(companyName);
-
-    try {
-      await fetchAssignCompany(order.id, companyId);
-      await handleStatusChange(EOrderStatusBusiness.DELIVERY_PENDING);
-    } catch (error) {
-      updateOrderStatus(order.businessId, order.id, previousStatus as string);
-      setShowDeliverySelector(previousDeliverySelectorState);
-      if (previousDefaultCompanyId) {
-        localStorage.setItem(DEFAULT_DELIVERY_KEY, previousDefaultCompanyId);
-      } else {
-        localStorage.removeItem(DEFAULT_DELIVERY_KEY);
-      }
-      setDefaultDeliveryCompanyId(previousDefaultCompanyId);
-      setDefaultDeliveryCompanyName(previousDefaultCompanyName);
-      addAlert({
-        message: `Error al asignar el delivery.. ${getDisplayErrorMessage(
-          error
-        )} `,
         type: "error",
       });
     }
@@ -236,21 +282,6 @@ export default function OrderCard({
   };
 
   const getShortId = (id: string) => (id ? `#${id.substring(0, 8)}` : "");
-
-  const shouldShowTransferPending = useMemo(
-    () =>
-      order.paymentType === PaymentMethodType.TRANSFER &&
-      order.paymentStatus === PaymentStatus.PENDING,
-    [order.paymentType, order.paymentStatus]
-  );
-
-  const shouldShowPaymentReview = useMemo(
-    () =>
-      order.paymentType === PaymentMethodType.TRANSFER &&
-      order.paymentStatus === PaymentStatus.IN_PROGRESS &&
-      !!order.paymentReceiptUrl,
-    [order.paymentType, order.paymentStatus, order.paymentReceiptUrl]
-  );
 
   const shouldShowPaymentButtons =
     ((order.paymentType === PaymentMethodType.CASH &&
