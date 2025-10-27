@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { IMenuProduct, OptionGroupCreate } from "../../types/catlog";
+import {
+  IMenuProduct,
+  IOptionGroup,
+  OptionGroupCreate,
+} from "../../types/catlog";
 import MenuProductImage from "./components/MenuProducImage";
 import MenuGroup from "./components/MenuGroup";
 import MenuProductHeader from "./components/MenuProductHeader";
@@ -19,6 +23,11 @@ import {
 import { useMenuStore } from "../../stores/menuStore";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
+import {
+  deepCopy,
+  generateTempId,
+  getPreviousValues,
+} from "@/features/common/utils/utilities-rollback";
 
 interface Props {
   businessId: string;
@@ -52,6 +61,8 @@ export default function MenuProduct({
   const updateGroupStore = useMenuStore((state) => state.updateGroup);
   const deleteGroupStore = useMenuStore((state) => state.deleteGroup);
   const addGroupStore = useMenuStore((state) => state.addGroup);
+  const replaceTempId = useMenuStore((state) => state.replaceTempId);
+  const restoreGroup = useMenuStore((state) => state.restoreGroup);
 
   const createGroup = useCreateOptionGroup(businessId);
   const updateGroup = useUpdateOptionGroup(businessId);
@@ -92,6 +103,7 @@ export default function MenuProduct({
   };
 
   const handleSaveAll = async () => {
+    if(!initialProduct) return;
     const modified = getModifiedFields();
 
     if (Object.keys(modified).length <= 1) {
@@ -99,7 +111,10 @@ export default function MenuProduct({
       return;
     }
 
+    const previousValues = getPreviousValues(initialProduct, modified);
     setSaving(true);
+    updateProduct({ menuId, sectionId, productId }, modified);
+    onClose();
     try {
       const data = await updateMenuProductMutate.mutateAsync({
         productId,
@@ -108,9 +123,16 @@ export default function MenuProduct({
 
       if (data) {
         updateProduct({ menuId, sectionId, productId }, data);
-        onClose();
+        addAlert({
+        message: `Producto actualizado`,
+        type: "info",
+      });
+      } else {
+        throw new Error(`Error al actualizar el producto`);
       }
     } catch (error) {
+      updateProduct({ menuId, sectionId, productId }, previousValues);
+
       addAlert({
         message: getDisplayErrorMessage(error),
         type: "error",
@@ -124,23 +146,38 @@ export default function MenuProduct({
     groupId: string,
     updatedData: Partial<OptionGroupCreate>
   ) => {
+    const group = product.optionGroups.find((g) => g.id === groupId);
+
+    if (!group) {
+      return;
+    }
+
+    const previousValues = getPreviousValues<IOptionGroup>(
+      group,
+      updatedData as Partial<IOptionGroup>
+    );
+
+    updateGroupStore({ menuId, groupId, sectionId, productId }, updatedData);
+
     try {
       const result = await updateGroup.mutateAsync({
         groupId,
         data: updatedData,
       });
       if (result) {
-        updateGroupStore(
-          {
-            menuId,
-            groupId,
-            sectionId,
-            productId,
-          },
-          result
-        );
+        updateGroupStore({ menuId, groupId, sectionId, productId }, result);
+        addAlert({
+          message: `Grupo "${result.name}" actualizado.`,
+          type: "success",
+        });
+      } else {
+        throw new Error(`La API no devolvió el grupo actualizado.`);
       }
     } catch (error) {
+      updateGroupStore(
+        { menuId, groupId, sectionId, productId },
+        previousValues
+      );
       addAlert({
         message: getDisplayErrorMessage(error),
         type: "error",
@@ -152,16 +189,28 @@ export default function MenuProduct({
     groupId: string,
     optionIds: string[]
   ) => {
+    const groupToDelete = product.optionGroups.find((g) => g.id === groupId);
+
+    if (!groupToDelete) return;
+
+    const groupToRestore = deepCopy(groupToDelete);
+
+    // 2. ⚡ APLICAR ELIMINACIÓN OPTIMISTA
+    deleteGroupStore({
+      groupId,
+      menuId,
+      productId,
+      sectionId,
+    });
     try {
       await deleteManyOptionsMutate.mutateAsync(optionIds);
       await deleteGroup.mutateAsync(groupId);
-      deleteGroupStore({
-        groupId,
-        menuId,
-        productId,
-        sectionId,
+      addAlert({
+        message: `Grupo de opciones "${groupToRestore.name}" eliminado con éxito.`,
+        type: "info",
       });
     } catch (error) {
+      restoreGroup({ menuId, sectionId, productId }, groupToRestore);
       addAlert({
         message: getDisplayErrorMessage(error),
         type: "error",
@@ -170,21 +219,49 @@ export default function MenuProduct({
   };
 
   const handleNewGroupCreate = async (group: OptionGroupCreate) => {
+    const tempId = generateTempId();
+    const optimisticGroup: IOptionGroup = {
+      id: tempId,
+      name: group.name,
+      maxQuantity: group.maxQuantity || 1,
+      minQuantity: group.minQuantity || 1,
+      options: group.options || [],
+      quantityType: group.quantityType,
+    };
+
+    addGroupStore({ menuId, productId, sectionId }, optimisticGroup);
+    setShowNewGroup(false);
     try {
       const result = await createGroup.mutateAsync(group);
 
       if (result) {
-        addGroupStore(
-          {
-            menuId,
-            productId,
-            sectionId,
-          },
+        // 5. ✅ ÉXITO: REEMPLAZAR ID TEMPORAL
+        replaceTempId(
+          "group",
+          { menuId, sectionId, productId }, // IDs de los padres
+          tempId,
+          result.id // ID real
+        );
+
+        // 6. Aplicar el patch canónico (opcional pero recomendado)
+        updateGroupStore(
+          { menuId, sectionId, productId, groupId: result.id },
           result
         );
-        setShowNewGroup(false);
+        addAlert({
+          message: `Grupo "${result.name}" creado con éxito.`,
+          type: "success",
+        });
+      } else {
+        throw new Error("El grupo se creó pero no se recibió el ID real.");
       }
     } catch (error) {
+      deleteGroupStore({
+        groupId: tempId,
+        menuId,
+        productId,
+        sectionId,
+      });
       addAlert({
         message: getDisplayErrorMessage(error),
         type: "error",
@@ -281,12 +358,12 @@ export default function MenuProduct({
         >
           Cancelar
         </button>
-        <button
+        {/* <button
           className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 disabled:opacity-50"
           // onClick={}
         >
           Eliminar
-        </button>
+        </button> */}
         <button
           onClick={handleSaveAll}
           disabled={saving}

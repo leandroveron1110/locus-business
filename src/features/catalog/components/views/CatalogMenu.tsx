@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { SectionCreate } from "../../types/catlog";
+import { IMenuSectionWithProducts, SectionCreate } from "../../types/catlog";
 import CatalogSection from "./CatalogSection";
 import NewCatalogSection from "../news/NewCatalogSection";
 import { useCreateSection, useUpdateMenu } from "../../hooks/useMenuHooks";
@@ -10,6 +10,7 @@ import { useMenuStore } from "../../stores/menuStore";
 import { Pencil } from "lucide-react";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
+import { generateTempId } from "@/features/common/utils/utilities-rollback";
 
 interface Props {
   businessId: string;
@@ -25,7 +26,11 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
   );
 
   const updateMenuStore = useMenuStore((state) => state.updateMenu);
+  const replaceTempId = useMenuStore((state) => state.replaceTempId);
+  const deleteSection = useMenuStore((state) => state.deleteSection);
+
   const addSection = useMenuStore((state) => state.addSection);
+  const updateSection = useMenuStore((state) => state.updateSection);
   const { addAlert } = useAlert();
 
   const createSectionMutation = useCreateSection(businessId);
@@ -39,16 +44,33 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
 
   const handleSaveMenu = async (newName: string) => {
     if (!menu) return;
+    const prevMenuName = menu.name;
+    const prevShowEditModal = showEditMenuModal;
+    updateMenuStore(menu.id, {
+      name: newName,
+    });
+    setShowEditMenuModal(false);
+
     try {
-      const updatedMenu = await updateMenuMutation.mutateAsync({
+      const result = await updateMenuMutation.mutateAsync({
         menuId: menu.id,
         data: { name: newName, businessId, ownerId },
       });
-      if (updatedMenu) {
-        updateMenuStore(menu.id, updatedMenu);
-        setShowEditMenuModal(false);
+
+      if (result) {
+        updateMenuStore(menu.id, result);
+        addAlert({
+          message: `Menu actualizado`,
+          type: "info",
+        });
+      } else {
+        throw new Error(`No se pudo actualizar el menu`);
       }
     } catch (err) {
+      updateMenuStore(menu.id, {
+        name: prevMenuName,
+      });
+      setShowEditMenuModal(prevShowEditModal);
       addAlert({
         message: getDisplayErrorMessage(err),
         type: "error",
@@ -58,14 +80,38 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
 
   const handleAddSection = async (newSection: SectionCreate) => {
     if (!menu) return;
+    const tempId = generateTempId();
+
+    const optimisticSection: IMenuSectionWithProducts = {
+      id: tempId,
+      products: [],
+      imageUrls: newSection.imageUrls,
+      index: newSection.index,
+      name: newSection.name,
+    };
+
+    addSection({ menuId: menu.id }, optimisticSection);
     try {
       const createdSection = await createSectionMutation.mutateAsync(
         newSection
       );
       if (createdSection) {
-        addSection({ menuId: menu.id }, createdSection);
+        replaceTempId(
+          "section",
+          { menuId: menu.id },
+          tempId,
+          createdSection.id
+        );
+
+        updateSection(
+          { menuId: menuId, sectionId: createdSection.id },
+          createdSection
+        );
+      } else {
+        throw new Error(`No se pudo agrecar la seccion`);
       }
     } catch (err) {
+      deleteSection({ menuId: menu.id, sectionId: tempId });
       addAlert({
         message: getDisplayErrorMessage(err),
         type: "error",

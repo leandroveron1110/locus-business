@@ -16,6 +16,11 @@ import EditMenuGroup from "../edits/EditMenuGroup";
 import { useMenuStore } from "@/features/catalog/stores/menuStore";
 import { getDisplayErrorMessage } from "@/lib/uiErrors"; // 💡 Importación de tu helper centralizado
 import { useAlert } from "@/features/common/ui/Alert/Alert";
+import {
+  deepCopy,
+  generateTempId,
+  getPreviousValues,
+} from "@/features/common/utils/utilities-rollback";
 
 interface ViewMenuGroupProps {
   businessId: string;
@@ -52,6 +57,8 @@ export default function ViewMenuGroup({
   const createOptionStore = useMenuStore((state) => state.addOption);
   const updateOptionStore = useMenuStore((state) => state.updateOption);
   const deleteOptionStore = useMenuStore((state) => state.deleteOption);
+  const replaceTempId = useMenuStore((state) => state.replaceTempId);
+  const restoreOption = useMenuStore((state) => state.restoreOption);
 
   const [editing, setEditing] = useState(false);
   const { addAlert } = useAlert();
@@ -63,19 +70,46 @@ export default function ViewMenuGroup({
   }
 
   // Actualizar opción
-  const handleOptionUpdate = async (option: Partial<IOption>) => {
+  const handleOptionUpdate = async (updatedData: Partial<IOption>) => {
+    // 1. 🔍 Encontrar la opción actual
+    const currentOption = group.options?.find((o) => o.id === updatedData.id);
+
+    if (!currentOption) return;
+
+    // 2. 💾 GUARDAR ESTADO DE ROLLBACK
+    const previousValues = getPreviousValues<IOption>(
+      currentOption,
+      updatedData
+    );
+
+    // 3. ⚡ APLICAR ACTUALIZACIÓN OPTIMISTA
+    updateOptionStore(
+      { menuId, groupId, optionId: currentOption.id, productId, sectionId },
+      updatedData
+    );
     try {
       const result = await updateOption.mutateAsync({
-        data: option,
-        optionId: option.id || "",
+        data: updatedData,
+        optionId: updatedData.id || "",
       });
       if (result) {
+        // 4. ✅ ÉXITO: Aplicar el resultado canónico del backend
         updateOptionStore(
-          { groupId, menuId, optionId: result.id, productId, sectionId },
+          { menuId, groupId, optionId: result.id, productId, sectionId },
           result
         );
+        addAlert({
+          message: `Opción "${result.name}" actualizada.`,
+          type: "success",
+        });
+      } else {
+        throw new Error("La API no devolvió la opción actualizada.");
       }
     } catch (e) {
+      updateOptionStore(
+        { menuId, groupId, optionId: currentOption.id, productId, sectionId },
+        previousValues
+      );
       addAlert({
         message: getDisplayErrorMessage(e),
         type: "error",
@@ -85,11 +119,23 @@ export default function ViewMenuGroup({
 
   // Eliminar opción
   const handleOptionDelete = async (optionId: string) => {
+    const optionToDelete = group.options?.find((o) => o.id === optionId);
+
+    if (!optionToDelete) return;
+
+    // 1. 💾 GUARDAR ESTADO DE ROLLBACK: COPIA PROFUNDA
+    const optionToRestore = deepCopy(optionToDelete);
+
+    // 2. ⚡ APLICAR ELIMINACIÓN OPTIMISTA
+    deleteOptionStore({ menuId, groupId, optionId, productId, sectionId });
     try {
       await deleteOption.mutateAsync(optionId);
-      deleteOptionStore({ menuId, groupId, optionId, productId, sectionId });
+      addAlert({
+        message: `Opción "${optionToRestore.name}" eliminada con éxito.`,
+        type: "info",
+      });
     } catch (e) {
-      // 🎯 Captura el ApiError y usa el helper para mostrar el mensaje
+      restoreOption({ menuId, groupId, productId, sectionId }, optionToRestore);
       addAlert({
         message: getDisplayErrorMessage(e),
         type: "error",
@@ -98,15 +144,62 @@ export default function ViewMenuGroup({
   };
 
   // Crear nueva opción
-  const handleNewOptionCreate = async (option: OptionCreate) => {
-    try {
-      const result = await createOption.mutateAsync(option);
+  const handleNewOptionCreate = async (optionCreate: OptionCreate) => {
+    const tempId = generateTempId();
 
-      if (result) {
-        createOptionStore({ groupId, menuId, productId, sectionId }, result);
-        setShowNewOption(false);
+    // 2. ⚡ CONSTRUIR OPCIÓN OPTIMISTA (IOption con ID temporal)
+    const optimisticOption: IOption = {
+      id: tempId,
+      hasStock: optionCreate.hasStock,
+      index: 0,
+      name: optionCreate.name,
+      priceFinal: optionCreate.priceFinal,
+      priceModifierType: "",
+      priceWithoutTaxes: "",
+      taxesAmount: "",
+      maxQuantity: 1,
+      images: [],
+      optionGroupId: groupId,
+    };
+    // 3. 💾 ACTUALIZACIÓN OPTIMISTA
+    createOptionStore(
+      { groupId, menuId, productId, sectionId },
+      optimisticOption
+    );
+    setShowNewOption(false);
+    try {
+      const result = await createOption.mutateAsync(optionCreate);
+
+      if (result && result.id) {
+        // 5. ✅ ÉXITO: REEMPLAZAR ID TEMPORAL
+        replaceTempId(
+          "option",
+          { menuId, sectionId, productId, groupId }, // IDs de los padres
+          tempId,
+          result.id // ID real
+        );
+
+        // 6. Aplicar el patch canónico (opcional pero recomendado)
+        updateOptionStore(
+          { menuId, sectionId, productId, groupId, optionId: result.id },
+          result
+        );
+
+        addAlert({
+          message: `Opción "${result.name}" creada con éxito.`,
+          type: "success",
+        });
+      } else {
+        throw new Error("La opción se creó pero no se recibió el ID real.");
       }
     } catch (e) {
+      deleteOptionStore({
+        menuId,
+        groupId,
+        optionId: tempId,
+        productId,
+        sectionId,
+      });
       addAlert({
         message: getDisplayErrorMessage(e),
         type: "error",

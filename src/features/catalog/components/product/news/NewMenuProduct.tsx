@@ -10,6 +10,7 @@ import EnabledSwitch from "../components/EnabledSwitch";
 import { useMenuStore } from "../../../stores/menuStore";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
+import { generateTempId } from "@/features/common/utils/utilities-rollback";
 
 interface Props {
   menuId: string;
@@ -17,7 +18,7 @@ interface Props {
   businessId: string;
   ownerId: string;
   onClose: () => void;
-  onCreated: (product: IMenuProduct) => void;
+  onCreated: () => void;
 }
 
 export default function NewMenuProduct({
@@ -47,6 +48,9 @@ export default function NewMenuProduct({
 
   const createProduct = useCreateMenuProduct(businessId);
   const addProduct = useMenuStore((status) => status.addProduct);
+  const replaceTempId = useMenuStore((status) => status.replaceTempId);
+  const deleteProduct = useMenuStore((status) => status.deleteProduct);
+  const updateProduct = useMenuStore((status) => status.updateProduct);
   const [saving, setSaving] = useState(false);
 
   // --- REFERENCIA PARA EL INPUT DE NOMBRE ---
@@ -57,41 +61,83 @@ export default function NewMenuProduct({
   }, []);
 
   const handleCreate = async () => {
+    // 1. Validaciones
+    if (!name.trim() || Number(prices.finalPrice) <= 0) return;
+
     setSaving(true);
+
+    const tempId = generateTempId();
+
+    const newProductCreate: MenuProductCreate = {
+      // Objeto para la API
+      name,
+      businessId,
+      menuId,
+      ownerId,
+      description,
+      enabled,
+      originalPrice: prices.originalPrice,
+      finalPrice: prices.finalPrice,
+      discountPercentage: prices.discountPercentage,
+      stock,
+      available,
+      isMostOrdered: flags.isMostOrdered,
+      isRecommended: flags.isRecommended,
+      hasOptions: false,
+      seccionId: sectionId,
+      imageUrl: undefined,
+    };
+
+    const optimisticProduct: IMenuProduct = {
+      // Usamos el ID temporal
+      id: tempId,
+      name,
+      description,
+      enabled,
+      originalPrice: prices.originalPrice,
+      finalPrice: prices.finalPrice,
+      discountPercentage: prices.discountPercentage,
+      stock,
+      available,
+      isMostOrdered: flags.isMostOrdered,
+      isRecommended: flags.isRecommended,
+      hasOptions: false,
+      seccionId: sectionId,
+      currency: "$", // Asumimos un valor por defecto
+      imageUrl: "", // Asumimos un valor por defecto
+      optionGroups: [],
+      preparationTime: 0, // Asumimos un valor por defecto
+    };
+
+    addProduct({ menuId, sectionId }, optimisticProduct);
+    onClose();
+
     try {
-      const newProduct: MenuProductCreate = {
-        name,
-        businessId,
-        menuId,
-        ownerId,
-        description,
-        enabled,
-        originalPrice: "" + prices.originalPrice,
-        finalPrice: "" + prices.finalPrice,
-        discountPercentage: "" + prices.discountPercentage,
-        stock,
-        available,
-        isMostOrdered: flags.isMostOrdered,
-        isRecommended: flags.isRecommended,
-        hasOptions: false,
-        seccionId: sectionId,
-        imageUrl: undefined,
-      };
+      const created = await createProduct.mutateAsync(newProductCreate);
 
-      const created = await createProduct.mutateAsync(newProduct);
+      if (created && created.id) {
+        // 6. ✅ ÉXITO: REEMPLAZAR ID TEMPORAL
+        replaceTempId(
+          "product",
+          { menuId, sectionId }, // IDs de los padres
+          tempId,
+          created.id // ID real
+        );
 
-      if (created) {
-        onCreated(created);
+        updateProduct({ menuId, productId: created.id, sectionId }, created);
 
-        const add: IMenuProduct = {
-          ...created,
-          ...newProduct,
-        };
+        addAlert({
+          message: `Producto "${created.name}" creado con éxito.`,
+          type: "success",
+        });
 
-        addProduct({ menuId, sectionId }, add);
         onClose();
+      } else {
+        throw new Error("Producto creado, pero el ID real no fue devuelto.");
       }
     } catch (error) {
+      deleteProduct({ menuId, sectionId, productId: tempId });
+
       addAlert({
         message: getDisplayErrorMessage(error),
         type: "error",

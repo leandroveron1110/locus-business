@@ -38,6 +38,7 @@ interface MenuState {
     ids: IdsSection,
     patch: Partial<IMenuSectionWithProducts>
   ) => void;
+  restoreSection: (ids: IdsMenu, section: IMenuSectionWithProducts) => void;
   deleteSection: (ids: IdsSection) => void;
 
   // ---- Product
@@ -49,11 +50,13 @@ interface MenuState {
   addGroup: (ids: IdsProduct, group: IOptionGroup) => void;
   updateGroup: (ids: IdsGroup, patch: Partial<IOptionGroup>) => void;
   deleteGroup: (ids: IdsGroup) => void;
+  restoreGroup: (ids: IdsProduct, group: IOptionGroup) => void;
 
   // ---- Option
   addOption: (ids: IdsGroup, option: IOption) => void;
   updateOption: (ids: IdsOption, patch: Partial<IOption>) => void;
   deleteOption: (ids: IdsOption) => void;
+  restoreOption: (ids: IdsGroup, option: IOption) => void;
 
   // ---- Reemplazar IDs temporales tras respuesta del back
   replaceTempId: (
@@ -114,6 +117,62 @@ export const useMenuStore = create<MenuState>()(
           section.products = [];
           menu.sections.push(section);
         }
+      }),
+
+    restoreSection: ({ menuId }, section) =>
+      set((s: Draft<MenuState>) => {
+        const menu = s.menus.find((m) => m.id === menuId);
+        if (!menu) return;
+        if (!menu.sections) {
+          menu.sections = [];
+        }
+        // Asumimos que la sección no existe porque fue eliminada.
+        menu.sections.push(section);
+      }),
+
+    // ✅ Implementación Correcta
+    restoreGroup: (
+      { menuId, sectionId, productId }: IdsProduct, // No necesitamos groupId aquí
+      groupToRestore: IOptionGroup // El objeto de respaldo completo
+    ) =>
+      set((s: Draft<MenuState>) => {
+        // 1. Encontrar el Producto padre
+        const product = s.menus
+          .find((m) => m.id === menuId)
+          ?.sections.find((sec) => sec.id === sectionId)
+          ?.products.find((p) => p.id === productId);
+
+        if (!product) return; // No se puede restaurar si el padre no existe.
+
+        // 2. Insertar el grupo restaurado en el array del producto.
+        if (!product.optionGroups) {
+          product.optionGroups = [];
+        }
+        product.optionGroups.push(groupToRestore);
+      }),
+
+    restoreOption: (
+      { menuId, sectionId, productId, groupId }: IdsGroup,
+      option: IOption // El objeto completo de la opción a reinsertar
+    ) =>
+      set((s: Draft<MenuState>) => {
+        const group = s.menus
+          .find((m) => m.id === menuId)
+          ?.sections.find((sec) => sec.id === sectionId)
+          ?.products.find((p) => p.id === productId)
+          ?.optionGroups.find((g) => g.id === groupId);
+
+        if (!group) {
+          console.error(
+            "ROLLBACK FALLIDO: No se encontró el grupo padre para restaurar la opción."
+          );
+          return;
+        }
+
+        if (!group.options) {
+          group.options = [];
+        }
+        group.options.push(option);
       }),
 
     updateSection: ({ menuId, sectionId }, patch) =>
@@ -238,47 +297,66 @@ export const useMenuStore = create<MenuState>()(
         if (!group) return;
         group.options = group.options.filter((op) => op.id !== optionId);
       }),
-
-    // ---- Reemplazar IDs temporales tras respuesta del back
     replaceTempId: (level, ids, tempId, realId) =>
       set((s: Draft<MenuState>) => {
+        // 1. MANEJO DEL NIVEL "MENU" (Nivel Superior)
+        if (level === "menu") {
+          // Buscamos directamente en la raíz por el ID TEMPORAL
+          const menuToUpdate = s.menus.find((m) => m.id === tempId);
+          if (menuToUpdate) {
+            menuToUpdate.id = realId;
+          }
+          return;
+        }
+
+        // 2. MANEJO DE NIVELES ANIDADOS (Section, Product, Group, Option)
+        // Para todos los niveles anidados, asumimos que los IDs de los padres son los ID REALES (o ya fueron actualizados).
         const { menuId, sectionId, productId, groupId } = ids as IdsOption;
 
+        // A. Buscar Menu Padre (por su ID real/actualizado)
         const menu = s.menus.find((m) => m.id === menuId);
         if (!menu) return;
 
-        if (level === "menu") {
-          if (menu.id === tempId) menu.id = realId;
+        // B. Reemplazar Section
+        if (level === "section") {
+          const section = menu.sections.find((sec) => sec.id === tempId); // Buscar por ID temporal
+          if (section) section.id = realId;
           return;
         }
 
+        // C. Buscar Section Padre
         const section = menu.sections.find((sec) => sec.id === sectionId);
         if (!section) return;
 
-        if (level === "section") {
-          if (section.id === tempId) section.id = realId;
+        // D. Reemplazar Product
+        if (level === "product") {
+          const product = section.products.find((p) => p.id === tempId); // Buscar por ID temporal
+          if (product) product.id = realId;
           return;
         }
 
+        // E. Buscar Product Padre
         const product = section.products.find((p) => p.id === productId);
         if (!product) return;
+        if (!product.optionGroups) return; // Chequeo de seguridad
 
-        if (level === "product") {
-          if (product.id === tempId) product.id = realId;
+        // F. Reemplazar Group
+        if (level === "group") {
+          const group = product.optionGroups.find((g) => g.id === tempId); // Buscar por ID temporal
+          if (group) group.id = realId;
           return;
         }
 
+        // G. Buscar Group Padre
         const group = product.optionGroups.find((g) => g.id === groupId);
         if (!group) return;
+        if (!group.options) return; // Chequeo de seguridad
 
-        if (level === "group") {
-          if (group.id === tempId) group.id = realId;
-          return;
-        }
-
+        // H. Reemplazar Option
         if (level === "option") {
-          const opt = group.options.find((o) => o.id === tempId);
+          const opt = group.options.find((o) => o.id === tempId); // Buscar por ID temporal
           if (opt) opt.id = realId;
+          return;
         }
       }),
   }))

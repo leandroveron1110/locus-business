@@ -7,11 +7,12 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import BusinessHeader from "./views/BusinessHeader";
 import { useBusinessProfile } from "../hooks/useBusiness";
 import NewCatalogMenu from "./news/NewCatalogMenu";
-import { MenuCreate } from "../types/catlog";
+import { IMenu, MenuCreate } from "../types/catlog";
 import { useMenuStore } from "../stores/menuStore";
 import { getDisplayErrorMessage } from "@/lib/uiErrors"; // Asumiendo que tienes esta utilidad
 import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { useCreateMenu } from "../hooks/useMenuHooks";
+import { generateTempId } from "@/features/common/utils/utilities-rollback";
 
 interface Props {
   businessId: string;
@@ -21,18 +22,14 @@ export default function Catalog({ businessId }: Props) {
   const { addAlert } = useAlert();
 
   const { data, isLoading, isError, error } = useCatalg(businessId);
-  const {
-    data: dataBusiness,
-    isLoading: isLoadingBusiness,
-    isError: isErrorBusiness,
-    error: errorBusiness,
-  } = useBusinessProfile(businessId);
 
   const user = useAuthStore((state) => state.user);
 
   const menus = useMenuStore((state) => state.menus);
   const setMenus = useMenuStore((state) => state.setMenus);
+  const replaceTempId = useMenuStore((state) => state.replaceTempId);
   const addMenu = useMenuStore((state) => state.addMenu);
+  const deleteMenu = useMenuStore((state) => state.deleteMenu);
 
   const createMenuMutation = useCreateMenu(businessId);
 
@@ -53,30 +50,40 @@ export default function Catalog({ businessId }: Props) {
         duration: 8000,
       });
     }
-    if (isErrorBusiness) {
-      addAlert({
-        message: `Error al cargar perfil de negocio: ${getDisplayErrorMessage(
-          errorBusiness
-        )}`,
-        type: "error",
-        duration: 8000,
-      });
-    }
   }, [isError, error, addAlert]);
 
   const handleAddMenu = async (menuCreate: MenuCreate) => {
+    const tempId = generateTempId();
+
+    const optimisticMenu: IMenu = {
+      id: tempId,
+      businessId: menuCreate.businessId,
+      name: menuCreate.name,
+      sections: [],
+    };
+
+    addMenu(optimisticMenu);
+
     try {
       const newMenu = await createMenuMutation.mutateAsync(menuCreate);
-      if (newMenu) {
-        addMenu(newMenu);
-        // Alerta de éxito al crear menú
+
+      if (newMenu && newMenu.id) {
+        replaceTempId("menu", {}, tempId, newMenu.id);
+
+        // 6. Notificar Éxito
         addAlert({
           message: `Menú "${newMenu.name}" creado con éxito.`,
           type: "success",
         });
+      } else {
+        addAlert({
+          message: `API no devolvió el ID real del menú.`,
+          type: "error",
+        });
+        deleteMenu(tempId);
       }
     } catch (err) {
-      // 🎯 Usar Alerta para el error de API al crear menú
+      deleteMenu(tempId);
       addAlert({
         message: `No se pudo crear el menú: ${getDisplayErrorMessage(err)}`,
         type: "error",
@@ -84,7 +91,7 @@ export default function Catalog({ businessId }: Props) {
     }
   };
 
-  if (isLoading || isLoadingBusiness) {
+  if (isLoading ) {
     return (
       <div className="flex justify-center items-center py-20">
         <p className="text-gray-500 text-lg">Cargando catálogo...</p>
@@ -94,7 +101,6 @@ export default function Catalog({ businessId }: Props) {
 
   return (
     <div className="pb-25">
-      {dataBusiness && <BusinessHeader business={dataBusiness} />}
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-16">
           {menus && menus.length > 0 ? (

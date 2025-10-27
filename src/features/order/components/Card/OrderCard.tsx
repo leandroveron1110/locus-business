@@ -5,7 +5,6 @@ import { Copy, DollarSign, Wallet } from "lucide-react";
 import {
   DeliveryType,
   EOrderStatusBusiness,
-  Order,
   PaymentMethodType,
   PaymentStatus,
 } from "../../types/order";
