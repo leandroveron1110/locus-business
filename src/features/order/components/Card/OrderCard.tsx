@@ -62,10 +62,6 @@ export default function OrderCard({
   >(null);
   const [isAutoUpdating, setIsAutoUpdating] = useState(false);
 
-  if (!order) {
-    return null;
-  }
-
   useEffect(() => {
     const savedDefaultId = localStorage.getItem(DEFAULT_DELIVERY_KEY);
     if (savedDefaultId) {
@@ -79,25 +75,29 @@ export default function OrderCard({
 
   // --- NUEVA LÓGICA DE ACTUALIZACIÓN AUTOMÁTICA ---
   useEffect(() => {
-    // 1. Condición de estado
-    const isReadyForAutomaticAssignment =
-      (order.status as unknown as EOrderStatusBusiness) ==
-      EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP;
-
-    // 2. Condición de asignación de compañía (cliente ya la eligió)
-    const hasDeliveryCompanyAssigned = !!order.deliveryCompanyId;
-
-    // 3. Condición de prevención de bucles
-    if (isAutoUpdating) return;
-
-    if (isReadyForAutomaticAssignment && hasDeliveryCompanyAssigned) {
-      if (order.deliveryCompanyId) {
-        setIsAutoUpdating(true);
-        handleAssignDelivery(order.deliveryCompanyId);
+    if(order) {
+      const isReadyForAutomaticAssignment =
+        (order.status as unknown as EOrderStatusBusiness) ==
+        EOrderStatusBusiness.READY_FOR_DELIVERY_PICKUP;
+  
+      // 2. Condición de asignación de compañía (cliente ya la eligió)
+      const hasDeliveryCompanyAssigned = !!order.deliveryCompanyId;
+  
+      // 3. Condición de prevención de bucles
+      if (isAutoUpdating) return;
+  
+      if (isReadyForAutomaticAssignment && hasDeliveryCompanyAssigned) {
+        if (order.deliveryCompanyId) {
+          setIsAutoUpdating(true);
+          handleAssignDelivery(order.deliveryCompanyId);
+        }
       }
     }
-  }, [order.status, order.deliveryCompanyId]);
+  }, [order?.status, order?.deliveryCompanyId]);
 
+  if (!order) {
+    return null;
+  }
   const handleStatusChange = async (newStatus: EOrderStatusBusiness) => {
     if (!order) {
       addAlert({

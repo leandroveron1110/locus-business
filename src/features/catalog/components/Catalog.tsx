@@ -4,8 +4,6 @@ import React, { useEffect } from "react";
 import { useCatalg } from "../hooks/useCatalg";
 import CatalogMenu from "./views/CatalogMenu";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import BusinessHeader from "./views/BusinessHeader";
-import { useBusinessProfile } from "../hooks/useBusiness";
 import NewCatalogMenu from "./news/NewCatalogMenu";
 import { IMenu, MenuCreate } from "../types/catlog";
 import { useMenuStore } from "../stores/menuStore";

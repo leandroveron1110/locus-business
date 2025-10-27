@@ -27,7 +27,6 @@ export default function NewMenuProduct({
   businessId,
   ownerId,
   onClose,
-  onCreated,
 }: Props) {
   const { addAlert } = useAlert();
   const [name, setName] = useState("");
