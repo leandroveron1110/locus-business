@@ -10,7 +10,7 @@ export function useFetchBusinessOrders(businessId: string) {
   const getOrders = useGlobalBusinessOrdersStore((s) => s.getOrders);
   const { addAlert } = useAlert();
 
-  const isSyncingRef = useRef(false); // 🚫 Evita llamadas simultáneas o loops
+  const isSyncingRef = useRef(false);
 
   const syncOrdersByBusiness = useCallback(async () => {
     if (!businessId || isSyncingRef.current) return;

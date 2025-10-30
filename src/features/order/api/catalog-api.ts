@@ -20,7 +20,7 @@ export const syncOrdersByBusinessId = async (
 ) => {
   try {
     const res = await apiPost<SyncResponse>(`/orders/sync/business`, {
-      businessId,
+      id: businessId,
       lastSyncTime,
     });
 
