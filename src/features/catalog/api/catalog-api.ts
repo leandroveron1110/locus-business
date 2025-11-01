@@ -14,6 +14,7 @@ import {
 } from "../types/catlog";
 import { handleApiError } from "@/lib/handleApiError";
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut, ApiResult } from "@/lib/apiFetch";
+import { IGlobalImage } from "@/types/global-image";
 
 
 // -----------------------------
@@ -167,6 +168,26 @@ export const deleteMenuProduct = async (productId: string): Promise<void> => {
 // -----------------------------
 // IMAGE
 // -----------------------------
+
+export const fetchImageGlobal = async () => {
+  try {
+    const res = await apiGet<IGlobalImage[]>(`uploads/global`)
+    return res
+  }catch (error: unknown) {
+    throw handleApiError(error, "Error al buscar las imagenes");
+  }
+}
+
+export const uploadMenuProductImageGlobal = async (menuProductId: string, imageId: string) => {
+  try {
+    await apiPost(`menu-product-images/link`, {
+      menuProductId, imageId
+    })
+
+  }catch (error: unknown) {
+    throw handleApiError(error, "Error al subir la imagen");
+  }
+}
 
 export const uploadMenuProductImage = async (menuProductId: string, file: File): Promise<ApiResult<{ url: string }>> => {
   try {

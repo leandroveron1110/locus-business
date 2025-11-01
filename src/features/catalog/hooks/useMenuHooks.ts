@@ -19,6 +19,7 @@ import {
   deleteManyOption,
   uploadMenuProductImage,
   deleteMenuProductImage,
+  uploadMenuProductImageGlobal,
 } from "../api/catalog-api";
 import {
   IMenu,
@@ -315,6 +316,13 @@ export const useUploadMenuProductImage = (businessId: string) => {
     },
   });
 };
+
+export const useLinkMenuProductImage = (businessId: string) => {
+    return useMutation({
+      mutationFn: ({ menuProductId, imageId }: { menuProductId: string, imageId: string }) => 
+        uploadMenuProductImageGlobal(menuProductId, imageId),
+    });
+  };
 
 export const useDeleteMenuProductImage = (businessId: string) => {
   const queryClient = useQueryClient();

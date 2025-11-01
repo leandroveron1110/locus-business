@@ -103,7 +103,7 @@ export default function MenuProduct({
   };
 
   const handleSaveAll = async () => {
-    if(!initialProduct) return;
+    if (!initialProduct) return;
     const modified = getModifiedFields();
 
     if (Object.keys(modified).length <= 1) {
@@ -124,9 +124,9 @@ export default function MenuProduct({
       if (data) {
         updateProduct({ menuId, sectionId, productId }, data);
         addAlert({
-        message: `Producto actualizado`,
-        type: "info",
-      });
+          message: `Producto actualizado`,
+          type: "info",
+        });
       } else {
         throw new Error(`Error al actualizar el producto`);
       }
