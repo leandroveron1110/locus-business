@@ -5,7 +5,7 @@ import {
   IOptionGroup,
   OptionGroupCreate,
 } from "../../types/catlog";
-import MenuProductImage from "./components/MenuProducImage";
+import MenuProductImage from "./components/ImageProdct/MenuProducImage";
 import MenuGroup from "./components/MenuGroup";
 import MenuProductHeader from "./components/MenuProductHeader";
 import MenuProductPrice from "./components/MenuProductPrice";

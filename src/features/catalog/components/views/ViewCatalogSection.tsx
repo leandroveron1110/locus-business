@@ -119,7 +119,7 @@ export default function ViewCatalogSection({
 
       {!isCollapsed &&
         (sortedProducts.length > 0 ? (
-          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {sortedProducts.map((product) => (
               <CatalogProduct
                 key={product.id}

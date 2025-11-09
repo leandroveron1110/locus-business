@@ -141,7 +141,7 @@ export default function CatalogMenu({ menuId, ownerId, businessId }: Props) {
         </header>
 
         {/* Contenedor de Secciones */}
-        <div className="p-8 space-y-8">
+        <div className="p-3 space-y-8">
           {sortedSections.map((section) => (
             <CatalogSection
               key={section.id}

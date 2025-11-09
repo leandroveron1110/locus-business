@@ -13,15 +13,23 @@ import {
   SectionCreate,
 } from "../types/catlog";
 import { handleApiError } from "@/lib/handleApiError";
-import { apiDelete, apiGet, apiPatch, apiPost, apiPut, ApiResult } from "@/lib/apiFetch";
+import {
+  apiDelete,
+  apiGet,
+  apiPatch,
+  apiPost,
+  apiPut,
+  ApiResult,
+} from "@/lib/apiFetch";
 import { IGlobalImage } from "@/types/global-image";
-
 
 // -----------------------------
 // CATALOG
 // -----------------------------
 
-export const fetchCatalogByBusinessID = async (businessId: string): Promise<ApiResult<IMenu[]>> => {
+export const fetchCatalogByBusinessID = async (
+  businessId: string
+): Promise<ApiResult<IMenu[]>> => {
   try {
     const res = await apiGet<IMenu[]>(`/menus/business/all/${businessId}`);
     return res.data;
@@ -30,34 +38,44 @@ export const fetchCatalogByBusinessID = async (businessId: string): Promise<ApiR
   }
 };
 
-export const fetchMenuProducDetaillByProductId = async (productId: string): Promise<ApiResult<IMenuProduct>> => {
+export const fetchMenuProducDetaillByProductId = async (
+  productId: string
+): Promise<ApiResult<IMenuProduct>> => {
   try {
-    const res = await apiGet<IMenuProduct>(`/menu-products/product/${productId}`);
+    const res = await apiGet<IMenuProduct>(
+      `/menu-products/product/${productId}`
+    );
     return res.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener el detalle del producto");
   }
 };
 
-export const fetchCreateOrder = async (payload: CreateOrderFull): Promise<unknown> => {
+export const fetchCreateOrder = async (
+  payload: CreateOrderFull
+): Promise<unknown> => {
   try {
-    const data  = await apiPost("/orders/full", payload);
+    const data = await apiPost("/orders/full", payload);
     return data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la orden");
   }
 };
 
-export const fetchCreateAddress = async (payload: Address): Promise<ApiResult<AddressCreateDto>> => {
+export const fetchCreateAddress = async (
+  payload: Address
+): Promise<ApiResult<AddressCreateDto>> => {
   try {
-    const data  = await apiPost<AddressCreateDto>("/address", payload);
+    const data = await apiPost<AddressCreateDto>("/address", payload);
     return data.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la dirección");
   }
 };
 
-export const fetchUserAddresses = async (userId: string): Promise<ApiResult<AddressCreateDto[]>> => {
+export const fetchUserAddresses = async (
+  userId: string
+): Promise<ApiResult<AddressCreateDto[]>> => {
   try {
     const res = await apiGet<AddressCreateDto[]>(`/address/user/${userId}`);
     return res.data;
@@ -70,7 +88,9 @@ export const fetchUserAddresses = async (userId: string): Promise<ApiResult<Addr
 // MENUS
 // -----------------------------
 
-export const fetchMenuByBusinessId = async (businessId: string): Promise<ApiResult<IMenu[]>> => {
+export const fetchMenuByBusinessId = async (
+  businessId: string
+): Promise<ApiResult<IMenu[]>> => {
   try {
     const res = await apiGet<IMenu[]>(`menus/business/${businessId}`);
     return res.data;
@@ -79,7 +99,9 @@ export const fetchMenuByBusinessId = async (businessId: string): Promise<ApiResu
   }
 };
 
-export const createMenu = async (newMenu: MenuCreate): Promise<ApiResult<IMenu>> => {
+export const createMenu = async (
+  newMenu: MenuCreate
+): Promise<ApiResult<IMenu>> => {
   try {
     const res = await apiPost<IMenu>(`menus/`, newMenu);
     return res.data;
@@ -88,7 +110,10 @@ export const createMenu = async (newMenu: MenuCreate): Promise<ApiResult<IMenu>>
   }
 };
 
-export const updateMenu = async (menuId: string, data: Partial<MenuCreate>): Promise<ApiResult<IMenu>> => {
+export const updateMenu = async (
+  menuId: string,
+  data: Partial<MenuCreate>
+): Promise<ApiResult<IMenu>> => {
   try {
     const res = await apiPut<IMenu>(`menus/${menuId}`, data);
     return res.data;
@@ -109,18 +134,29 @@ export const deleteMenu = async (menuId: string): Promise<void> => {
 // SECTIONS
 // -----------------------------
 
-export const createSection = async (section: SectionCreate): Promise<ApiResult<IMenuSectionWithProducts>> => {
+export const createSection = async (
+  section: SectionCreate
+): Promise<ApiResult<IMenuSectionWithProducts>> => {
   try {
-    const res = await apiPost<IMenuSectionWithProducts>(`menu/secciones`, section);
+    const res = await apiPost<IMenuSectionWithProducts>(
+      `menu/secciones`,
+      section
+    );
     return res.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al crear la sección");
   }
 };
 
-export const updateSection = async (sectionId: string, data: Partial<SectionCreate>): Promise<ApiResult<IMenuSectionWithProducts>> => {
+export const updateSection = async (
+  sectionId: string,
+  data: Partial<SectionCreate>
+): Promise<ApiResult<IMenuSectionWithProducts>> => {
   try {
-    const res = await apiPatch<IMenuSectionWithProducts>(`menu/secciones/${sectionId}`, data);
+    const res = await apiPatch<IMenuSectionWithProducts>(
+      `menu/secciones/${sectionId}`,
+      data
+    );
     return res.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar la sección");
@@ -139,7 +175,9 @@ export const deleteSection = async (sectionId: string): Promise<void> => {
 // MENU PRODUCTS
 // -----------------------------
 
-export const createMenuProduct = async (product: MenuProductCreate): Promise<ApiResult<IMenuProduct>> => {
+export const createMenuProduct = async (
+  product: MenuProductCreate
+): Promise<ApiResult<IMenuProduct>> => {
   try {
     const res = await apiPost<IMenuProduct>(`menu-products/`, product);
     return res.data;
@@ -148,9 +186,15 @@ export const createMenuProduct = async (product: MenuProductCreate): Promise<Api
   }
 };
 
-export const updateMenuProduct = async (productId: string, data: Partial<MenuProductCreate>): Promise<ApiResult<IMenuProduct>> => {
+export const updateMenuProduct = async (
+  productId: string,
+  data: Partial<MenuProductCreate>
+): Promise<ApiResult<IMenuProduct>> => {
   try {
-    const res = await apiPatch<IMenuProduct>(`menu-products/${productId}`, data);
+    const res = await apiPatch<IMenuProduct>(
+      `menu-products/${productId}`,
+      data
+    );
     return res.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al actualizar el producto");
@@ -165,35 +209,67 @@ export const deleteMenuProduct = async (productId: string): Promise<void> => {
   }
 };
 
-// -----------------------------
-// IMAGE
-// -----------------------------
-
-export const fetchImageGlobal = async () => {
-  try {
-    const res = await apiGet<IGlobalImage[]>(`uploads/global`)
-    return res
-  }catch (error: unknown) {
-    throw handleApiError(error, "Error al buscar las imagenes");
-  }
+interface FetchImageGlobalParams {
+  query?: string; // Hacemos el query opcional
+  lastSyncTime?: string;
 }
 
-export const uploadMenuProductImageGlobal = async (menuProductId: string, imageId: string) => {
+// El hook espera { items: T[], latestTimestamp: string }
+interface FetchImageGlobalResponse {
+    items: IGlobalImage[]; 
+    latestTimestamp: string;
+}
+
+export const fetchImageGlobal = async ({
+  query,
+  lastSyncTime,
+}: FetchImageGlobalParams): Promise<FetchImageGlobalResponse> => {
+  try {
+    // 1. Prepara los parámetros de consulta
+    const params: Record<string, string | undefined> = {};
+    if (query) params.query = query;
+    if (lastSyncTime) params.lastSyncTime = lastSyncTime;
+    
+    const res = await apiGet<IGlobalImage[]>(`uploads/global`, {
+      params,
+    });
+    
+    
+    if ( !res.timestamp || !res.data) {
+        throw new Error("Respuesta de API con formato incorrecto para sincronización.");
+    }
+
+    return {
+        items: res.data, // Los items (IGlobalImage[])
+        latestTimestamp: res.timestamp, // El timestamp del servidor (newSyncTime)
+    };
+  } catch (error: unknown) {
+    throw handleApiError(error, "Error al buscar o sincronizar las imágenes globales");
+  }
+};
+
+export const uploadMenuProductImageGlobal = async (
+  menuProductId: string,
+  imageId: string
+) => {
   try {
     await apiPost(`menu-product-images/link`, {
-      menuProductId, imageId
-    })
-
-  }catch (error: unknown) {
+      menuProductId,
+      imageId,
+    });
+  } catch (error: unknown) {
     throw handleApiError(error, "Error al subir la imagen");
   }
-}
+};
 
-export const uploadMenuProductImage = async (menuProductId: string, file: File): Promise<ApiResult<{ url: string }>> => {
+export const uploadMenuProductImage = async (
+  menuProductId: string,
+  file: File
+): Promise<ApiResult<{ url: string }>> => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await apiPost<{url: string}>(
+    const res = await apiPost<{ url: string }>(
       `menu-product-images/upload?menuProductId=${menuProductId}`,
       formData,
       { headers: { "Content-Type": "multipart/form-data" } }
@@ -216,7 +292,9 @@ export const deleteMenuProductImage = async (menuProductId: string) => {
 // OPTION GROUPS
 // -----------------------------
 
-export const createOptionGroup = async (group: OptionGroupCreate): Promise<ApiResult<IOptionGroup>> => {
+export const createOptionGroup = async (
+  group: OptionGroupCreate
+): Promise<ApiResult<IOptionGroup>> => {
   try {
     const res = await apiPost<IOptionGroup>(`option-groups/`, group);
     return res.data;
@@ -225,7 +303,10 @@ export const createOptionGroup = async (group: OptionGroupCreate): Promise<ApiRe
   }
 };
 
-export const updateOptionGroup = async (groupId: string, data: Partial<OptionGroupCreate>): Promise<ApiResult<IOptionGroup>> => {
+export const updateOptionGroup = async (
+  groupId: string,
+  data: Partial<OptionGroupCreate>
+): Promise<ApiResult<IOptionGroup>> => {
   try {
     const res = await apiPatch<IOptionGroup>(`option-groups/${groupId}`, data);
     return res.data;
@@ -246,7 +327,9 @@ export const deleteOptionGroup = async (groupId: string): Promise<void> => {
 // OPTIONS
 // -----------------------------
 
-export const createOption = async (option: OptionCreate): Promise<ApiResult<IOption>> => {
+export const createOption = async (
+  option: OptionCreate
+): Promise<ApiResult<IOption>> => {
   try {
     const res = await apiPost<IOption>(`options/`, option);
     return res.data;
@@ -255,7 +338,10 @@ export const createOption = async (option: OptionCreate): Promise<ApiResult<IOpt
   }
 };
 
-export const updateOption = async (optionId: string, data: Partial<OptionCreate>): Promise<ApiResult<IOption>> => {
+export const updateOption = async (
+  optionId: string,
+  data: Partial<OptionCreate>
+): Promise<ApiResult<IOption>> => {
   try {
     const res = await apiPatch<IOption>(`options/${optionId}`, data);
     return res.data;

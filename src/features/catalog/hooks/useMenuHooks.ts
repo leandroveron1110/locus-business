@@ -317,12 +317,17 @@ export const useUploadMenuProductImage = (businessId: string) => {
   });
 };
 
-export const useLinkMenuProductImage = (businessId: string) => {
-    return useMutation({
-      mutationFn: ({ menuProductId, imageId }: { menuProductId: string, imageId: string }) => 
-        uploadMenuProductImageGlobal(menuProductId, imageId),
-    });
-  };
+export const useLinkMenuProductImage = () => {
+  return useMutation({
+    mutationFn: ({
+      menuProductId,
+      imageId,
+    }: {
+      menuProductId: string;
+      imageId: string;
+    }) => uploadMenuProductImageGlobal(menuProductId, imageId),
+  });
+};
 
 export const useDeleteMenuProductImage = (businessId: string) => {
   const queryClient = useQueryClient();

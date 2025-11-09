@@ -46,8 +46,10 @@ export default function CatalogProduct({ product, onClick }: Props) {
   ]);
 
   return (
-    <li
-      onClick={onClick}
+    // El componente modificado para parecerse al objetivo:
+
+    <div
+      onClick={isAvailable ? onClick : undefined} // 🔑 Cambiado para deshabilitar el click si no está disponible
       aria-disabled={!isAvailable}
       role="listitem"
       className={`
@@ -57,32 +59,20 @@ export default function CatalogProduct({ product, onClick }: Props) {
         ? "cursor-pointer hover:shadow-md"
         : "cursor-not-allowed opacity-50"
     }
-    `}
+  `}
     >
       <div className="flex flex-col">
-        <div className="flex justify-end gap-1 mb-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              size={10}
-              className={
-                i < Math.round(Number(product.rating) || 0)
-                  ? "text-yellow-400 fill-yellow-400"
-                  : "text-gray-300"
-              }
-            />
-          ))}
-        </div>
-
-        <div className="flex gap-3 items-start ">
-          <div className="relative w-24 h-24 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 flex items-center justify-center bg-gray-50">
+        {/* Contenedor principal de imagen y texto */}
+        <div className="flex gap-3 items-start">
+          {/* 🖼️ IMAGEN (w-20 h-20, redondeado cuadrado) */}
+          <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gray-50 border border-gray-200 flex items-center justify-center">
             {product.imageUrl ? (
-              <Image
+              // Usamos <img> o <Image> de Next.js. Si estás en Next.js, mantén <Image> con los props ajustados.
+              // Aquí usaremos la estructura de <img> simple como en el objetivo
+              <img
                 src={product.imageUrl}
                 alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 96px"
+                className="object-cover w-full h-full"
                 loading="lazy"
               />
             ) : (
@@ -90,23 +80,66 @@ export default function CatalogProduct({ product, onClick }: Props) {
             )}
           </div>
 
-          <div className="flex flex-col flex-grow justify-center">
-            {/* Título */}
-            <h4 className="text-sm font-semibold text-gray-900 uppercase pr-2 line-clamp-1">
-              {product.name}
-            </h4>
+          {/* 📝 CONTENIDO DE TEXTO */}
+          <div
+            className={`
+          flex flex-col flex-grow justify-between min-h-[80px]
+          ${
+            !product.description &&
+            !product.isMostOrdered &&
+            !product.isRecommended
+              ? "py-1"
+              : ""
+          }
+        `}
+          >
+            <div>
+              {/* 🔹 Título + Rating */}
+              <div className="flex justify-between items-center">
+                <h4 className="text-sm font-semibold text-gray-900 uppercase pr-2 line-clamp-1">
+                  {product.name}
+                </h4>
 
-            {/* Descripción (condicional) */}
-            {product.description && (
-              <p className="text-gray-600 text-[10px] line-clamp-2">
-                {product.description}
-              </p>
-            )}
+                {/* Rating (Número y una sola estrella) */}
+                <div className="flex items-center text-[11px] text-gray-700 font-medium">
+                  {Number(product.rating || 0)}
+                  <Star
+                    size={12}
+                    className="ml-1 text-yellow-400 fill-yellow-400"
+                  />
+                </div>
+              </div>
 
-            {/* Precio y descuento (condicional) */}
-            <div className="flex items-center gap-2">
+              {/* 📝 Descripción (condicional) */}
+              {product.description && (
+                <p className="text-gray-600 text-[10px] line-clamp-2 mt-0.5">
+                  {product.description}
+                </p>
+              )}
+
+              {/* 🏷️ Badges (condicionales) */}
+              {(product.isMostOrdered || product.isRecommended) && (
+                <div className="flex gap-2 mt-1">
+                  {product.isMostOrdered && (
+                    <span className="border border-green-600 text-green-600 text-[8px] px-1.5 py-0.5 rounded-full">
+                      MÁS VENDIDO
+                    </span>
+                  )}
+                  {product.isRecommended && (
+                    <span className="border border-green-600 text-green-600 text-[8px] px-1.5 py-0.5 rounded-full">
+                      MÁS PEDIDO
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 💰 Precio */}
+            {/* Cambiado: el contenedor principal es `div` y los ítems se alinean al final (`items-end`) */}
+            <div className="flex items-end gap-2 mt-1">
               <div className="flex flex-col">
-                <span className="text-base font-semibold text-gray-900">
+                {/* Precio Final + Descuento */}
+                <span className="text-sm text-gray-900">
                   {formatPrice(finalPrice, currencyMask)}{" "}
                   {hasDiscount && (
                     <span className="text-[10px] text-green-600 font-medium">
@@ -114,30 +147,17 @@ export default function CatalogProduct({ product, onClick }: Props) {
                     </span>
                   )}
                 </span>
+                {/* Precio Original Tachado */}
                 {hasDiscount && (
-                  <span className="text-[10px] line-through text-gray-400">
+                  <span className="text-xs line-through text-gray-400">
                     {formatPrice(originalPrice, currencyMask)}
                   </span>
                 )}
               </div>
             </div>
-
-            {/* Badges (condicionales) */}
-            <div className="flex gap-2 mt-1">
-              {product.isMostOrdered && (
-                <span className="border border-green-600 text-green-600 text-[8px] px-1.5 py-0.5 rounded-full">
-                  MÁS VENDIDO
-                </span>
-              )}
-              {product.isRecommended && (
-                <span className="border border-green-600 text-green-600 text-[8px] px-1.5 py-0.5 rounded-full">
-                  MÁS PEDIDO
-                </span>
-              )}
-            </div>
           </div>
         </div>
       </div>
-    </li>
+    </div>
   );
 }
