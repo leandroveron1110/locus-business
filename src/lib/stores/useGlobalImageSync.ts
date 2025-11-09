@@ -1,5 +1,5 @@
 // src/lib/hooks/useGlobalImageSync.ts
-// import { useUserDataSync } from "./useUserDataSync";
+import { useUserDataSync } from "./useUserDataSync";
 import { fetchImageGlobal } from "@/features/catalog/api/catalog-api";
 import { IGlobalImage } from "@/types/global-image";
 import { useGlobalImageStore } from "./globalImageStore";
@@ -31,7 +31,7 @@ export const useGlobalImageSync = () => {
     entityName: "Global Images",
   };
 
-  // const { syncData } = useUserDataSync<GlobalImageEntity>(syncOptions);
+  const { syncData } = useUserDataSync<GlobalImageEntity>(syncOptions);
 
   /**
    * 🚀 Nueva función que permite pasar `query` solo cuando querés buscar.
@@ -43,5 +43,5 @@ export const useGlobalImageSync = () => {
     return res;
   };
 
-  return { syncGlobalImages };
+  return { syncGlobalImages, syncData };
 };
