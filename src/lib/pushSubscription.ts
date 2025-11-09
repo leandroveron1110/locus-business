@@ -99,7 +99,7 @@ export async function subscribeBusinessToPush(
                     return;
                 }
                 console.log("⚠️ La lista de Negocios ha cambiado. Re-suscribiendo...");
-            } catch (e) {
+            } catch {
                 console.error("Error al parsear el estado de suscripción de negocios de localStorage. Re-suscribiendo...");
                 localStorage.removeItem(BUSINESS_SUB_STATUS_STORAGE); // Limpiar dato corrupto
             }
