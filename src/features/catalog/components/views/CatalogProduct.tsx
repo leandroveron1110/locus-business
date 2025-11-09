@@ -1,7 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
 import { Star, Package } from "lucide-react"; // 👈 agregamos un icono para fallback
-import Image from "next/image";
 import { formatPrice } from "@/features/common/utils/formatPrice";
 import { IMenuProduct } from "../../types/catlog";
 
