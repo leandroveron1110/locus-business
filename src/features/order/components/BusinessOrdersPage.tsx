@@ -11,7 +11,6 @@ import {
   PaymentStatus,
 } from "../types/order";
 import { Search } from "lucide-react";
-import OrderCard from "./Card/OrderCard";
 import OrdersFilters from "./OrdersFilters";
 import { simplifiedFilters } from "@/features/common/utils/filtersData";
 import { useAlert } from "@/features/common/ui/Alert/Alert";
@@ -39,9 +38,9 @@ export default function BusinessOrdersPage({ businessId }: Props) {
 
   useFetchBusinessOrders(businessId);
   useBusinessOrdersSocket(businessId);
-  const [deliveryCompanies, setDeliveryCompanies] = useState<
-    { id: string; name: string }[]
-  >([]);
+  // const [deliveryCompanies, setDeliveryCompanies] = useState<
+  //   { id: string; name: string }[]
+  // >([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("Todos");
 
@@ -51,20 +50,20 @@ export default function BusinessOrdersPage({ businessId }: Props) {
     }
   }, [businessId, resetNotificationOrder]);
 
-  useEffect(() => {
-    fetchDeliveryCompany()
-      .then((c) => {
-        if (c) setDeliveryCompanies(c);
-      })
-      .catch((e) =>
-        addAlert({
-          message: `Error cargando delivery companies. ${getDisplayErrorMessage(
-            e
-          )} `,
-          type: "error",
-        })
-      );
-  }, [addAlert]);
+  // useEffect(() => {
+  //   fetchDeliveryCompany()
+  //     .then((c) => {
+  //       if (c) setDeliveryCompanies(c);
+  //     })
+  //     .catch((e) =>
+  //       addAlert({
+  //         message: `Error cargando delivery companies. ${getDisplayErrorMessage(
+  //           e
+  //         )} `,
+  //         type: "error",
+  //       })
+  //     );
+  // }, [addAlert]);
 
   // --- filtros y lógica (igual que antes) ---
   const filterOrdersView = (order: Order) => {

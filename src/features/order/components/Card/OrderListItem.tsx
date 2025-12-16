@@ -19,7 +19,7 @@ interface OrderListItemProps {
   onSelectOrder: (orderId: string) => void;
 }
 
-const getShortId = (id: string) => (id ? `#${id.substring(0, 8)}` : "");
+// const getShortId = (id: string) => (id ? `#${id.substring(0, 8)}` : "");
 const formatTime = (dateString: string) =>
   new Date(dateString).toLocaleTimeString([], {
     hour: "2-digit",

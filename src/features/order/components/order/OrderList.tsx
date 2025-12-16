@@ -5,7 +5,6 @@ import {
   Package,
   MessageSquare,
   AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
 import OrderStatusBadge from "../OrderStatusBadge";
 import { formatPrice } from "@/features/common/utils/formatPrice";
@@ -13,7 +12,6 @@ import {
   DeliveryType,
   Order,
   PaymentMethodType,
-  PaymentStatus,
 } from "@/types/order";
 
 interface OrderProps {
