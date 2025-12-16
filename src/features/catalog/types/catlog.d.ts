@@ -1,4 +1,3 @@
-
 // -----------------------------
 // BASE TYPES
 // -----------------------------
@@ -51,6 +50,10 @@ interface MenuProductBase {
   optionGroups?: IOptionGroup[];
   imageUrl?: string | null;
   seccionId: string;
+
+  acceptsCash: boolean;
+  acceptsTransfer: boolean;
+  acceptsQr: boolean;
 }
 
 // -----------------------------
@@ -109,6 +112,9 @@ export interface IMenuProduct extends MenuProductBase {
   available: boolean;
   stock: number;
   preparationTime: number | null;
+  acceptsCash: boolean;
+  acceptsTransfer: boolean;
+  acceptsQr: boolean;
 }
 
 export interface IMenuSectionWithProducts {

@@ -18,6 +18,7 @@ import { useAlert } from "@/features/common/ui/Alert/Alert";
 import { getDisplayErrorMessage } from "@/lib/uiErrors";
 import { useBusinessNotificationsStore } from "../../common/hooks/useBusinessNotificationsStore";
 import { useGlobalBusinessOrdersStore } from "@/lib/stores/orderStoreGlobal";
+import { OrderList } from "./order/OrderList";
 
 interface Props {
   businessId: string;
@@ -183,13 +184,14 @@ export default function BusinessOrdersPage({ businessId }: Props) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 p-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div className="felx 2xl:grid-cols-4 gap-4">
           {filteredAndSortedOrders.map((order) => (
-            <OrderCard
+            <OrderList
               key={order.id}
-              orderId={order.id}
-              businessId={businessId}
-              deliveryCompanies={deliveryCompanies}
+              order={order}
+              // orderId={order.id}
+              // businessId={businessId}
+              // deliveryCompanies={deliveryCompanies}
             />
           ))}
         </div>

@@ -29,8 +29,10 @@ export default function NewMenuProduct({
   onClose,
 }: Props) {
   const { addAlert } = useAlert();
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+
   const [prices, setPrices] = useState({
     originalPrice: "",
     finalPrice: "",
@@ -40,35 +42,42 @@ export default function NewMenuProduct({
   const [stock, setStock] = useState(1);
   const [available, setAvailable] = useState(true);
   const [enabled, setEnabled] = useState(true);
+
   const [flags, setFlags] = useState({
     isMostOrdered: false,
     isRecommended: false,
   });
 
+  // 🆕 Métodos de pago del producto
+  const [paymentMethods, setPaymentMethods] = useState({
+    acceptsCash: true,
+    acceptsTransfer: true,
+    acceptsQr: false,
+  });
+
   const createProduct = useCreateMenuProduct(businessId);
-  const addProduct = useMenuStore((status) => status.addProduct);
-  const replaceTempId = useMenuStore((status) => status.replaceTempId);
-  const deleteProduct = useMenuStore((status) => status.deleteProduct);
-  const updateProduct = useMenuStore((status) => status.updateProduct);
+  const addProduct = useMenuStore((s) => s.addProduct);
+  const replaceTempId = useMenuStore((s) => s.replaceTempId);
+  const deleteProduct = useMenuStore((s) => s.deleteProduct);
+  const updateProduct = useMenuStore((s) => s.updateProduct);
+
   const [saving, setSaving] = useState(false);
 
-  // --- REFERENCIA PARA EL INPUT DE NOMBRE ---
+  // Autofocus en nombre
   const nameInputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     nameInputRef.current?.focus();
   }, []);
 
   const handleCreate = async () => {
-    // 1. Validaciones
     if (!name.trim() || Number(prices.finalPrice) <= 0) return;
 
     setSaving(true);
 
     const tempId = generateTempId();
 
+    // Datos que se envían al servidor
     const newProductCreate: MenuProductCreate = {
-      // Objeto para la API
       name,
       businessId,
       menuId,
@@ -85,10 +94,15 @@ export default function NewMenuProduct({
       hasOptions: false,
       seccionId: sectionId,
       imageUrl: undefined,
+
+      // 🆕 MÉTODOS DE PAGO
+      acceptsCash: paymentMethods.acceptsCash,
+      acceptsTransfer: paymentMethods.acceptsTransfer,
+      acceptsQr: paymentMethods.acceptsQr,
     };
 
+    // Product optimista
     const optimisticProduct: IMenuProduct = {
-      // Usamos el ID temporal
       id: tempId,
       name,
       description,
@@ -102,10 +116,15 @@ export default function NewMenuProduct({
       isRecommended: flags.isRecommended,
       hasOptions: false,
       seccionId: sectionId,
-      currency: "$", // Asumimos un valor por defecto
-      imageUrl: "", // Asumimos un valor por defecto
+      currency: "$",
+      imageUrl: "",
       optionGroups: [],
-      preparationTime: 0, // Asumimos un valor por defecto
+      preparationTime: 0,
+
+      // 🆕 Métodos de pago en store
+      acceptsCash: paymentMethods.acceptsCash,
+      acceptsTransfer: paymentMethods.acceptsTransfer,
+      acceptsQr: paymentMethods.acceptsQr,
     };
 
     addProduct({ menuId, sectionId }, optimisticProduct);
@@ -115,15 +134,17 @@ export default function NewMenuProduct({
       const created = await createProduct.mutateAsync(newProductCreate);
 
       if (created && created.id) {
-        // 6. ✅ ÉXITO: REEMPLAZAR ID TEMPORAL
         replaceTempId(
           "product",
-          { menuId, sectionId }, // IDs de los padres
+          { menuId, sectionId },
           tempId,
-          created.id // ID real
+          created.id
         );
 
-        updateProduct({ menuId, productId: created.id, sectionId }, created);
+        updateProduct(
+          { menuId, productId: created.id, sectionId },
+          created
+        );
 
         addAlert({
           message: `Producto "${created.name}" creado con éxito.`,
@@ -132,7 +153,7 @@ export default function NewMenuProduct({
 
         onClose();
       } else {
-        throw new Error("Producto creado, pero el ID real no fue devuelto.");
+        throw new Error("Producto creado pero el ID real no fue devuelto.");
       }
     } catch (error) {
       deleteProduct({ menuId, sectionId, productId: tempId });
@@ -221,7 +242,43 @@ export default function NewMenuProduct({
         />
       </div>
 
-      {/* --- Acciones --- */}
+      {/* 🆕 MÉTODOS DE PAGO DEL PRODUCTO */}
+      <div className="p-4 border border-gray-200 rounded-xl bg-white">
+        <h4 className="font-semibold text-gray-800 mb-3">
+          Métodos de pago del producto
+        </h4>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <EnabledSwitch
+            enabled={paymentMethods.acceptsCash}
+            onChange={(v) =>
+              setPaymentMethods((p) => ({ ...p, acceptsCash: v }))
+            }
+            label="Efectivo"
+            hint="Permite pagar este producto en efectivo."
+          />
+
+          <EnabledSwitch
+            enabled={paymentMethods.acceptsTransfer}
+            onChange={(v) =>
+              setPaymentMethods((p) => ({ ...p, acceptsTransfer: v }))
+            }
+            label="Transferencia"
+            hint="Permite pagar con transferencia bancaria."
+          />
+
+          <EnabledSwitch
+            enabled={paymentMethods.acceptsQr}
+            onChange={(v) =>
+              setPaymentMethods((p) => ({ ...p, acceptsQr: v }))
+            }
+            label="QR / billeteras"
+            hint="Permite pagar con QR o billeteras digitales."
+          />
+        </div>
+      </div>
+
+      {/* Acciones */}
       <div className="border-t border-gray-200 pt-4 flex flex-col sm:flex-row justify-end gap-3">
         <button
           onClick={onClose}
@@ -229,6 +286,7 @@ export default function NewMenuProduct({
         >
           Cancelar
         </button>
+
         <button
           onClick={handleCreate}
           disabled={saving || !name.trim() || Number(prices.finalPrice) <= 0}

@@ -79,26 +79,19 @@ export default function MenuProduct({
   const getModifiedFields = (): Partial<IMenuProduct> => {
     if (!initialProduct) return {};
 
-    // Cambiamos el tipo de construcción a uno más flexible inicialmente
     const modified: Record<string, unknown> = { id: product.id };
 
     (Object.keys(product) as (keyof IMenuProduct)[]).forEach((key) => {
-      // Es mejor usar '===' para la comparación de igualdad
       if (
         JSON.stringify(product[key]) !== JSON.stringify(initialProduct[key])
       ) {
         const value = product[key];
-
-        // La verificación 'value !== null' sigue siendo esencial para tu lógica de negocio
         if (value !== null) {
-          // Asignamos sin problemas de tipo porque modified es Record<string, unknown>
           modified[key as string] = value;
         }
       }
     });
 
-    // Asertamos el objeto construido a tu tipo final antes de devolverlo.
-    // Esto es seguro ya que Object.keys(product) solo produce claves de IMenuProduct.
     return modified as Partial<IMenuProduct>;
   };
 
@@ -319,6 +312,36 @@ export default function MenuProduct({
         hint="Activa o desactiva la visibilidad del producto."
       />
 
+      {/* -------------------------------
+          Nueva sección: Métodos de pago (producto)
+          ------------------------------- */}
+      <div className="mt-4 p-4 rounded-xl border border-gray-200 bg-white">
+        <h4 className="font-semibold text-gray-800 mb-3">Métodos de pago (producto)</h4>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <EnabledSwitch
+            enabled={product.acceptsCash ?? true}
+            onChange={(val) => handleUpdate({ acceptsCash: val })}
+            label="Acepta efectivo"
+            hint="Si está activo, el cliente puede pagar este producto en efectivo."
+          />
+
+          <EnabledSwitch
+            enabled={product.acceptsTransfer ?? true}
+            onChange={(val) => handleUpdate({ acceptsTransfer: val })}
+            label="Acepta transferencia"
+            hint="Si está activo, el cliente puede pagar este producto por transferencia."
+          />
+
+          <EnabledSwitch
+            enabled={product.acceptsQr ?? false}
+            onChange={(val) => handleUpdate({ acceptsQr: val })}
+            label="Acepta QR / billetera"
+            hint="Si está activo, el cliente puede pagar con QR o billeteras digitales."
+          />
+        </div>
+      </div>
+
       {/* Opciones */}
       <div className="space-y-6 mb-6">
         {(product.optionGroups ?? []).map((group) => (
@@ -358,12 +381,6 @@ export default function MenuProduct({
         >
           Cancelar
         </button>
-        {/* <button
-          className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 disabled:opacity-50"
-          // onClick={}
-        >
-          Eliminar
-        </button> */}
         <button
           onClick={handleSaveAll}
           disabled={saving}
