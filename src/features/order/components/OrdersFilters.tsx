@@ -1,4 +1,4 @@
-import { Order, OrderStatus, PaymentStatus } from "../types/order";
+import { IOrder, OrderStatus, PaymentStatus } from "../types/order";
 
 type StatusFilter = OrderStatus | PaymentStatus;
 
@@ -6,14 +6,14 @@ type StatusFilter = OrderStatus | PaymentStatus;
 interface Filter {
   label: string;
   statuses: StatusFilter[];
-  condition?: (order: Order) => boolean;
+  condition?: (order: IOrder) => boolean;
 }
 
 interface OrdersFiltersProps {
   quickFilters: Filter[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
-  orders: Order[];
+  orders: IOrder[];
 }
 
 export default function OrdersFilters({

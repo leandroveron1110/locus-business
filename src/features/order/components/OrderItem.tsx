@@ -1,6 +1,5 @@
 // src/components/OrderItem.tsx
 
-import React from "react";
 import { OrderItem as TOrderItem } from "../types/order";
 import { Utensils } from "lucide-react";
 

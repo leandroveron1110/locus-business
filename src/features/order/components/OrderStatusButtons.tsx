@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import {
-  Order,
+  IOrder,
   EOrderStatusBusiness,
   DeliveryType,
   OrderStatus,
@@ -8,7 +8,7 @@ import {
 import { Package, Truck } from "lucide-react";
 
 interface Props {
-  order: Order;
+  order: IOrder;
   handleStatusChange: (newStatus: EOrderStatusBusiness) => void;
   setShowDeliverySelector: (show: boolean) => void;
   defaultDeliveryCompanyId: string | null;
