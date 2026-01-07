@@ -1,13 +1,13 @@
 import { apiGet, apiPatch, apiPost, ApiResult } from "@/lib/apiFetch";
-import { Order, SyncResponse } from "../types/order";
+import { IOrder, SyncResponse } from "../types/order";
 import { ICompany } from "../types/company";
 import { handleApiError } from "@/lib/handleApiError";
 
 export const fetchOrdersByBusinessId = async (
   businessId: string
-): Promise<ApiResult<Order[]>> => {
+): Promise<ApiResult<IOrder[]>> => {
   try {
-    const res = await apiGet<Order[]>(`/orders/business/${businessId}`);
+    const res = await apiGet<IOrder[]>(`/orders/business/${businessId}`);
     return res.data;
   } catch (error: unknown) {
     throw handleApiError(error, "Error al obtener las ordenes del negocio");
@@ -45,9 +45,9 @@ export const syncOrdersByBusinessId = async (
 export const fetchUpdateOrdersByOrderID = async (
   orderId: string,
   status: string
-): Promise<ApiResult<Order>> => {
+): Promise<ApiResult<IOrder>> => {
   try {
-    const res = await apiPatch<Order>(`/orders/order/status/${orderId}`, {
+    const res = await apiPatch<IOrder>(`/orders/order/status/${orderId}`, {
       status,
     });
     return res.data;
@@ -59,9 +59,9 @@ export const fetchUpdateOrdersByOrderID = async (
 export const fetchUpdateOrdersPaymentByOrderID = async (
   orderId: string,
   status: string
-): Promise<ApiResult<Order>> => {
+): Promise<ApiResult<IOrder>> => {
   try {
-    const res = await apiPatch<Order>(
+    const res = await apiPatch<IOrder>(
       `/orders/order/payment-status/status/${orderId}`,
       { status }
     );

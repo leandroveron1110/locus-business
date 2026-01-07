@@ -1,145 +1,143 @@
 import {
+  Package,
+  Truck,
   DollarSign,
   Wallet,
-  MapPin,
-  Package,
-  MessageSquare,
-  AlertCircle,
 } from "lucide-react";
+
 import OrderStatusBadge from "../OrderStatusBadge";
 import { formatPrice } from "@/features/common/utils/formatPrice";
 import {
   DeliveryType,
-  Order,
   PaymentMethodType,
 } from "@/types/order";
+import { IOrder } from "../../types/order";
 
-interface OrderProps {
-  order: Order;
-  onViewDetails?: (orderId: string) => void;
+interface Props {
+  order: IOrder;
+  onClick: () => void;
 }
 
-export function OrderList({ order, onViewDetails }: OrderProps) {
-  // ==============================
-  // Helpers
-  // ==============================
-  const isPickup = order.deliveryType === DeliveryType.PICKUP;
-  const paymentInfo =
-    order.paymentType === PaymentMethodType.CASH
-      ? { icon: <DollarSign className="w-3.5 h-3.5 text-green-600" />, text: "Efectivo" }
-      : order.paymentType === PaymentMethodType.TRANSFER
-      ? { icon: <Wallet className="w-3.5 h-3.5 text-blue-600" />, text: "Transferencia" }
-      : { icon: <AlertCircle className="w-3.5 h-3.5 text-gray-400" />, text: "Sin definir" };
+export function OrderList({ order, onClick }: Props) {
+  const createdAt = new Date(order.createdAt);
 
-  const shortId = `#${order.id.slice(0, 6)}`;
-  const DeliveryIcon = isPickup ? Package : MapPin;
-  const deliveryText = isPickup ? "Retiro" : "Envío";
-
-  const formattedDate = new Date(order.createdAt).toLocaleDateString("es-AR", {
+  const date = createdAt.toLocaleDateString("es-AR", {
     day: "2-digit",
     month: "2-digit",
+    year: '2-digit'
   });
-  const formattedTime = new Date(order.createdAt).toLocaleTimeString([], {
+
+  const time = createdAt.toLocaleTimeString("es-AR", {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const formattedDateTime = `${formattedDate} ${formattedTime}hs`;
 
-  const hasObservations =
-    order.customerObservations;
+  const DeliveryIcon =
+    order.deliveryType === DeliveryType.PICKUP ? Package : Truck;
 
-  // ==============================
-  // Render
-  // ==============================
+  const PaymentIcon =
+    order.orderPaymentMethod === PaymentMethodType.CASH
+      ? DollarSign
+      : Wallet;
+
   return (
     <div
-      className="w-full border-b border-gray-100 hover:bg-gray-50 transition-colors px-4 py-3 cursor-pointer"
-      onClick={onViewDetails ? () => onViewDetails(order.id) : undefined}
+      onClick={onClick}
+      className="bg-white border-b hover:bg-gray-50 transition cursor-pointer"
     >
-{/* Línea superior */}
-<div className="flex flex-wrap items-center justify-start gap-x-2">
-  <span className="text-sm font-semibold text-gray-900 truncate max-w-[60%]">
-    {order.user.fullName}
-  </span>
+      {/* ================= MOBILE ================= */}
+      <div className="md:hidden p-4 space-y-3">
+        {/* Header */}
+        <div className="flex justify-between items-start">
+          <div className="text-xs text-gray-500">
+            #{order.id.slice(0, 6)} • {date} {time}
+          </div>
 
-  <span className="text-xs text-gray-500 font-mono">
-    {formattedDateTime}
-  </span>
-</div>
+          <span className="font-semibold text-green-700">
+            {formatPrice(order.total)}
+          </span>
+        </div>
 
+        {/* Cliente */}
+        <div className="font-medium truncate">
+          {order.user.fullName}
+        </div>
 
-      {/* Línea principal */}
-      <div className="flex flex-wrap items-center text-xs text-gray-600 mt-1 gap-x-3 gap-y-1">
-        <span className="font-mono text-gray-500">{shortId}</span>
+        {/* Info */}
+        <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+          <span className="flex items-center gap-1">
+            <DeliveryIcon className="w-3.5 h-3.5" />
+            {order.deliveryType === DeliveryType.PICKUP
+              ? "Retiro"
+              : "Domicilio"}
+          </span>
 
-        <span className="text-gray-300">|</span>
+          <span className="flex items-center gap-1">
+            <PaymentIcon className="w-3.5 h-3.5" />
+            {order.orderPaymentMethod === PaymentMethodType.CASH
+              ? "Efectivo"
+              : "Transferencia"}
+          </span>
+        </div>
 
-        {/* Entrega */}
-        <span className="flex items-center">
-          <DeliveryIcon className="w-3.5 h-3.5 mr-1 text-gray-400" />
-          {deliveryText}
-        </span>
-
-        <span className="text-gray-300">|</span>
-
-        {/* Pago */}
-        <span className="flex items-center truncate">
-          {paymentInfo.icon}
-          <span className="ml-1">{paymentInfo.text}</span>
-        </span>
-
-        <span className="text-gray-300">|</span>
-
-        {/* Estado del pago */}
-        {/* <span
-          className={`flex items-center ${
-            order.paymentStatus === PaymentStatus.PAID
-              ? "text-green-600"
-              : order.paymentStatus === PaymentStatus.PENDING
-              ? "text-yellow-600"
-              : "text-red-600"
-          }`}
-        >
-          {order.paymentStatus === PaymentStatus.PAID && (
-            <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-          )}
-          {order.paymentStatus === PaymentStatus.PENDING && (
-            <AlertCircle className="w-3.5 h-3.5 mr-1" />
-          )}
-          {order.paymentStatus === PaymentStatus.REJECTED && (
-            <AlertCircle className="w-3.5 h-3.5 mr-1" />
-          )}
-          {order.paymentStatus}
-        </span> */}
-
-        {/* <span className="text-gray-300">|</span> */}
-
-        {/* Estado de la orden */}
+        {/* Estado */}
         <OrderStatusBadge
           status={order.status}
           paymentStatus={order.paymentStatus}
-          paymentType={order.paymentType}
+          orderPaymentMethod={order.orderPaymentMethod}
+        />
+      </div>
+
+      {/* ================= DESKTOP ================= */}
+      <div className="hidden md:grid grid-cols-[90px_80px_80px_160px_160px_140px_140px_120px] items-center px-4 py-3 text-sm">
+        {/* ID */}
+        <span className="text-xs text-gray-500">
+          #{order.id.slice(0, 6)}
+        </span>
+
+        {/* Fecha */}
+        <span className="text-xs text-gray-500">
+          {date}
+        </span>
+
+        {/* Hora */}
+        <span className="text-xs text-gray-500">
+          {time}
+        </span>
+
+        {/* Cliente */}
+        <span className="truncate font-medium">
+          {order.user.fullName}
+        </span>
+
+        {/* Estado */}
+        <OrderStatusBadge
+          status={order.status}
+          paymentStatus={order.paymentStatus}
+          orderPaymentMethod={order.orderPaymentMethod}
         />
 
-        <span className="text-gray-300">|</span>
+        {/* Tipo */}
+        <span className="flex items-center gap-2 text-gray-700 p-2">
+          <DeliveryIcon className="w-4 h-4" />
+          {order.deliveryType === DeliveryType.PICKUP
+            ? "Retiro"
+            : "Domicilio"}
+        </span>
 
-        {/* Monto */}
-        <span className="text-sm font-semibold text-green-700">
+        {/* Pago */}
+        <span className="flex items-center gap-2 text-gray-700">
+          <PaymentIcon className="w-4 h-4" />
+          {order.orderPaymentMethod === PaymentMethodType.CASH
+            ? "Efectivo"
+            : "Transferencia"}
+        </span>
+
+        {/* Total */}
+        <span className="text-right font-semibold text-green-700">
           {formatPrice(order.total)}
         </span>
       </div>
-
-      {/* Línea de notas/observaciones */}
-      {hasObservations && (
-        <div className="mt-1 flex items-start gap-1 text-xs text-gray-500">
-          <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 mt-[2px] text-gray-400" />
-          <p className="truncate max-w-full">
-            {order.customerObservations ||
-              order.businessObservations ||
-              order.notes}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

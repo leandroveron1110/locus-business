@@ -159,17 +159,17 @@ export default function OrderCard({
 
   const shouldShowTransferPending = useMemo(
     () =>
-      order?.paymentType === PaymentMethodType.TRANSFER &&
+      order?.orderPaymentMethod === PaymentMethodType.TRANSFER &&
       order?.paymentStatus === PaymentStatus.PENDING,
-    [order?.paymentType, order?.paymentStatus]
+    [order?.orderPaymentMethod, order?.paymentStatus]
   );
 
   const shouldShowPaymentReview = useMemo(
     () =>
-      order?.paymentType === PaymentMethodType.TRANSFER &&
+      order?.orderPaymentMethod === PaymentMethodType.TRANSFER &&
       order?.paymentStatus === PaymentStatus.IN_PROGRESS &&
       !!order?.paymentReceiptUrl,
-    [order?.paymentType, order?.paymentStatus, order?.paymentReceiptUrl]
+    [order?.orderPaymentMethod, order?.paymentStatus, order?.paymentReceiptUrl]
   );
 
   if (!order) {
@@ -263,8 +263,8 @@ export default function OrderCard({
     }
   };
 
-  const getPaymentInfo = (paymentType: PaymentMethodType) => {
-    switch (paymentType) {
+  const getPaymentInfo = (orderPaymentMethod: PaymentMethodType) => {
+    switch (orderPaymentMethod) {
       case PaymentMethodType.CASH:
         return {
           icon: <DollarSign className="inline w-4 h-4 mr-1 text-green-600" />,
@@ -283,15 +283,15 @@ export default function OrderCard({
   const getShortId = (id: string) => (id ? `#${id.substring(0, 8)}` : "");
 
   const shouldShowPaymentButtons =
-    ((order.paymentType === PaymentMethodType.CASH &&
+    ((order.orderPaymentMethod === PaymentMethodType.CASH &&
       order.paymentStatus === PaymentStatus.PENDING) ||
-      (order.paymentType === PaymentMethodType.TRANSFER &&
+      (order.orderPaymentMethod === PaymentMethodType.TRANSFER &&
         shouldShowPaymentReview &&
         hasSeenVoucher)) &&
     !paymentActionTaken;
 
   const isPickup = order.deliveryType === DeliveryType.PICKUP;
-  const paymentInfo = getPaymentInfo(order.paymentType);
+  const paymentInfo = getPaymentInfo(order.orderPaymentMethod);
 
   return (
     <div className="w-full sm:max-w-md sm:mx-auto bg-[#f9f9ef] border border-gray-300 rounded-xl p-4 shadow-sm">
@@ -302,7 +302,7 @@ export default function OrderCard({
             <OrderStatusBadge
               status={order.status}
               paymentStatus={order.paymentStatus as PaymentStatus}
-              paymentType={order.paymentType}
+              orderPaymentMethod={order.orderPaymentMethod}
             />
           </span>
         </div>

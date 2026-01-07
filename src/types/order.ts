@@ -33,11 +33,14 @@ export interface OrderOptionGroup {
   options: OrderOption[];
 }
 
+export type ProductPaymentMethod = 'TRANSFER' | 'CASH'
+
 export interface OrderItem {
   id: string;
   productName: string;
   productDescription?: string | null;
   productImageUrl?: string | null;
+  productPaymentMethod: ProductPaymentMethod;
   quantity: number;
   priceAtPurchase: number;
   notes?: string | null;
@@ -65,7 +68,7 @@ export interface Order {
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
   deliveryType: DeliveryType;
-  paymentType: PaymentMethodType;
+  orderPaymentMethod: PaymentMethodType;
   paymentStatus: PaymentStatus;
   paymentReceiptUrl?: string | null;
   paymentInstructions?: string | null;

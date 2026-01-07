@@ -17,10 +17,11 @@ import { OrderStatus, PaymentMethodType, PaymentStatus } from "../types/order";
 interface Props {
   status: OrderStatus;
   paymentStatus?: PaymentStatus;
-  paymentType: PaymentMethodType;
+  orderPaymentMethod: PaymentMethodType;
 }
 
 const statusMap: Record<string, { label: string; color: string; Icon: React.ElementType }> = {
+  // Estados generales del pedido
   [OrderStatus.PENDING]: {
     label: "Pendiente",
     color: "bg-gray-100 text-gray-800",
@@ -28,37 +29,37 @@ const statusMap: Record<string, { label: string; color: string; Icon: React.Elem
   },
   [OrderStatus.CONFIRMED]: {
     label: "Confirmado",
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-green-100 text-green-800",
     Icon: CheckCircle,
   },
   [OrderStatus.PREPARING]: {
     label: "Preparando",
-    color: "bg-sky-100 text-sky-800",
+    color: "bg-blue-100 text-blue-800",
     Icon: Package,
   },
   [OrderStatus.READY_FOR_CUSTOMER_PICKUP]: {
     label: "Listo p/ Retiro",
-    color: "bg-indigo-100 text-indigo-800",
+    color: "bg-teal-100 text-teal-800",
     Icon: Building,
   },
   [OrderStatus.READY_FOR_DELIVERY_PICKUP]: {
     label: "Listo p/ Envío",
-    color: "bg-purple-100 text-purple-800",
+    color: "bg-fuchsia-100 text-fuchsia-800",
     Icon: MapPin,
   },
   [OrderStatus.DELIVERY_ACCEPTED]: {
-    label: "Delivery Aceptó",
-    color: "bg-purple-100 text-purple-800",
+    label: "Delivery Acepto",
+    color: "bg-fuchsia-100 text-fuchsia-800",
     Icon: MapPin,
   },
-  [OrderStatus.DELIVERY_REJECTED]: {
-    label: "Delivery Rechazó",
+    [OrderStatus.DELIVERY_REJECTED]: {
+    label: "Delivery Rechaso",
     color: "bg-red-100 text-red-800",
     Icon: MapPin,
   },
-  [OrderStatus.CANCELLED_BY_DELIVERY]: {
-    label: "Delivery Canceló",
-    color: "bg-red-100 text-red-800",
+    [OrderStatus.CANCELLED_BY_DELIVERY]: {
+    label: "Delivery Cancelo",
+    color: "bg-fuchsia-100 text-fuchsia-800",
     Icon: MapPin,
   },
   [OrderStatus.DELIVERY_PENDING]: {
@@ -73,12 +74,12 @@ const statusMap: Record<string, { label: string; color: string; Icon: React.Elem
   },
   [OrderStatus.DELIVERED]: {
     label: "Entregado",
-    color: "bg-emerald-200 text-emerald-900 font-semibold",
+    color: "bg-emerald-100 text-emerald-800",
     Icon: CheckCircle,
   },
   [OrderStatus.COMPLETED]: {
     label: "Completado",
-    color: "bg-green-200 text-green-900 font-semibold",
+    color: "bg-green-100 text-green-800",
     Icon: CheckCircle,
   },
   [OrderStatus.CANCELLED_BY_USER]: {
@@ -86,7 +87,7 @@ const statusMap: Record<string, { label: string; color: string; Icon: React.Elem
     color: "bg-red-100 text-red-800",
     Icon: XCircle,
   },
-  [OrderStatus.REJECTED_BY_BUSINESS]: {
+  [OrderStatus.CANCELLED_BY_BUSINESS]: {
     label: "Rechazado por negocio",
     color: "bg-red-100 text-red-800",
     Icon: XCircle,
@@ -101,10 +102,10 @@ const statusMap: Record<string, { label: string; color: string; Icon: React.Elem
 export default function OrderStatusBadge({
   status,
   paymentStatus,
-  paymentType,
+  orderPaymentMethod,
 }: Props) {
-  // Pago por transferencia
-  if (paymentType === PaymentMethodType.TRANSFER) {
+  // Lógica específica para estados de pago por transferencia
+  if (orderPaymentMethod === PaymentMethodType.TRANSFER) {
     if (paymentStatus === PaymentStatus.PENDING) {
       return (
         <span
@@ -119,7 +120,7 @@ export default function OrderStatusBadge({
     if (paymentStatus === PaymentStatus.IN_PROGRESS) {
       return (
         <span
-          className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-yellow-400 text-yellow-900 shadow-sm"
+          className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-medium rounded-full bg-yellow-300 text-yellow-900"
           title="El negocio está revisando el comprobante"
         >
           <Loader2 size={12} className="animate-spin" />
@@ -129,8 +130,8 @@ export default function OrderStatusBadge({
     }
   }
 
-  // Pago en efectivo
-  if (paymentType === PaymentMethodType.CASH && status === OrderStatus.PENDING) {
+  // Lógica para estado de pago en efectivo
+  if (orderPaymentMethod === PaymentMethodType.CASH && status === OrderStatus.PENDING) {
     return (
       <span
         className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-medium rounded-full bg-gray-200 text-gray-700"
@@ -142,7 +143,7 @@ export default function OrderStatusBadge({
     );
   }
 
-  // Estados generales
+  // Lógica para el resto de los estados generales
   const s = statusMap[status];
 
   if (!s) {

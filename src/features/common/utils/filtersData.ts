@@ -1,6 +1,6 @@
 // filtersData.ts
 
-import { Order, OrderStatus, PaymentMethodType, PaymentStatus } from "@/features/order/types/order";
+import { IOrder, OrderStatus, PaymentMethodType, PaymentStatus } from "@/features/order/types/order";
 
 
 export const statusPriority: Record<OrderStatus, number> = {
@@ -44,10 +44,10 @@ export const simplifiedFilters = [
       OrderStatus.PENDING,
 
     ],
-    condition: (order: Order) =>
-      (order.paymentType === PaymentMethodType.TRANSFER &&
+    condition: (order: IOrder) =>
+      (order.orderPaymentMethod === PaymentMethodType.TRANSFER &&
       (order.paymentStatus === PaymentStatus.PENDING ||
-        order.paymentStatus === PaymentStatus.IN_PROGRESS) || order.paymentType == PaymentMethodType.CASH && (order.paymentStatus === PaymentStatus.PENDING ||
+        order.paymentStatus === PaymentStatus.IN_PROGRESS) || order.orderPaymentMethod == PaymentMethodType.CASH && (order.paymentStatus === PaymentStatus.PENDING ||
         order.paymentStatus === PaymentStatus.IN_PROGRESS)),
   },
   {

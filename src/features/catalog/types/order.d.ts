@@ -72,7 +72,7 @@ export interface CreateOrderFull {
   items: CreateOrderItem[];
 
   // --- pagos ---
-  paymentType?: PaymentMethodType;       // CASH, TRANSFER, DELIVERY
+  orderPaymentMethod?: PaymentMethodType;       // CASH, TRANSFER, DELIVERY
   paymentStatus?: PaymentStatus;         // PENDING, IN_PROGRESS, CONFIRMED, REJECTED
   paymentReceiptUrl?: string;            // URL del comprobante
   paymentInstructions?: string;          // solo si es transferencia
