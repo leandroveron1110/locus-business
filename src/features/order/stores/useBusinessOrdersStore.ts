@@ -1,10 +1,10 @@
 // src/stores/useBusinessOrdersStore.ts
 import { create } from "zustand";
-import { Order, OrderStatus, PaymentStatus } from "../types/order";
+import { IOrder, OrderStatus, PaymentStatus } from "../types/order";
 
 interface BusinessOrdersState {
-  orders: Order[];
-  addOrder: (order: Order) => void;
+  orders: IOrder[];
+  addOrder: (order: IOrder) => void;
   updateOrderStatus: (orderId: string, status: string) => void;
   updatePaymentStatus: (
     orderId: string,

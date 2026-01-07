@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Order } from "../types/order";
+import { IOrder } from "../types/order";
 import { useBusinessSocket } from "@/features/common/hooks/useBusinessSocket";
 import { useGlobalBusinessOrdersStore } from "@/lib/stores/orderStoreGlobal";
 
@@ -16,7 +16,7 @@ export function useBusinessOrdersSocket(businessId: string) {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("new_order", (order: Order) => {
+    socket.on("new_order", (order: IOrder) => {
       addOrder(businessId, order);
     });
 
